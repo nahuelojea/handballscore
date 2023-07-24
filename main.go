@@ -8,6 +8,8 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/nahuelojea/handballscore/awsgo"
+	"github.com/nahuelojea/handballscore/database"
+	"github.com/nahuelojea/handballscore/handlers"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/secretmanager"
 )
@@ -56,6 +58,32 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtSign"), SecretModel.JWTSign)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
+
+	database.Connect(awsgo.Ctx)
+	if err != nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Error to connect with database " + err.Error(),
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+	}
+
+	respAPI := handlers.ProcessRequest(awsgo.Ctx, request)
+	if respAPI.CustomResp == nil {
+		res = &events.APIGatewayProxyResponse{
+			StatusCode: respAPI.Status,
+			Body:       respAPI.Message,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+		return res, nil
+	} else {
+		return respAPI.CustomResp, nil
+	}
 }
 
 func ValidateParameters() bool {
