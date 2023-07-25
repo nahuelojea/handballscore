@@ -8,9 +8,9 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/nahuelojea/handballscore/awsgo"
-	"github.com/nahuelojea/handballscore/database"
 	"github.com/nahuelojea/handballscore/handlers"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories"
 	"github.com/nahuelojea/handballscore/secretmanager"
 )
 
@@ -59,7 +59,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
-	database.Connect(awsgo.Ctx)
+	repositories.Connect(awsgo.Ctx)
 	if err != nil {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: 500,
