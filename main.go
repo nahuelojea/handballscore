@@ -23,7 +23,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	awsgo.Init()
 
-	if !ValidateParameters() {
+	if !ValidEnvironmentVariables() {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "Error to get environment variables. Must include 'SecretName', 'BucketName', 'UrlPrefix'",
@@ -59,7 +59,8 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
 
-	repositories.Connect(awsgo.Ctx)
+	err = repositories.Connect(awsgo.Ctx)
+
 	if err != nil {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: 500,
@@ -86,7 +87,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 }
 
-func ValidateParameters() bool {
+func ValidEnvironmentVariables() bool {
 	_, parameter := os.LookupEnv("SecretName")
 
 	if !parameter {
