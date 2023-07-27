@@ -28,6 +28,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 		switch ctx.Value(models.Key("path")).(string) {
 		case "register":
 			return routers.Register(ctx)
+		case "login":
+			return routers.Login(ctx)
 		}
 		//
 	case "GET":
