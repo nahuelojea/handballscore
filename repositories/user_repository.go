@@ -48,6 +48,27 @@ func UserLogin(email string, password string) (models.User, bool) {
 	return usu, true
 }
 
+func GetUser(ID string) (models.User, error) {
+	ctx := context.TODO()
+	db := MongoClient.Database(DatabaseName)
+	col := db.Collection(user_collection)
+
+	var user models.User
+	objId, _ := primitive.ObjectIDFromHex(ID)
+
+	condicion := bson.M{
+		"_id": objId,
+	}
+
+	err := col.FindOne(ctx, condicion).Decode(&user)
+	user.Password = ""
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func FindUserByEmail(email string) (models.User, bool, string) {
 	ctx := context.TODO()
 

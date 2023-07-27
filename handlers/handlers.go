@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/jwt"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/routers"
+	"github.com/nahuelojea/handballscore/routers/users"
 )
 
 func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) models.RespApi {
@@ -27,14 +27,15 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 	case "POST":
 		switch ctx.Value(models.Key("path")).(string) {
 		case "register":
-			return routers.Register(ctx)
+			return users.Register(ctx)
 		case "login":
-			return routers.Login(ctx)
+			return users.Login(ctx)
 		}
 		//
 	case "GET":
 		switch ctx.Value(models.Key("path")).(string) {
-
+		case "user":
+			return users.GetUser(request)
 		}
 		//
 	case "PUT":

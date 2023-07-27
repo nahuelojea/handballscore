@@ -1,4 +1,4 @@
-package routers
+package users
 
 import (
 	"context"
