@@ -5,33 +5,34 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories"
+	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
 func GetUser(request events.APIGatewayProxyRequest) models.RespApi {
-	var r models.RespApi
-	r.Status = 400
+	var response models.RespApi
 
 	Id := request.QueryStringParameters["id"]
 	if len(Id) < 1 {
-		r.Message = "'id' param is mandatory"
-		return r
+		response.Status = 400
+		response.Message = "'id' param is mandatory"
+		return response
 	}
 
-	user, err := repositories.GetUser(Id)
+	user, err := users_repository.GetUser(Id)
 	if err != nil {
-		r.Message = "Error to get user " + err.Error()
-		return r
+		response.Status = 404
+		response.Message = "Error to get user: " + err.Error()
+		return response
 	}
 
 	jsonResponse, err := json.Marshal(user)
 	if err != nil {
-		r.Status = 500
-		r.Message = "Error formating user to JSON " + err.Error()
-		return r
+		response.Status = 500
+		response.Message = "Error formating user to JSON " + err.Error()
+		return response
 	}
 
-	r.Status = 200
-	r.Message = string(jsonResponse)
-	return r
+	response.Status = 200
+	response.Message = string(jsonResponse)
+	return response
 }

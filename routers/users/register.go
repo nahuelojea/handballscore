@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories"
+	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
 func Register(ctx context.Context) models.RespApi {
@@ -33,14 +33,14 @@ func Register(ctx context.Context) models.RespApi {
 		return restApiModel
 	}
 
-	_, exist, _ := repositories.FindUserByEmail(userModel.Email)
+	_, exist, _ := users_repository.FindUserByEmail(userModel.Email)
 	if exist {
 		restApiModel.Message = "There is already a registered user with this email"
 		fmt.Println(restApiModel.Message)
 		return restApiModel
 	}
 
-	_, status, err := repositories.CreateUser(userModel)
+	_, status, err := users_repository.CreateUser(userModel)
 	if err != nil {
 		restApiModel.Message = "Error to register user: " + err.Error()
 		fmt.Println(restApiModel.Message)
@@ -53,7 +53,7 @@ func Register(ctx context.Context) models.RespApi {
 		return restApiModel
 	}
 
-	restApiModel.Status = 200
+	restApiModel.Status = 201
 	restApiModel.Message = "User registered"
 	fmt.Println(restApiModel.Message)
 	return restApiModel

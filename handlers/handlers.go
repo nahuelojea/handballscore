@@ -4,19 +4,28 @@ import (
 	"context"
 	"fmt"
 
+	"golang.org/x/exp/slices"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/jwt"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/routers/users"
 )
 
+func getAuthorizedUrls() []string {
+	return []string{
+		"user/register",
+		"user/login"}
+}
+
 func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) models.RespApi {
+
 	fmt.Println("API Request: " + ctx.Value(models.Key("path")).(string) + " > " + ctx.Value(models.Key("method")).(string))
 
 	var r models.RespApi
 	r.Status = 400
 
-	isOk, statusCode, msg, _ := validAuthorization(ctx, request)
+	isOk, statusCode, msg, claim := validAuthorization(ctx, request)
 	if !isOk {
 		r.Status = statusCode
 		r.Message = msg
@@ -26,9 +35,9 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 	switch ctx.Value(models.Key("method")).(string) {
 	case "POST":
 		switch ctx.Value(models.Key("path")).(string) {
-		case "register":
+		case "user/register":
 			return users.Register(ctx)
-		case "login":
+		case "user/login":
 			return users.Login(ctx)
 		}
 		//
@@ -40,7 +49,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 		//
 	case "PUT":
 		switch ctx.Value(models.Key("path")).(string) {
-
+		case "user":
+			return users.UpdateUser(ctx, claim)
 		}
 		//
 	case "DELETE":
@@ -56,7 +66,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 
 func validAuthorization(ctx context.Context, request events.APIGatewayProxyRequest) (bool, int, string, models.Claim) {
 	path := ctx.Value(models.Key("path")).(string)
-	if path == "register" || path == "login" || path == "getAvatar" {
+
+	if slices.Contains(getAuthorizedUrls(), path) {
 		return true, 200, "", models.Claim{}
 	}
 
@@ -76,6 +87,5 @@ func validAuthorization(ctx context.Context, request events.APIGatewayProxyReque
 		}
 	}
 
-	fmt.Println("Token OK")
 	return true, 200, msg, *claim
 }

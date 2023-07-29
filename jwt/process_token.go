@@ -6,7 +6,7 @@ import (
 
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories"
+	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
 var Email string
@@ -28,7 +28,7 @@ func ProcessToken(token string, JWTSign string) (*models.Claim, bool, string, er
 	})
 	if err == nil {
 		// Rutina que chequea contra la BD
-		_, exist, _ := repositories.FindUserByEmail(claims.Email)
+		_, exist, _ := users_repository.FindUserByEmail(claims.Email)
 		if exist {
 			Email = claims.Email
 			UserId = claims.Id.Hex()

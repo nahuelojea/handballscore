@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/jwt"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories"
+	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
 func Login(ctx context.Context) models.RespApi {
@@ -27,7 +27,7 @@ func Login(ctx context.Context) models.RespApi {
 		r.Message = "Email is required"
 		return r
 	}
-	userData, exist := repositories.UserLogin(t.Email, t.Password)
+	userData, exist := users_repository.UserLogin(t.Email, t.Password)
 	if !exist {
 		r.Message = "Invalid User and/or Password "
 		return r

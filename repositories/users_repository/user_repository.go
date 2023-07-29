@@ -1,8 +1,9 @@
-package repositories
+package users_repository
 
 import (
 	"context"
 
+	"github.com/nahuelojea/handballscore/db"
 	"github.com/nahuelojea/handballscore/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,7 +18,7 @@ const (
 func CreateUser(u models.User) (string, bool, error) {
 	ctx := context.TODO()
 
-	db := MongoClient.Database(DatabaseName)
+	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(user_collection)
 
 	u.Password, _ = encryptPassword(u.Password)
@@ -50,8 +51,8 @@ func UserLogin(email string, password string) (models.User, bool) {
 
 func GetUser(ID string) (models.User, error) {
 	ctx := context.TODO()
-	db := MongoClient.Database(DatabaseName)
-	col := db.Collection(user_collection)
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(user_collection)
 
 	var user models.User
 	objId, _ := primitive.ObjectIDFromHex(ID)
@@ -60,7 +61,7 @@ func GetUser(ID string) (models.User, error) {
 		"_id": objId,
 	}
 
-	err := col.FindOne(ctx, condicion).Decode(&user)
+	err := collection.FindOne(ctx, condicion).Decode(&user)
 	user.Password = ""
 	if err != nil {
 		return user, err
@@ -69,10 +70,42 @@ func GetUser(ID string) (models.User, error) {
 	return user, nil
 }
 
+func UpdateUser(user models.User, ID string) (bool, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(user_collection)
+
+	register := make(map[string]interface{})
+	if len(user.Name) > 0 {
+		register["name"] = user.Name
+	}
+	if len(user.Surname) > 0 {
+		register["surname"] = user.Surname
+	}
+	if len(user.Avatar) > 0 {
+		register["avatar"] = user.Avatar
+	}
+	register["date_of_birth"] = user.DateOfBirth
+
+	updateString := bson.M{
+		"$set": register,
+	}
+
+	objId, _ := primitive.ObjectIDFromHex(ID)
+	filtro := bson.M{"_id": bson.M{"$eq": objId}}
+
+	_, err := collection.UpdateOne(ctx, filtro, updateString)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func FindUserByEmail(email string) (models.User, bool, string) {
 	ctx := context.TODO()
 
-	db := MongoClient.Database(DatabaseName)
+	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(user_collection)
 
 	condition := bson.M{"email": email}
