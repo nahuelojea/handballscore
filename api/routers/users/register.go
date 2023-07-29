@@ -7,6 +7,7 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories/associations_repository"
 	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
@@ -33,8 +34,20 @@ func Register(ctx context.Context) dto.RestResponse {
 		fmt.Println(restResponse.Message)
 		return restResponse
 	}
+	if len(user.AssociationId) == 0 {
+		restResponse.Message = "Association id is mandatory"
+		fmt.Println(restResponse.Message)
+		return restResponse
+	}
 
-	_, exist, _ := users_repository.FindUserByEmail(user.Email)
+	_, exist, _ := associations_repository.GetAssociation(user.AssociationId)
+	if !exist {
+		restResponse.Message = "No association found with this id"
+		fmt.Println(restResponse.Message)
+		return restResponse
+	}
+
+	_, exist, _ = users_repository.FindUserByEmail(user.Email)
 	if exist {
 		restResponse.Message = "There is already a registered user with this email"
 		fmt.Println(restResponse.Message)
