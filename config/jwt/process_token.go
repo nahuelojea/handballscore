@@ -27,7 +27,6 @@ func ProcessToken(token string, JWTSign string) (*models.Claim, bool, string, er
 		return key, nil
 	})
 	if err == nil {
-		// Rutina que chequea contra la BD
 		_, exist, _ := users_repository.FindUserByEmail(claims.Email)
 		if exist {
 			Email = claims.Email

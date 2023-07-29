@@ -7,11 +7,11 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/nahuelojea/handballscore/awsgo"
-	"github.com/nahuelojea/handballscore/db"
-	"github.com/nahuelojea/handballscore/handlers"
+	"github.com/nahuelojea/handballscore/api/handlers"
+	"github.com/nahuelojea/handballscore/config/awsgo"
+	"github.com/nahuelojea/handballscore/config/db"
+	"github.com/nahuelojea/handballscore/config/secretmanager"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/secretmanager"
 )
 
 func main() {

@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
-func UpdateUser(ctx context.Context, claim models.Claim) models.RespApi {
-	var response models.RespApi
+func UpdateUser(ctx context.Context, claim models.Claim) dto.RestResponse {
+	var response dto.RestResponse
 
 	var user models.User
 

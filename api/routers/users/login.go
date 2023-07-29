@@ -7,14 +7,15 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/nahuelojea/handballscore/jwt"
+	"github.com/nahuelojea/handballscore/config/jwt"
+	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
-func Login(ctx context.Context) models.RespApi {
+func Login(ctx context.Context) dto.RestResponse {
 	var t models.User
-	var r models.RespApi
+	var r dto.RestResponse
 	r.Status = 400
 
 	body := ctx.Value(models.Key("body")).(string)
@@ -39,7 +40,7 @@ func Login(ctx context.Context) models.RespApi {
 		return r
 	}
 
-	resp := models.LoginResponse{
+	resp := dto.LoginResponse{
 		Token: jwtKey,
 	}
 

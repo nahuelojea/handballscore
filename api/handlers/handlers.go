@@ -7,9 +7,10 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/nahuelojea/handballscore/jwt"
+	"github.com/nahuelojea/handballscore/api/routers/users"
+	"github.com/nahuelojea/handballscore/config/jwt"
+	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/routers/users"
 )
 
 func getAuthorizedUrls() []string {
@@ -18,18 +19,18 @@ func getAuthorizedUrls() []string {
 		"user/login"}
 }
 
-func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) models.RespApi {
+func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 
 	fmt.Println("API Request: " + ctx.Value(models.Key("path")).(string) + " > " + ctx.Value(models.Key("method")).(string))
 
-	var r models.RespApi
-	r.Status = 400
+	var restResponse dto.RestResponse
+	restResponse.Status = 400
 
 	isOk, statusCode, msg, claim := validAuthorization(ctx, request)
 	if !isOk {
-		r.Status = statusCode
-		r.Message = msg
-		return r
+		restResponse.Status = statusCode
+		restResponse.Message = msg
+		return restResponse
 	}
 
 	switch ctx.Value(models.Key("method")).(string) {
@@ -60,8 +61,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 		//
 	}
 
-	r.Message = "Method Invalid"
-	return r
+	restResponse.Message = "Method Invalid"
+	return restResponse
 }
 
 func validAuthorization(ctx context.Context, request events.APIGatewayProxyRequest) (bool, int, string, models.Claim) {

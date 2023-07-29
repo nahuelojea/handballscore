@@ -3,7 +3,7 @@ package users_repository
 import (
 	"context"
 
-	"github.com/nahuelojea/handballscore/db"
+	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

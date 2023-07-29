@@ -1,8 +1,8 @@
-package models
+package dto
 
 import "github.com/aws/aws-lambda-go/events"
 
-type RespApi struct {
+type RestResponse struct {
 	Status     int
 	Message    string
 	CustomResp *events.APIGatewayProxyResponse
