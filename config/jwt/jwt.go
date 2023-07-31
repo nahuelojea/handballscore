@@ -5,11 +5,12 @@ import (
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
 )
 
 func Generate(ctx context.Context, t models.User) (string, error) {
-	jwtSign := ctx.Value(models.Key("jwtSign")).(string)
+	jwtSign := ctx.Value(dto.Key("jwtSign")).(string)
 	key := []byte(jwtSign)
 
 	payload := jwt.MapClaims{

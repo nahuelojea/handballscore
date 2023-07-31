@@ -5,16 +5,16 @@ import (
 	"strings"
 
 	jwt "github.com/golang-jwt/jwt/v5"
-	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
 var Email string
 var UserId string
 
-func ProcessToken(token string, JWTSign string) (*models.Claim, bool, string, error) {
+func ProcessToken(token string, JWTSign string) (*dto.Claim, bool, string, error) {
 	key := []byte(JWTSign)
-	var claims models.Claim
+	var claims dto.Claim
 
 	splitToken := strings.Split(token, "Bearer")
 	if len(splitToken) != 2 {

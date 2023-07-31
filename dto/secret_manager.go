@@ -1,4 +1,4 @@
-package models
+package dto
 
 type Secret struct {
 	Host     string `json:"host"`

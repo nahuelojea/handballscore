@@ -18,7 +18,7 @@ func Login(ctx context.Context) dto.RestResponse {
 	var r dto.RestResponse
 	r.Status = 400
 
-	body := ctx.Value(models.Key("body")).(string)
+	body := ctx.Value(dto.Key("body")).(string)
 	err := json.Unmarshal([]byte(body), &t)
 	if err != nil {
 		r.Message = "Invalid User and/or Password " + err.Error()

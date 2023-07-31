@@ -16,7 +16,7 @@ func Register(ctx context.Context) dto.RestResponse {
 	var restResponse dto.RestResponse
 	restResponse.Status = 400
 
-	body := ctx.Value(models.Key("body")).(string)
+	body := ctx.Value(dto.Key("body")).(string)
 	err := json.Unmarshal([]byte(body), &user)
 	if err != nil {
 		restResponse.Message = err.Error()

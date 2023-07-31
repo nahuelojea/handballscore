@@ -11,7 +11,7 @@ import (
 	"github.com/nahuelojea/handballscore/config/awsgo"
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/config/secretmanager"
-	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/dto"
 )
 
 func main() {
@@ -49,15 +49,15 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	path := strings.Replace(request.PathParameters["handballscore"], os.Getenv("UrlPrefix"), "", -1)
 
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("path"), path)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("method"), request.HTTPMethod)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("user"), SecretModel.Username)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("password"), SecretModel.Password)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("host"), SecretModel.Host)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("database"), SecretModel.Database)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("jwtSign"), SecretModel.JWTSign)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("body"), request.Body)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, models.Key("bucketName"), os.Getenv("BucketName"))
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("path"), path)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("method"), request.HTTPMethod)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("user"), SecretModel.Username)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("password"), SecretModel.Password)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("host"), SecretModel.Host)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("database"), SecretModel.Database)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("jwtSign"), SecretModel.JWTSign)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("body"), request.Body)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("bucketName"), os.Getenv("BucketName"))
 
 	err = db.Connect(awsgo.Ctx)
 

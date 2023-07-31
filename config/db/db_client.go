@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/dto"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -13,9 +13,9 @@ var MongoClient *mongo.Client
 var DatabaseName string
 
 func Connect(ctx context.Context) error {
-	user := ctx.Value(models.Key("user")).(string)
-	password := ctx.Value(models.Key("password")).(string)
-	host := ctx.Value(models.Key("host")).(string)
+	user := ctx.Value(dto.Key("user")).(string)
+	password := ctx.Value(dto.Key("password")).(string)
+	host := ctx.Value(dto.Key("host")).(string)
 	connStr := fmt.Sprintf("mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority", user, password, host)
 
 	var clientOptions = options.Client().ApplyURI(connStr)
@@ -33,7 +33,7 @@ func Connect(ctx context.Context) error {
 
 	fmt.Println("Successful connection to database")
 	MongoClient = client
-	DatabaseName = ctx.Value(models.Key("database")).(string)
+	DatabaseName = ctx.Value(dto.Key("database")).(string)
 	return nil
 }
 

@@ -9,12 +9,12 @@ import (
 	"github.com/nahuelojea/handballscore/repositories/users_repository"
 )
 
-func UpdateUser(ctx context.Context, claim models.Claim) dto.RestResponse {
+func UpdateUser(ctx context.Context, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
 
 	var user models.User
 
-	body := ctx.Value(models.Key("body")).(string)
+	body := ctx.Value(dto.Key("body")).(string)
 	err := json.Unmarshal([]byte(body), &user)
 	if err != nil {
 		response.Status = 400

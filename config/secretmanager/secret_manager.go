@@ -7,11 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	"github.com/nahuelojea/handballscore/config/awsgo"
-	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/dto"
 )
 
-func GetSecret(secretName string) (models.Secret, error) {
-	var secretData models.Secret
+func GetSecret(secretName string) (dto.Secret, error) {
+	var secretData dto.Secret
 	fmt.Println("> Getting Secret " + secretName)
 
 	svc := secretsmanager.NewFromConfig(awsgo.Cfg)
