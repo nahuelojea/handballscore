@@ -15,4 +15,5 @@ type Team struct {
 	Email            string             `bson:"email" json:"email"`
 	Logo             string             `bson:"logo" json:"logo,omitempty"`
 	AssociationId    string             `bson:"association_id" json:"association_id,omitempty"`
+	Status_Data
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
@@ -14,7 +15,7 @@ import (
 func Register(ctx context.Context) dto.RestResponse {
 	var user models.User
 	var restResponse dto.RestResponse
-	restResponse.Status = 400
+	restResponse.Status = http.StatusBadRequest
 
 	body := ctx.Value(dto.Key("body")).(string)
 	err := json.Unmarshal([]byte(body), &user)
@@ -53,6 +54,8 @@ func Register(ctx context.Context) dto.RestResponse {
 		fmt.Println(restResponse.Message)
 		return restResponse
 	}
+
+	user.Role = models.Viewer
 
 	_, status, err := users_repository.CreateUser(user)
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 func Login(ctx context.Context) dto.RestResponse {
 	var t models.User
 	var r dto.RestResponse
-	r.Status = 400
+	r.Status = http.StatusBadRequest
 
 	body := ctx.Value(dto.Key("body")).(string)
 	err := json.Unmarshal([]byte(body), &t)
@@ -58,7 +58,7 @@ func Login(ctx context.Context) dto.RestResponse {
 	cookieString := cookie.String()
 
 	res := &events.APIGatewayProxyResponse{
-		StatusCode: 200,
+		StatusCode: http.StatusOK,
 		Body:       string(token),
 		Headers: map[string]string{
 			"Content-Type":                "application/json",
@@ -67,7 +67,7 @@ func Login(ctx context.Context) dto.RestResponse {
 		},
 	}
 
-	r.Status = 200
+	r.Status = http.StatusOK
 	r.Message = string(token)
 	r.CustomResp = res
 

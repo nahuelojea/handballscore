@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
@@ -17,24 +18,24 @@ func UpdateUser(ctx context.Context, claim dto.Claim) dto.RestResponse {
 	body := ctx.Value(dto.Key("body")).(string)
 	err := json.Unmarshal([]byte(body), &user)
 	if err != nil {
-		response.Status = 400
+		response.Status = http.StatusBadRequest
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
 	status, err := users_repository.UpdateUser(user, claim.Id.Hex())
 	if err != nil {
-		response.Status = 500
+		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update user: " + err.Error()
 		return response
 	}
 
 	if !status {
-		response.Status = 500
+		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update user in database"
 		return response
 	}
 
-	response.Status = 200
+	response.Status = http.StatusOK
 	response.Message = "User updated"
 	return response
 }

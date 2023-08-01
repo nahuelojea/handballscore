@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"strings"
 
@@ -25,7 +26,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	if !ValidEnvironmentVariables() {
 		res = &events.APIGatewayProxyResponse{
-			StatusCode: 400,
+			StatusCode: http.StatusBadRequest,
 			Body:       "Error to get environment variables. Must include 'SecretName', 'BucketName', 'UrlPrefix'",
 			Headers: map[string]string{
 				"Content-Type": "application/json",
@@ -38,7 +39,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	if err != nil {
 		res = &events.APIGatewayProxyResponse{
-			StatusCode: 400,
+			StatusCode: http.StatusBadRequest,
 			Body:       "Error to read Secret " + err.Error(),
 			Headers: map[string]string{
 				"Content-Type": "application/json",
@@ -63,7 +64,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	if err != nil {
 		res = &events.APIGatewayProxyResponse{
-			StatusCode: 500,
+			StatusCode: http.StatusInternalServerError,
 			Body:       "Error to connect with database " + err.Error(),
 			Headers: map[string]string{
 				"Content-Type": "application/json",
