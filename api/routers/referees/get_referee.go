@@ -1,4 +1,4 @@
-package users
+package referees
 
 import (
 	"encoding/json"
@@ -6,10 +6,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/repositories/referees_repository"
 )
 
-func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
+func GetReferee(request events.APIGatewayProxyRequest) dto.RestResponse {
 	var restResponse dto.RestResponse
 
 	Id := request.QueryStringParameters["id"]
@@ -19,17 +19,17 @@ func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return restResponse
 	}
 
-	user, err := users_repository.GetUser(Id)
+	referee, err := referees_repository.GetReferee(Id)
 	if err != nil {
 		restResponse.Status = http.StatusNotFound
-		restResponse.Message = "Error to get user: " + err.Error()
+		restResponse.Message = "Error to get referee: " + err.Error()
 		return restResponse
 	}
 
-	jsonResponse, err := json.Marshal(user)
+	jsonResponse, err := json.Marshal(referee)
 	if err != nil {
 		restResponse.Status = http.StatusInternalServerError
-		restResponse.Message = "Error formating user to JSON " + err.Error()
+		restResponse.Message = "Error formating referee to JSON " + err.Error()
 		return restResponse
 	}
 

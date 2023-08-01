@@ -2,7 +2,6 @@ package users_repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -86,7 +85,9 @@ func UpdateUser(user models.User, ID string) (bool, error) {
 	if len(user.Avatar) > 0 {
 		register["personal_data.avatar"] = user.Avatar
 	}
-	register["personal_data.date_of_birth"] = user.DateOfBirth
+	if !user.DateOfBirth.IsZero() {
+		register["personal_data.date_of_birth"] = user.DateOfBirth
+	}
 	if len(user.Dni) > 0 {
 		register["personal_data.dni"] = user.Dni
 	}
@@ -100,8 +101,6 @@ func UpdateUser(user models.User, ID string) (bool, error) {
 
 	objId, _ := primitive.ObjectIDFromHex(ID)
 	filtro := bson.M{"_id": bson.M{"$eq": objId}}
-
-	fmt.Println("ID a modificar: ", ID, objId)
 
 	_, err := collection.UpdateOne(ctx, filtro, updateString)
 	if err != nil {
