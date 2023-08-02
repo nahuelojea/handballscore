@@ -10,30 +10,30 @@ import (
 )
 
 func GetReferee(request events.APIGatewayProxyRequest) dto.RestResponse {
-	var restResponse dto.RestResponse
+	var response dto.RestResponse
 
-	Id := request.QueryStringParameters["id"]
-	if len(Id) < 1 {
-		restResponse.Status = http.StatusBadRequest
-		restResponse.Message = "'id' param is mandatory"
-		return restResponse
+	id := request.QueryStringParameters["id"]
+	if len(id) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "'id' param is mandatory"
+		return response
 	}
 
-	referee, err := referees_repository.GetReferee(Id)
+	referee, err := referees_repository.GetReferee(id)
 	if err != nil {
-		restResponse.Status = http.StatusNotFound
-		restResponse.Message = "Error to get referee: " + err.Error()
-		return restResponse
+		response.Status = http.StatusNotFound
+		response.Message = "Error to get referee: " + err.Error()
+		return response
 	}
 
 	jsonResponse, err := json.Marshal(referee)
 	if err != nil {
-		restResponse.Status = http.StatusInternalServerError
-		restResponse.Message = "Error formating referee to JSON " + err.Error()
-		return restResponse
+		response.Status = http.StatusInternalServerError
+		response.Message = "Error formating referee to JSON " + err.Error()
+		return response
 	}
 
-	restResponse.Status = http.StatusOK
-	restResponse.Message = string(jsonResponse)
-	return restResponse
+	response.Status = http.StatusOK
+	response.Message = string(jsonResponse)
+	return response
 }

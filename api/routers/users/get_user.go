@@ -12,14 +12,14 @@ import (
 func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
-	Id := request.QueryStringParameters["id"]
-	if len(Id) < 1 {
+	id := request.QueryStringParameters["id"]
+	if len(id) < 1 {
 		response.Status = http.StatusBadRequest
 		response.Message = "'id' param is mandatory"
 		return response
 	}
 
-	user, err := users_repository.GetUser(Id)
+	user, err := users_repository.GetUser(id)
 	if err != nil {
 		response.Status = http.StatusNotFound
 		response.Message = "Error to get user: " + err.Error()
