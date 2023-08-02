@@ -8,6 +8,7 @@ import (
 	"github.com/nahuelojea/handballscore/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -51,6 +52,80 @@ func GetReferee(ID string) (models.Referee, error) {
 	}
 
 	return referee, nil
+}
+
+type GetRefereesOptions struct {
+	Name          string
+	Surname       string
+	Dni           string
+	AssociationId string
+	Page          int
+	PageSize      int
+	SortField     string
+	SortOrder     int
+}
+
+func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models.Referee, int64, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(referee_collection)
+
+	filter := bson.M{
+		"association_id": filterOptions.AssociationId,
+	}
+
+	if filterOptions.Name != "" {
+		filter["personal_data.name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
+	}
+	if filterOptions.Surname != "" {
+		filter["personal_data.surname"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}}
+	}
+	if filterOptions.Dni != "" {
+		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
+	}
+
+	page := filterOptions.Page
+	pageSize := filterOptions.PageSize
+
+	sortField := filterOptions.SortField
+	if sortField == "" {
+		sortField = "personal_data.surname"
+	}
+	sortOrder := 1
+	if filterOptions.SortOrder == -1 {
+		sortOrder = -1
+	}
+
+	findOptions := options.Find()
+	findOptions.SetLimit(int64(pageSize))
+	findOptions.SetSkip(int64((page - 1) * pageSize))
+	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+
+	cur, err := collection.Find(ctx, filter, findOptions)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer cur.Close(ctx)
+
+	var referees []models.Referee
+	for cur.Next(ctx) {
+		var referee models.Referee
+		if err := cur.Decode(&referee); err != nil {
+			return nil, 0, err
+		}
+		referees = append(referees, referee)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	totalRecords, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return referees, totalRecords, nil
 }
 
 func UpdateReferee(referee models.Referee, ID string) (bool, error) {

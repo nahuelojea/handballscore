@@ -20,6 +20,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
 			return referees.GetReferee(request)
+		case "referee/filter":
+			return referees.GetReferees(request)
 		case "referee/avatar":
 			return referees.GetAvatar(ctx, request)
 		}
