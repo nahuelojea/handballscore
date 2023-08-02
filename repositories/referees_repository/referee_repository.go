@@ -68,7 +68,9 @@ func UpdateReferee(referee models.Referee, ID string) (bool, error) {
 	if len(referee.Avatar) > 0 {
 		register["personal_data.avatar"] = referee.Avatar
 	}
-	register["personal_data.date_of_birth"] = referee.DateOfBirth
+	if !referee.DateOfBirth.IsZero() {
+		register["personal_data.date_of_birth"] = referee.DateOfBirth
+	}
 	if len(referee.Dni) > 0 {
 		register["personal_data.dni"] = referee.Dni
 	}
