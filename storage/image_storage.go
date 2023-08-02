@@ -6,11 +6,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"mime"
 	"mime/multipart"
 	"net/http"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 
@@ -103,4 +105,27 @@ func UploadImage(ctx context.Context, request events.APIGatewayProxyRequest, res
 		return true, response
 	}
 	return false, dto.RestResponse{}
+}
+
+func GetFile(ctx context.Context, filename string) (*bytes.Buffer, error) {
+	svc := s3.NewFromConfig(awsgo.Cfg)
+
+	bucket := ctx.Value(dto.Key("bucketName")).(string)
+	obj, err := svc.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(filename),
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer obj.Body.Close()
+
+	file, err := ioutil.ReadAll(obj.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	buffer := bytes.NewBuffer(file)
+
+	return buffer, nil
 }

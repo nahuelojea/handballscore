@@ -10,30 +10,30 @@ import (
 )
 
 func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
-	var restResponse dto.RestResponse
+	var response dto.RestResponse
 
 	Id := request.QueryStringParameters["id"]
 	if len(Id) < 1 {
-		restResponse.Status = http.StatusBadRequest
-		restResponse.Message = "'id' param is mandatory"
-		return restResponse
+		response.Status = http.StatusBadRequest
+		response.Message = "'id' param is mandatory"
+		return response
 	}
 
 	user, err := users_repository.GetUser(Id)
 	if err != nil {
-		restResponse.Status = http.StatusNotFound
-		restResponse.Message = "Error to get user: " + err.Error()
-		return restResponse
+		response.Status = http.StatusNotFound
+		response.Message = "Error to get user: " + err.Error()
+		return response
 	}
 
 	jsonResponse, err := json.Marshal(user)
 	if err != nil {
-		restResponse.Status = http.StatusInternalServerError
-		restResponse.Message = "Error formating user to JSON " + err.Error()
-		return restResponse
+		response.Status = http.StatusInternalServerError
+		response.Message = "Error formating user to JSON " + err.Error()
+		return response
 	}
 
-	restResponse.Status = http.StatusOK
-	restResponse.Message = string(jsonResponse)
-	return restResponse
+	response.Status = http.StatusOK
+	response.Message = string(jsonResponse)
+	return response
 }

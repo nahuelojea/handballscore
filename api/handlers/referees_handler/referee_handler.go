@@ -21,13 +21,11 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		case "referee":
 			return referees.GetReferee(request)
 		}
-		//
 	case "PUT":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
 			return referees.UpdateReferee(ctx, request)
 		}
-		//
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
