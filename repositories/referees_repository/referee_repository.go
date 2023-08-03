@@ -2,10 +2,12 @@ package referees_repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,42 +18,21 @@ const (
 )
 
 func CreateReferee(referee models.Referee) (string, bool, error) {
-	ctx := context.TODO()
-
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(referee_collection)
-
-	referee.CreatedDate = time.Now()
-	referee.ModifiedDate = time.Now()
-	referee.Disabled = false
-
-	result, err := collection.InsertOne(ctx, referee)
-	if err != nil {
-		return "", false, err
-	}
-
-	ObjId, _ := result.InsertedID.(primitive.ObjectID)
-	return ObjId.Hex(), true, nil
+	return repositories.Create(referee_collection, &referee)
 }
 
 func GetReferee(ID string) (models.Referee, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(referee_collection)
-
-	var referee models.Referee
-	objId, _ := primitive.ObjectIDFromHex(ID)
-
-	condicion := bson.M{
-		"_id": objId,
-	}
-
-	err := collection.FindOne(ctx, condicion).Decode(&referee)
+	entity, err := repositories.GetById(referee_collection, ID)
 	if err != nil {
-		return referee, err
+		return models.Referee{}, err
 	}
 
-	return referee, nil
+	referee, ok := entity.(*models.Referee)
+	if !ok {
+		return models.Referee{}, fmt.Errorf("Could not convert to Referee type")
+	}
+
+	return *referee, nil
 }
 
 type GetRefereesOptions struct {
@@ -129,78 +110,41 @@ func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models
 }
 
 func UpdateReferee(referee models.Referee, ID string) (bool, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(referee_collection)
-
-	register := make(map[string]interface{})
+	updateDataMap := make(map[string]interface{})
 	if len(referee.Name) > 0 {
-		register["personal_data.name"] = referee.Name
+		updateDataMap["personal_data.name"] = referee.Name
 	}
 	if len(referee.Surname) > 0 {
-		register["personal_data.surname"] = referee.Surname
+		updateDataMap["personal_data.surname"] = referee.Surname
 	}
 	if len(referee.Avatar) > 0 {
-		register["personal_data.avatar"] = referee.Avatar
+		updateDataMap["personal_data.avatar"] = referee.Avatar
 	}
 	if !referee.DateOfBirth.IsZero() {
-		register["personal_data.date_of_birth"] = referee.DateOfBirth
+		updateDataMap["personal_data.date_of_birth"] = referee.DateOfBirth
 	}
 	if len(referee.Dni) > 0 {
-		register["personal_data.dni"] = referee.Dni
+		updateDataMap["personal_data.dni"] = referee.Dni
 	}
 	if len(referee.PhoneNumber) > 0 {
-		register["personal_data.phone_number"] = referee.PhoneNumber
+		updateDataMap["personal_data.phone_number"] = referee.PhoneNumber
 	}
-	register["status_data.modified_date"] = time.Now()
+	updateDataMap["status_data.modified_date"] = time.Now()
 
-	updateString := bson.M{
-		"$set": register,
-	}
-
-	objId, _ := primitive.ObjectIDFromHex(ID)
-	filtro := bson.M{"_id": bson.M{"$eq": objId}}
-
-	_, err := collection.UpdateOne(ctx, filtro, updateString)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return repositories.Update(referee_collection, updateDataMap, ID)
 }
 
 func DisableReferee(ID string) (bool, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(referee_collection)
-
-	register := make(map[string]interface{})
-
-	register["status_data.disabled"] = true
-	register["status_data.modified_date"] = time.Now()
-
-	updateString := bson.M{
-		"$set": register,
-	}
-
-	objId, _ := primitive.ObjectIDFromHex(ID)
-	filtro := bson.M{"_id": bson.M{"$eq": objId}}
-
-	_, err := collection.UpdateOne(ctx, filtro, updateString)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return repositories.Disable(referee_collection, ID)
 }
 
-func FindRefereeByDni(dni string) (models.Referee, bool, string) {
+func GetRefereeByDni(dni string) (models.Referee, bool, string) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(referee_collection)
 
-	condition := bson.M{"dni": dni}
+	condition := bson.M{"personal_data.dni": dni}
 
 	var result models.Referee
 
