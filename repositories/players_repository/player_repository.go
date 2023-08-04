@@ -1,4 +1,4 @@
-package referees_repository
+package players_repository
 
 import (
 	"context"
@@ -12,27 +12,28 @@ import (
 )
 
 const (
-	referee_collection = "referees"
+	player_collection = "players"
 )
 
-func CreateReferee(referee models.Referee) (string, bool, error) {
-	return repositories.Create(referee_collection, &referee)
+func CreatePlayer(player models.Player) (string, bool, error) {
+	return repositories.Create(player_collection, &player)
 }
 
-func GetReferee(ID string) (models.Referee, error) {
-	var referee models.Referee
-	_, err := repositories.GetById(referee_collection, ID, &referee)
+func GetPlayer(ID string) (models.Player, bool, error) {
+	var player models.Player
+	_, err := repositories.GetById(player_collection, ID, &player)
 	if err != nil {
-		return models.Referee{}, err
+		return models.Player{}, false, err
 	}
 
-	return referee, nil
+	return player, true, nil
 }
 
-type GetRefereesOptions struct {
+type GetPlayersOptions struct {
 	Name          string
 	Surname       string
 	Dni           string
+	Gender        string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -40,10 +41,10 @@ type GetRefereesOptions struct {
 	SortOrder     int
 }
 
-func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models.Referee, int64, error) {
+func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.Player, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(referee_collection)
+	collection := db.Collection(player_collection)
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
@@ -57,6 +58,9 @@ func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models
 	}
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
+	}
+	if filterOptions.Dni != "" {
+		filter["gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
 	}
 
 	page := filterOptions.Page
@@ -82,13 +86,13 @@ func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models
 	}
 	defer cur.Close(ctx)
 
-	var referees []models.Referee
+	var players []models.Player
 	for cur.Next(ctx) {
-		var referee models.Referee
-		if err := cur.Decode(&referee); err != nil {
+		var player models.Player
+		if err := cur.Decode(&player); err != nil {
 			return nil, 0, err
 		}
-		referees = append(referees, referee)
+		players = append(players, player)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -100,46 +104,55 @@ func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models
 		return nil, 0, err
 	}
 
-	return referees, totalRecords, nil
+	return players, totalRecords, nil
 }
 
-func UpdateReferee(referee models.Referee, ID string) (bool, error) {
+func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
-	if len(referee.Name) > 0 {
-		updateDataMap["personal_data.name"] = referee.Name
+	if len(player.Name) > 0 {
+		updateDataMap["personal_data.name"] = player.Name
 	}
-	if len(referee.Surname) > 0 {
-		updateDataMap["personal_data.surname"] = referee.Surname
+	if len(player.Surname) > 0 {
+		updateDataMap["personal_data.surname"] = player.Surname
 	}
-	if len(referee.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = referee.Avatar
+	if len(player.Avatar) > 0 {
+		updateDataMap["personal_data.avatar"] = player.Avatar
 	}
-	if !referee.DateOfBirth.IsZero() {
-		updateDataMap["personal_data.date_of_birth"] = referee.DateOfBirth
+	if !player.DateOfBirth.IsZero() {
+		updateDataMap["personal_data.date_of_birth"] = player.DateOfBirth
 	}
-	if len(referee.Dni) > 0 {
-		updateDataMap["personal_data.dni"] = referee.Dni
+	if len(player.Dni) > 0 {
+		updateDataMap["personal_data.dni"] = player.Dni
 	}
-	if len(referee.PhoneNumber) > 0 {
-		updateDataMap["personal_data.phone_number"] = referee.PhoneNumber
+	if len(player.PhoneNumber) > 0 {
+		updateDataMap["personal_data.phone_number"] = player.PhoneNumber
+	}
+	if len(player.AffiliateNumber) > 0 {
+		updateDataMap["affiliate_number"] = player.AffiliateNumber
+	}
+	if len(player.Gender) > 0 {
+		updateDataMap["gender"] = player.Gender
+	}
+	if len(player.TeamId) > 0 {
+		updateDataMap["team_id"] = player.TeamId
 	}
 
-	return repositories.Update(referee_collection, updateDataMap, ID)
+	return repositories.Update(player_collection, updateDataMap, ID)
 }
 
-func DisableReferee(ID string) (bool, error) {
-	return repositories.Disable(referee_collection, ID)
+func DisablePlayer(ID string) (bool, error) {
+	return repositories.Disable(player_collection, ID)
 }
 
-func GetRefereeByDni(dni string) (models.Referee, bool, string) {
+func GetPlayerByDni(dni string) (models.Player, bool, string) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(referee_collection)
+	collection := db.Collection(player_collection)
 
 	condition := bson.M{"personal_data.dni": dni}
 
-	var result models.Referee
+	var result models.Player
 
 	err := collection.FindOne(ctx, condition).Decode(&result)
 	id := result.Id.Hex()

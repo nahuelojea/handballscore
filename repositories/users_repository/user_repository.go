@@ -37,15 +37,15 @@ func UserLogin(email string, password string) (models.User, bool) {
 	return usu, true
 }
 
-func GetUser(ID string) (models.User, error) {
+func GetUser(ID string) (models.User, bool, error) {
 	var user models.User
 	_, err := repositories.GetById(user_collection, ID, &user)
 	if err != nil {
-		return models.User{}, err
+		return models.User{}, false, err
 	}
 	user.Password = ""
 
-	return user, nil
+	return user, true, nil
 }
 
 func UpdateUser(user models.User, ID string) (bool, error) {

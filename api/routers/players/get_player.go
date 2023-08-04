@@ -1,4 +1,4 @@
-package users
+package players
 
 import (
 	"encoding/json"
@@ -6,10 +6,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/repositories/players_repository"
 )
 
-func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
+func GetPlayer(request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
 	id := request.QueryStringParameters["id"]
@@ -19,17 +19,17 @@ func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	user, _, err := users_repository.GetUser(id)
+	player, _, err := players_repository.GetPlayer(id)
 	if err != nil {
 		response.Status = http.StatusNotFound
-		response.Message = "Error to get user: " + err.Error()
+		response.Message = "Error to get player: " + err.Error()
 		return response
 	}
 
-	jsonResponse, err := json.Marshal(user)
+	jsonResponse, err := json.Marshal(player)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error formating user to JSON " + err.Error()
+		response.Message = "Error formating player to JSON " + err.Error()
 		return response
 	}
 

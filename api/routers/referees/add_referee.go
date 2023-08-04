@@ -31,6 +31,10 @@ func AddReferee(ctx context.Context) dto.RestResponse {
 		restResponse.Message = "Surname is required"
 		return restResponse
 	}
+	if len(referee.Dni) == 0 {
+		restResponse.Message = "Dni is required"
+		return restResponse
+	}
 	if len(referee.AssociationId) == 0 {
 		restResponse.Message = "Association id is mandatory"
 		return restResponse

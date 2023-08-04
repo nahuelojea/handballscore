@@ -1,4 +1,4 @@
-package users
+package players
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/repositories/players_repository"
 	"github.com/nahuelojea/handballscore/storage"
 )
 
@@ -23,17 +23,17 @@ func GetAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.R
 		return response
 	}
 
-	user, _, err := users_repository.GetUser(Id)
+	player, _, err := players_repository.GetPlayer(Id)
 	if err != nil {
 		response.Status = http.StatusNotFound
-		response.Message = "Error to get user: " + err.Error()
+		response.Message = "Error to get player: " + err.Error()
 		return response
 	}
 
-	var filename = user.Avatar
+	var filename = player.Avatar
 	if len(filename) < 1 {
 		response.Status = http.StatusNotFound
-		response.Message = "The user has no avatar"
+		response.Message = "The player has no avatar"
 		return response
 	}
 
