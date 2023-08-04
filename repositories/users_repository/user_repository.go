@@ -5,8 +5,8 @@ import (
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,21 +15,9 @@ const (
 	password_encrypt_cost = 8
 )
 
-func CreateUser(u models.User) (string, bool, error) {
-	ctx := context.TODO()
-
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(user_collection)
-
-	u.Password, _ = encryptPassword(u.Password)
-
-	result, err := collection.InsertOne(ctx, u)
-	if err != nil {
-		return "", false, err
-	}
-
-	ObjId, _ := result.InsertedID.(primitive.ObjectID)
-	return ObjId.String(), true, nil
+func CreateUser(user models.User) (string, bool, error) {
+	user.Password, _ = encryptPassword(user.Password)
+	return repositories.Create(user_collection, &user)
 }
 
 func UserLogin(email string, password string) (models.User, bool) {
@@ -50,64 +38,38 @@ func UserLogin(email string, password string) (models.User, bool) {
 }
 
 func GetUser(ID string) (models.User, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(user_collection)
-
 	var user models.User
-	objId, _ := primitive.ObjectIDFromHex(ID)
-
-	condicion := bson.M{
-		"_id": objId,
-	}
-
-	err := collection.FindOne(ctx, condicion).Decode(&user)
-	user.Password = ""
+	_, err := repositories.GetById(user_collection, ID, &user)
 	if err != nil {
-		return user, err
+		return models.User{}, err
 	}
+	user.Password = ""
 
 	return user, nil
 }
 
 func UpdateUser(user models.User, ID string) (bool, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(user_collection)
-
-	register := make(map[string]interface{})
+	updateDataMap := make(map[string]interface{})
 	if len(user.Name) > 0 {
-		register["personal_data.name"] = user.Name
+		updateDataMap["personal_data.name"] = user.Name
 	}
 	if len(user.Surname) > 0 {
-		register["personal_data.surname"] = user.Surname
+		updateDataMap["personal_data.surname"] = user.Surname
 	}
 	if len(user.Avatar) > 0 {
-		register["personal_data.avatar"] = user.Avatar
+		updateDataMap["personal_data.avatar"] = user.Avatar
 	}
 	if !user.DateOfBirth.IsZero() {
-		register["personal_data.date_of_birth"] = user.DateOfBirth
+		updateDataMap["personal_data.date_of_birth"] = user.DateOfBirth
 	}
 	if len(user.Dni) > 0 {
-		register["personal_data.dni"] = user.Dni
+		updateDataMap["personal_data.dni"] = user.Dni
 	}
 	if len(user.PhoneNumber) > 0 {
-		register["personal_data.phone_number"] = user.PhoneNumber
+		updateDataMap["personal_data.phone_number"] = user.PhoneNumber
 	}
 
-	updateString := bson.M{
-		"$set": register,
-	}
-
-	objId, _ := primitive.ObjectIDFromHex(ID)
-	filtro := bson.M{"_id": bson.M{"$eq": objId}}
-
-	_, err := collection.UpdateOne(ctx, filtro, updateString)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return repositories.Update(user_collection, updateDataMap, ID)
 }
 
 func FindUserByEmail(email string) (models.User, bool, string) {
@@ -116,11 +78,11 @@ func FindUserByEmail(email string) (models.User, bool, string) {
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(user_collection)
 
-	condition := bson.M{"email": email}
+	filter := bson.M{"email": email}
 
 	var result models.User
 
-	err := collection.FindOne(ctx, condition).Decode(&result)
+	err := collection.FindOne(ctx, filter).Decode(&result)
 	id := result.Id.Hex()
 	if err != nil {
 		return result, false, id

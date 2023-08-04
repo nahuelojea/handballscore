@@ -26,15 +26,14 @@ func GetReferees(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	// Convertir los parámetros de paginación a números enteros
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
-		page = 1 // Si no se proporciona o es inválido, usar página 1 por defecto
+		page = 1
 	}
 
 	pageSize, err := strconv.Atoi(pageSizeStr)
 	if err != nil {
-		pageSize = 20 // Si no se proporciona o es inválido, usar tamaño de página 10 por defecto
+		pageSize = 20
 	}
 
 	filterOptions := referees_repository.GetRefereesOptions{
@@ -55,7 +54,6 @@ func GetReferees(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	// Crear una estructura para la respuesta paginada
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
 		TotalPages:   int(totalRecords / int64(pageSize)),
@@ -64,7 +62,6 @@ func GetReferees(request events.APIGatewayProxyRequest) dto.RestResponse {
 		Items:        refereesList,
 	}
 
-	// Convertir la respuesta paginada a JSON
 	jsonResponse, err := json.Marshal(paginatedResponse)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
@@ -72,7 +69,6 @@ func GetReferees(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	// Asignar la respuesta JSON a la estructura de la respuesta del APIGateway
 	response.Status = http.StatusOK
 	response.Message = string(jsonResponse)
 	return response

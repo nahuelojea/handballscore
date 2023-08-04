@@ -2,7 +2,6 @@ package referees_repository
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
@@ -22,17 +21,13 @@ func CreateReferee(referee models.Referee) (string, bool, error) {
 }
 
 func GetReferee(ID string) (models.Referee, error) {
-	entity, err := repositories.GetById(referee_collection, ID)
+	var referee models.Referee
+	_, err := repositories.GetById(referee_collection, ID, &referee)
 	if err != nil {
 		return models.Referee{}, err
 	}
 
-	referee, ok := entity.(*models.Referee)
-	if !ok {
-		return models.Referee{}, fmt.Errorf("Could not convert to Referee type")
-	}
-
-	return *referee, nil
+	return referee, nil
 }
 
 type GetRefereesOptions struct {

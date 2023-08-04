@@ -9,8 +9,8 @@ import (
 type Referee struct {
 	Id primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Personal_Data
-	Status_Data
 	AssociationId string `bson:"association_id" json:"association_id,omitempty"`
+	Status_Data
 }
 
 func (referee *Referee) SetCreatedDate() {
@@ -23,4 +23,8 @@ func (referee *Referee) SetModifiedDate() {
 
 func (referee *Referee) SetDisabled(disabled bool) {
 	referee.Disabled = disabled
+}
+
+func (referee *Referee) GetAssociationId() string {
+	return referee.AssociationId
 }

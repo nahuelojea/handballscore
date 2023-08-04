@@ -4,4 +4,5 @@ type Entity interface {
 	SetCreatedDate()
 	SetModifiedDate()
 	SetDisabled(disabled bool)
+	GetAssociationId() string
 }
