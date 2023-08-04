@@ -1,4 +1,4 @@
-package players_repository
+package coaches_repository
 
 import (
 	"context"
@@ -12,28 +12,27 @@ import (
 )
 
 const (
-	player_collection = "players"
+	coach_collection = "coaches"
 )
 
-func CreatePlayer(player models.Player) (string, bool, error) {
-	return repositories.Create(player_collection, &player)
+func CreateCoach(coach models.Coach) (string, bool, error) {
+	return repositories.Create(coach_collection, &coach)
 }
 
-func GetPlayer(ID string) (models.Player, bool, error) {
-	var player models.Player
-	_, err := repositories.GetById(player_collection, ID, &player)
+func GetCoach(ID string) (models.Coach, bool, error) {
+	var coach models.Coach
+	_, err := repositories.GetById(coach_collection, ID, &coach)
 	if err != nil {
-		return models.Player{}, false, err
+		return models.Coach{}, false, err
 	}
 
-	return player, true, nil
+	return coach, true, nil
 }
 
-type GetPlayersOptions struct {
+type GetCoachsOptions struct {
 	Name          string
 	Surname       string
 	Dni           string
-	Gender        string
 	TeamId        string
 	AssociationId string
 	Page          int
@@ -42,10 +41,10 @@ type GetPlayersOptions struct {
 	SortOrder     int
 }
 
-func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.Player, int64, error) {
+func GetCoachsFilteredAndPaginated(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(player_collection)
+	collection := db.Collection(coach_collection)
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
@@ -59,9 +58,6 @@ func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.P
 	}
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
-	}
-	if filterOptions.Dni != "" {
-		filter["gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
 	}
 	if filterOptions.Dni != "" {
 		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
@@ -90,13 +86,13 @@ func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.P
 	}
 	defer cur.Close(ctx)
 
-	var players []models.Player
+	var coaches []models.Coach
 	for cur.Next(ctx) {
-		var player models.Player
-		if err := cur.Decode(&player); err != nil {
+		var coach models.Coach
+		if err := cur.Decode(&coach); err != nil {
 			return nil, 0, err
 		}
-		players = append(players, player)
+		coaches = append(coaches, coach)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -108,55 +104,49 @@ func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.P
 		return nil, 0, err
 	}
 
-	return players, totalRecords, nil
+	return coaches, totalRecords, nil
 }
 
-func UpdatePlayer(player models.Player, ID string) (bool, error) {
+func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
-	if len(player.Name) > 0 {
-		updateDataMap["personal_data.name"] = player.Name
+	if len(coach.Name) > 0 {
+		updateDataMap["personal_data.name"] = coach.Name
 	}
-	if len(player.Surname) > 0 {
-		updateDataMap["personal_data.surname"] = player.Surname
+	if len(coach.Surname) > 0 {
+		updateDataMap["personal_data.surname"] = coach.Surname
 	}
-	if len(player.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = player.Avatar
+	if len(coach.Avatar) > 0 {
+		updateDataMap["personal_data.avatar"] = coach.Avatar
 	}
-	if !player.DateOfBirth.IsZero() {
-		updateDataMap["personal_data.date_of_birth"] = player.DateOfBirth
+	if !coach.DateOfBirth.IsZero() {
+		updateDataMap["personal_data.date_of_birth"] = coach.DateOfBirth
 	}
-	if len(player.Dni) > 0 {
-		updateDataMap["personal_data.dni"] = player.Dni
+	if len(coach.Dni) > 0 {
+		updateDataMap["personal_data.dni"] = coach.Dni
 	}
-	if len(player.PhoneNumber) > 0 {
-		updateDataMap["personal_data.phone_number"] = player.PhoneNumber
+	if len(coach.PhoneNumber) > 0 {
+		updateDataMap["personal_data.phone_number"] = coach.PhoneNumber
 	}
-	if len(player.AffiliateNumber) > 0 {
-		updateDataMap["affiliate_number"] = player.AffiliateNumber
-	}
-	if len(player.Gender) > 0 {
-		updateDataMap["gender"] = player.Gender
-	}
-	if len(player.TeamId) > 0 {
-		updateDataMap["team_id"] = player.TeamId
+	if len(coach.TeamId) > 0 {
+		updateDataMap["team_id"] = coach.TeamId
 	}
 
-	return repositories.Update(player_collection, updateDataMap, ID)
+	return repositories.Update(coach_collection, updateDataMap, ID)
 }
 
-func DisablePlayer(ID string) (bool, error) {
-	return repositories.Disable(player_collection, ID)
+func DisableCoach(ID string) (bool, error) {
+	return repositories.Disable(coach_collection, ID)
 }
 
-func GetPlayerByDni(dni string) (models.Player, bool, string) {
+func GetCoachByDni(dni string) (models.Coach, bool, string) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(player_collection)
+	collection := db.Collection(coach_collection)
 
 	condition := bson.M{"personal_data.dni": dni}
 
-	var result models.Player
+	var result models.Coach
 
 	err := collection.FindOne(ctx, condition).Decode(&result)
 	id := result.Id.Hex()

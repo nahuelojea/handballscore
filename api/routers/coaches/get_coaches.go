@@ -1,4 +1,4 @@
-package players
+package coaches
 
 import (
 	"encoding/json"
@@ -7,10 +7,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/players_repository"
+	"github.com/nahuelojea/handballscore/repositories/coaches_repository"
 )
 
-func GetPlayers(request events.APIGatewayProxyRequest) dto.RestResponse {
+func GetCoachs(request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
 	pageStr := request.QueryStringParameters["page"]
@@ -18,7 +18,6 @@ func GetPlayers(request events.APIGatewayProxyRequest) dto.RestResponse {
 	name := request.QueryStringParameters["name"]
 	surname := request.QueryStringParameters["surname"]
 	dni := request.QueryStringParameters["dni"]
-	gender := request.QueryStringParameters["gender"]
 	teamId := request.QueryStringParameters["teamId"]
 	associationId := request.QueryStringParameters["associationId"]
 
@@ -38,11 +37,10 @@ func GetPlayers(request events.APIGatewayProxyRequest) dto.RestResponse {
 		pageSize = 20
 	}
 
-	filterOptions := players_repository.GetPlayersOptions{
+	filterOptions := coaches_repository.GetCoachsOptions{
 		Name:          name,
 		Surname:       surname,
 		Dni:           dni,
-		Gender:        gender,
 		TeamId:        teamId,
 		AssociationId: associationId,
 		Page:          page,
@@ -51,10 +49,10 @@ func GetPlayers(request events.APIGatewayProxyRequest) dto.RestResponse {
 		SortOrder:     1,
 	}
 
-	playersList, totalRecords, err := players_repository.GetPlayersFilteredAndPaginated(filterOptions)
+	coachesList, totalRecords, err := coaches_repository.GetCoachsFilteredAndPaginated(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to get players: " + err.Error()
+		response.Message = "Error to get coaches: " + err.Error()
 		return response
 	}
 
@@ -63,13 +61,13 @@ func GetPlayers(request events.APIGatewayProxyRequest) dto.RestResponse {
 		TotalPages:   int(totalRecords / int64(pageSize)),
 		CurrentPage:  page,
 		PageSize:     pageSize,
-		Items:        playersList,
+		Items:        coachesList,
 	}
 
 	jsonResponse, err := json.Marshal(paginatedResponse)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error formatting players to JSON: " + err.Error()
+		response.Message = "Error formatting coaches to JSON: " + err.Error()
 		return response
 	}
 
