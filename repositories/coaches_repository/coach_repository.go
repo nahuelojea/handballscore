@@ -59,7 +59,7 @@ func GetCoachsFilteredAndPaginated(filterOptions GetCoachsOptions) ([]models.Coa
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
 	}
-	if filterOptions.Dni != "" {
+	if filterOptions.TeamId != "" {
 		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
 	}
 

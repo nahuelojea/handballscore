@@ -9,6 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/nahuelojea/handballscore/api/handlers/categories_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/coaches_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/players_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/referees_handler"
@@ -44,6 +45,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 		entityPath := parts[0]
 
 		switch entityPath {
+		case "category":
+			return categories_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "coach":
 			return coaches_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "user":
