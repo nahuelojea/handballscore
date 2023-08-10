@@ -28,6 +28,6 @@ func (player *Player) SetDisabled(disabled bool) {
 	player.Disabled = disabled
 }
 
-func (player *Player) GetAssociationId() string {
-	return player.AssociationId
+func (player *Player) SetAssociationId(associationId string) {
+	player.AssociationId = associationId
 }

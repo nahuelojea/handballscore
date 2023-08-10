@@ -33,6 +33,6 @@ func (category *Category) SetDisabled(disabled bool) {
 	category.Disabled = disabled
 }
 
-func (category *Category) GetAssociationId() string {
-	return category.AssociationId
+func (category *Category) SetAssociationId(associationId string) {
+	category.AssociationId = associationId
 }

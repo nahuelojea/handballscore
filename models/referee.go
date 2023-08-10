@@ -25,6 +25,6 @@ func (referee *Referee) SetDisabled(disabled bool) {
 	referee.Disabled = disabled
 }
 
-func (referee *Referee) GetAssociationId() string {
-	return referee.AssociationId
+func (referee *Referee) SetAssociationId(associationId string) {
+	referee.AssociationId = associationId
 }

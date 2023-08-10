@@ -21,7 +21,7 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		case "category":
 			return categories.GetCategory(request)
 		case "category/filter":
-			return categories.GetCategories(request)
+			return categories.GetCategories(request, claim)
 		}
 	case "PUT":
 		switch ctx.Value(dto.Key("path")).(string) {

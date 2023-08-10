@@ -17,7 +17,7 @@ const (
 
 func CreateUser(user models.User) (string, bool, error) {
 	user.Password, _ = encryptPassword(user.Password)
-	return repositories.Create(user_collection, &user)
+	return repositories.Create(user_collection, user.AssociationId, &user)
 }
 
 func UserLogin(email string, password string) (models.User, bool) {
@@ -50,23 +50,8 @@ func GetUser(ID string) (models.User, bool, error) {
 
 func UpdateUser(user models.User, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
-	if len(user.Name) > 0 {
-		updateDataMap["personal_data.name"] = user.Name
-	}
-	if len(user.Surname) > 0 {
-		updateDataMap["personal_data.surname"] = user.Surname
-	}
 	if len(user.Avatar) > 0 {
 		updateDataMap["personal_data.avatar"] = user.Avatar
-	}
-	if !user.DateOfBirth.IsZero() {
-		updateDataMap["personal_data.date_of_birth"] = user.DateOfBirth
-	}
-	if len(user.Dni) > 0 {
-		updateDataMap["personal_data.dni"] = user.Dni
-	}
-	if len(user.PhoneNumber) > 0 {
-		updateDataMap["personal_data.phone_number"] = user.PhoneNumber
 	}
 
 	return repositories.Update(user_collection, updateDataMap, ID)

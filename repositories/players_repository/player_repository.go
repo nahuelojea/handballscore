@@ -15,8 +15,8 @@ const (
 	player_collection = "players"
 )
 
-func CreatePlayer(player models.Player) (string, bool, error) {
-	return repositories.Create(player_collection, &player)
+func CreatePlayer(association_id string, player models.Player) (string, bool, error) {
+	return repositories.Create(player_collection, association_id, &player)
 }
 
 func GetPlayer(ID string) (models.Player, bool, error) {

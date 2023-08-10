@@ -14,12 +14,11 @@ func Generate(ctx context.Context, t models.User) (string, error) {
 	key := []byte(jwtSign)
 
 	payload := jwt.MapClaims{
-		"email":         t.Email,
-		"name":          t.Name,
-		"surname":       t.Surname,
-		"date_of_birth": t.DateOfBirth,
-		"_id":           t.Id.Hex(),
-		"exp":           time.Now().Add(time.Hour * 24).Unix(),
+		"email":          t.Email,
+		"role":           t.Role,
+		"association_id": t.AssociationId,
+		"_id":            t.Id.Hex(),
+		"exp":            time.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)

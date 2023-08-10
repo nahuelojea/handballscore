@@ -7,12 +7,11 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/associations_repository"
 	"github.com/nahuelojea/handballscore/repositories/coaches_repository"
 	"github.com/nahuelojea/handballscore/repositories/teams_repository"
 )
 
-func AddCoach(ctx context.Context) dto.RestResponse {
+func AddCoach(ctx context.Context, claim dto.Claim) dto.RestResponse {
 	var coach models.Coach
 	var restResponse dto.RestResponse
 	restResponse.Status = http.StatusBadRequest
@@ -40,18 +39,8 @@ func AddCoach(ctx context.Context) dto.RestResponse {
 		restResponse.Message = "Team id is mandatory"
 		return restResponse
 	}
-	if len(coach.AssociationId) == 0 {
-		restResponse.Message = "Association id is mandatory"
-		return restResponse
-	}
 
-	_, exist, _ := associations_repository.GetAssociation(coach.AssociationId)
-	if !exist {
-		restResponse.Message = "No association found with this id"
-		return restResponse
-	}
-
-	_, exist, _ = teams_repository.GetTeam(coach.TeamId)
+	_, exist, _ := teams_repository.GetTeam(coach.TeamId)
 	if !exist {
 		restResponse.Message = "No team found with this id"
 		return restResponse
@@ -63,7 +52,7 @@ func AddCoach(ctx context.Context) dto.RestResponse {
 		return restResponse
 	}
 
-	id, status, err := coaches_repository.CreateCoach(coach)
+	id, status, err := coaches_repository.CreateCoach(claim.AssociationId, coach)
 	if err != nil {
 		restResponse.Message = "Error to create coach: " + err.Error()
 		return restResponse

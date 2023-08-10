@@ -10,7 +10,7 @@ import (
 	"github.com/nahuelojea/handballscore/repositories/referees_repository"
 )
 
-func GetReferees(request events.APIGatewayProxyRequest) dto.RestResponse {
+func GetReferees(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
 
 	pageStr := request.QueryStringParameters["page"]
@@ -18,7 +18,7 @@ func GetReferees(request events.APIGatewayProxyRequest) dto.RestResponse {
 	name := request.QueryStringParameters["name"]
 	surname := request.QueryStringParameters["surname"]
 	dni := request.QueryStringParameters["dni"]
-	associationId := request.QueryStringParameters["associationId"]
+	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
 		response.Status = http.StatusBadRequest

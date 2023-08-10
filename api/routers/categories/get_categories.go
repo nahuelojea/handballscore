@@ -10,14 +10,14 @@ import (
 	"github.com/nahuelojea/handballscore/repositories/categories_repository"
 )
 
-func GetCategories(request events.APIGatewayProxyRequest) dto.RestResponse {
+func GetCategories(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
 
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	name := request.QueryStringParameters["name"]
 	gender := request.QueryStringParameters["gender"]
-	associationId := request.QueryStringParameters["associationId"]
+	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
 		response.Status = http.StatusBadRequest

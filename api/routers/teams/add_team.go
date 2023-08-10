@@ -7,11 +7,10 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/associations_repository"
 	"github.com/nahuelojea/handballscore/repositories/teams_repository"
 )
 
-func AddTeam(ctx context.Context) dto.RestResponse {
+func AddTeam(ctx context.Context, claim dto.Claim) dto.RestResponse {
 	var team models.Team
 	var restResponse dto.RestResponse
 	restResponse.Status = http.StatusBadRequest
@@ -27,18 +26,8 @@ func AddTeam(ctx context.Context) dto.RestResponse {
 		restResponse.Message = "Name is required"
 		return restResponse
 	}
-	if len(team.AssociationId) == 0 {
-		restResponse.Message = "Association id is mandatory"
-		return restResponse
-	}
 
-	_, exist, _ := associations_repository.GetAssociation(team.AssociationId)
-	if !exist {
-		restResponse.Message = "No association found with this id"
-		return restResponse
-	}
-
-	id, status, err := teams_repository.CreateTeam(team)
+	id, status, err := teams_repository.CreateTeam(claim.AssociationId, team)
 	if err != nil {
 		restResponse.Message = "Error to create team: " + err.Error()
 		return restResponse

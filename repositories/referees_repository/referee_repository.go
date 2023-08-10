@@ -15,8 +15,8 @@ const (
 	referee_collection = "referees"
 )
 
-func CreateReferee(referee models.Referee) (string, bool, error) {
-	return repositories.Create(referee_collection, &referee)
+func CreateReferee(association_id string, referee models.Referee) (string, bool, error) {
+	return repositories.Create(referee_collection, association_id, &referee)
 }
 
 func GetReferee(ID string) (models.Referee, error) {

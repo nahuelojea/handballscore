@@ -20,7 +20,7 @@ type FilterOptions struct {
 	ExtraFields   map[string]interface{}
 }
 
-func Create(collectionName string, entity models.Entity) (string, bool, error) {
+func Create(collectionName string, association_id string, entity models.Entity) (string, bool, error) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
@@ -29,6 +29,7 @@ func Create(collectionName string, entity models.Entity) (string, bool, error) {
 	entity.SetCreatedDate()
 	entity.SetModifiedDate()
 	entity.SetDisabled(false)
+	entity.SetAssociationId(association_id)
 
 	result, err := collection.InsertOne(ctx, entity)
 	if err != nil {

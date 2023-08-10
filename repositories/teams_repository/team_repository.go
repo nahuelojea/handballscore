@@ -24,8 +24,8 @@ type GetTeamsOptions struct {
 	SortOrder     int
 }
 
-func CreateTeam(team models.Team) (string, bool, error) {
-	return repositories.Create(team_collection, &team)
+func CreateTeam(association_id string, team models.Team) (string, bool, error) {
+	return repositories.Create(team_collection, association_id, &team)
 }
 
 func GetTeam(ID string) (models.Team, bool, error) {

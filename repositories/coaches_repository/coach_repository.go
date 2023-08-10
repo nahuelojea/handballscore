@@ -15,8 +15,8 @@ const (
 	coach_collection = "coaches"
 )
 
-func CreateCoach(coach models.Coach) (string, bool, error) {
-	return repositories.Create(coach_collection, &coach)
+func CreateCoach(association_id string, coach models.Coach) (string, bool, error) {
+	return repositories.Create(coach_collection, association_id, &coach)
 }
 
 func GetCoach(ID string) (models.Coach, bool, error) {

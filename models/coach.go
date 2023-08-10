@@ -26,6 +26,6 @@ func (coach *Coach) SetDisabled(disabled bool) {
 	coach.Disabled = disabled
 }
 
-func (coach *Coach) GetAssociationId() string {
-	return coach.AssociationId
+func (coach *Coach) SetAssociationId(associationId string) {
+	coach.AssociationId = associationId
 }

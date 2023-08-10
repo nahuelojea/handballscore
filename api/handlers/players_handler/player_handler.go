@@ -14,14 +14,14 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 	case "POST":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "player":
-			return players.AddPlayer(ctx)
+			return players.AddPlayer(ctx, claim)
 		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "player":
 			return players.GetPlayer(request)
 		case "player/filter":
-			return players.GetPlayers(request)
+			return players.GetPlayers(request, claim)
 		case "player/avatar":
 			return players.GetAvatar(ctx, request)
 		}

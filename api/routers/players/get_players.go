@@ -10,7 +10,7 @@ import (
 	"github.com/nahuelojea/handballscore/repositories/players_repository"
 )
 
-func GetPlayers(request events.APIGatewayProxyRequest) dto.RestResponse {
+func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
 
 	pageStr := request.QueryStringParameters["page"]
@@ -20,7 +20,7 @@ func GetPlayers(request events.APIGatewayProxyRequest) dto.RestResponse {
 	dni := request.QueryStringParameters["dni"]
 	gender := request.QueryStringParameters["gender"]
 	teamId := request.QueryStringParameters["teamId"]
-	associationId := request.QueryStringParameters["associationId"]
+	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
 		response.Status = http.StatusBadRequest

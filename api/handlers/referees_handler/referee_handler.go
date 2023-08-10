@@ -14,14 +14,14 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 	case "POST":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
-			return referees.AddReferee(ctx)
+			return referees.AddReferee(ctx, claim)
 		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
 			return referees.GetReferee(request)
 		case "referee/filter":
-			return referees.GetReferees(request)
+			return referees.GetReferees(request, claim)
 		case "referee/avatar":
 			return referees.GetAvatar(ctx, request)
 		}

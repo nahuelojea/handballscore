@@ -15,8 +15,8 @@ const (
 	category_collection = "categories"
 )
 
-func CreateCategory(category models.Category) (string, bool, error) {
-	return repositories.Create(category_collection, &category)
+func CreateCategory(association_id string, category models.Category) (string, bool, error) {
+	return repositories.Create(category_collection, association_id, &category)
 }
 
 func GetCategory(ID string) (models.Category, bool, error) {
