@@ -7,7 +7,7 @@ type LeaguePhase struct {
 	Teams            []string           `bson:"teams,omitempty" json:"teams"`
 	HomeAndAway      bool               `bson:"home_and_away,omitempty" json:"home_and_away"`
 	ClassifiedNumber int                `bson:"classified_number,omitempty" json:"classified_number"`
-	TeamsRanking     []TeamScore
+	TeamsRanking     []TeamScore        `bson:"teams_ranking,omitempty" json:"teams_ranking"`
 }
 
 type TeamScore struct {
@@ -19,4 +19,37 @@ type TeamScore struct {
 	Losses        int    `bson:"losses,omitempty" json:"losses"`
 	GoalsScored   int    `bson:"goals_scored,omitempty" json:"goals_scored"`
 	GoalsConceded int    `bson:"goals_conceded,omitempty" json:"goals_conceded"`
+}
+
+func (leaguePhase *LeaguePhase) GenerateMatches() []Match {
+	var matches []Match
+
+	if leaguePhase.HomeAndAway {
+		for i, teamA := range leaguePhase.Teams {
+			for j := i + 1; j < len(leaguePhase.Teams); j++ {
+				teamB := leaguePhase.Teams[j]
+
+				matches = append(matches, generateMatch(teamA, teamB, leaguePhase.Id.Hex()))
+				matches = append(matches, generateMatch(teamB, teamA, leaguePhase.Id.Hex()))
+			}
+		}
+	} else {
+		totalTeams := len(leaguePhase.Teams)
+
+		for i := 0; i < totalTeams-1; i++ {
+			for j := i + 1; j < totalTeams; j++ {
+				var local, visiting string
+
+				if (i+j)%2 == 0 {
+					local, visiting = leaguePhase.Teams[i], leaguePhase.Teams[j]
+				} else {
+					local, visiting = leaguePhase.Teams[j], leaguePhase.Teams[i]
+				}
+
+				matches = append(matches, generateMatch(local, visiting, leaguePhase.Id.Hex()))
+			}
+		}
+	}
+
+	return matches
 }

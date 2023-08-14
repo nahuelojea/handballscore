@@ -40,6 +40,39 @@ func Create(collectionName string, association_id string, entity models.Entity) 
 	return ObjID.Hex(), true, nil
 }
 
+func CreateMultiple(collectionName string, associationID string, entities []models.Entity) ([]string, bool, error) {
+	ctx := context.TODO()
+
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(collectionName)
+
+	var documents []interface{}
+
+	for _, entity := range entities {
+		entity.SetCreatedDate()
+		entity.SetModifiedDate()
+		entity.SetDisabled(false)
+		entity.SetAssociationId(associationID)
+		documents = append(documents, entity)
+	}
+
+	result, err := collection.InsertMany(ctx, documents)
+	if err != nil {
+		return nil, false, err
+	}
+
+	var insertedIDs []string
+	for _, objID := range result.InsertedIDs {
+		id, ok := objID.(primitive.ObjectID)
+		if !ok {
+			return nil, false, fmt.Errorf("Failed to get inserted ID")
+		}
+		insertedIDs = append(insertedIDs, id.Hex())
+	}
+
+	return insertedIDs, true, nil
+}
+
 func GetById(collectionName string, Id string, model interface{}) (interface{}, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
