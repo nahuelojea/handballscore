@@ -15,7 +15,7 @@ type Tournament struct {
 	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name          string             `bson:"name" json:"name,omitempty"`
 	CategoryId    string             `bson:"categoty_id" json:"categoty_id,omitempty"`
-	Teams         []string           `bson:"teams" json:"teams,omitempty"`
+	Teams         []MatchTeam        `bson:"teams" json:"teams,omitempty"`
 	LeaguePhase   LeaguePhase        `bson:"league_phase" json:"league_phase,omitempty"`
 	PlayoffPhase  PlayoffPhase       `bson:"playoff_phase" json:"playoff_phase,omitempty"`
 	Status        string             `bson:"status" json:"status,omitempty"`

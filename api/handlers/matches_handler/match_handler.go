@@ -1,4 +1,4 @@
-package categories_handler
+package matches_handler
 
 import (
 	"context"
@@ -13,24 +13,24 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 	switch ctx.Value(dto.Key("method")).(string) {
 	case "POST":
 		switch ctx.Value(dto.Key("path")).(string) {
-		case "category":
+		case "match":
 			//return categories.AddCategory(ctx)
 		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
-		case "category":
+		case "match":
 			return categories.GetCategory(request)
-		case "category/filter":
+		case "match/filter":
 			return categories.GetCategories(request, claim)
 		}
 	case "PUT":
 		switch ctx.Value(dto.Key("path")).(string) {
-		case "category":
+		case "match":
 			//return categories.UpdateCategory(ctx, request)
 		}
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {
-		case "category":
+		case "match":
 			//return categories.DisableCategory(request)
 		}
 	}
