@@ -2,6 +2,7 @@ package matches_repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -114,6 +115,19 @@ func GetMatchesFilteredAndPaginated(filterOptions GetMatchesOptions) ([]models.M
 	}
 
 	return matches, totalRecords, nil
+}
+
+func ProgramMatch(Time time.Time, Place string, Id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+	if !Time.IsZero() {
+		updateDataMap["date"] = Time
+	}
+	if len(Place) > 0 {
+		updateDataMap["place"] = Place
+	}
+	updateDataMap["status"] = models.Programmed
+
+	return repositories.Update(match_collection, updateDataMap, Id)
 }
 
 /*func UpdateMatch(match models.Match, ID string) (bool, error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/nahuelojea/handballscore/api/routers/categories"
+	"github.com/nahuelojea/handballscore/api/routers/matches"
 	"github.com/nahuelojea/handballscore/dto"
 )
 
@@ -19,14 +19,14 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "match":
-			return categories.GetCategory(request)
+			//return categories.GetCategory(request)
 		case "match/filter":
-			return categories.GetCategories(request, claim)
+			//return categories.GetCategories(request, claim)
 		}
 	case "PUT":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "match":
-			//return categories.UpdateCategory(ctx, request)
+			return matches.ProgramMatch(ctx, request)
 		}
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {

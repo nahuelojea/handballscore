@@ -111,9 +111,6 @@ func UpdateTournament(tournament models.Tournament, ID string) (bool, error) {
 	if len(tournament.Champion) > 0 {
 		updateDataMap["champion"] = tournament.Champion
 	}
-	if len(tournament.CategoryId) > 0 {
-		updateDataMap["categoty_id"] = tournament.CategoryId
-	}
 	if len(tournament.Status) > 0 {
 		updateDataMap["status"] = tournament.Status
 	}
