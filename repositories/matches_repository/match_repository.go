@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
+	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories"
 	"go.mongodb.org/mongo-driver/bson"
@@ -126,6 +127,21 @@ func ProgramMatch(Time time.Time, Place string, Id string) (bool, error) {
 		updateDataMap["place"] = Place
 	}
 	updateDataMap["status"] = models.Programmed
+
+	return repositories.Update(match_collection, updateDataMap, Id)
+}
+
+func StartMatch(startMatchRequest dto.StartMatchRequest, Id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["players_local"] = startMatchRequest.PlayersLocal
+	updateDataMap["players_visiting"] = startMatchRequest.PlayersVisiting
+	updateDataMap["coachs_local"] = startMatchRequest.CoachsLocal
+	updateDataMap["coachs_visiting"] = startMatchRequest.CoachsVisiting
+	updateDataMap["referees"] = startMatchRequest.Referees
+	updateDataMap["scorekeeper"] = startMatchRequest.Scorekeeper
+	updateDataMap["timekeeper"] = startMatchRequest.Timekeeper
+	updateDataMap["status"] = models.FirstHalf
 
 	return repositories.Update(match_collection, updateDataMap, Id)
 }

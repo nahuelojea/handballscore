@@ -27,7 +27,9 @@ type Match struct {
 	TeamLocal        MatchTeam          `bson:"team_local" json:"team_local"`
 	TeamVisiting     MatchTeam          `bson:"team_visiting" json:"team_visiting"`
 	PlayersLocal     []MatchPlayer      `bson:"players_local" json:"players_local"`
+	CoachsLocal      []MatchCoach       `bson:"coachs_local" json:"coachs_local"`
 	PlayersVisiting  []MatchPlayer      `bson:"players_visiting" json:"players_visiting"`
+	CoachsVisiting   []MatchCoach       `bson:"coachs_visiting" json:"coachs_visiting"`
 	Referees         []MatchReferee     `bson:"referees" json:"referees"`
 	Place            string             `bson:"place" json:"place"`
 	Scorekeeper      string             `bson:"scorekeeper" json:"scorekeeper"`

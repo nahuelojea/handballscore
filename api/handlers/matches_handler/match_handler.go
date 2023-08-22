@@ -25,8 +25,10 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		}
 	case "PUT":
 		switch ctx.Value(dto.Key("path")).(string) {
-		case "match":
+		case "match/program":
 			return matches.ProgramMatch(ctx, request)
+		case "match/start":
+			return matches.StartMatch(ctx, request)
 		}
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {
