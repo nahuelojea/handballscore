@@ -7,13 +7,13 @@ import (
 )
 
 type Player struct {
-	Id primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Personal_Data
-	Gender          string `bson:"gender" json:"gender,omitempty"`
-	AffiliateNumber string `bson:"affiliate_number" json:"affiliate_number,omitempty"`
-	TeamId          string `bson:"team_id" json:"team_id,omitempty"`
-	AssociationId   string `bson:"association_id" json:"association_id,omitempty"`
-	Status_Data
+	Id              primitive.ObjectID `bson:"_id" json:"id"`
+	Personal_Data   `bson:"personal_data" json:"personal_data"`
+	Gender          string `bson:"gender" json:"gender"`
+	AffiliateNumber string `bson:"affiliate_number" json:"affiliate_number"`
+	TeamId          string `bson:"team_id" json:"team_id"`
+	AssociationId   string `bson:"association_id" json:"association_id"`
+	Status_Data     `bson:"status_data" json:"status_data"`
 }
 
 func (player *Player) SetCreatedDate() {

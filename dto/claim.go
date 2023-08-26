@@ -9,6 +9,6 @@ type Claim struct {
 	Email         string             `json:"email"`
 	Role          string             `json:"role"`
 	AssociationId string             `json:"association_id"`
-	Id            primitive.ObjectID `bson:"_id" json:"_id,omitempty"`
+	Id            primitive.ObjectID `bson:"_id" json:"_id"`
 	jwt.RegisteredClaims
 }

@@ -12,16 +12,16 @@ const (
 )
 
 type Tournament struct {
-	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name          string             `bson:"name" json:"name,omitempty"`
-	CategoryId    string             `bson:"categoty_id" json:"categoty_id,omitempty"`
-	Teams         []MatchTeam        `bson:"teams" json:"teams,omitempty"`
-	LeaguePhase   LeaguePhase        `bson:"league_phase" json:"league_phase,omitempty"`
-	PlayoffPhase  PlayoffPhase       `bson:"playoff_phase" json:"playoff_phase,omitempty"`
-	Status        string             `bson:"status" json:"status,omitempty"`
-	Champion      string             `bson:"champion" json:"champion,omitempty"`
-	AssociationId string             `bson:"association_id" json:"association_id,omitempty"`
-	Status_Data
+	Id            primitive.ObjectID `bson:"_id" json:"id"`
+	Name          string             `bson:"name" json:"name"`
+	CategoryId    string             `bson:"categoty_id" json:"categoty_id"`
+	Teams         []MatchTeam        `bson:"teams" json:"teams"`
+	LeaguePhase   LeaguePhase        `bson:"league_phase" json:"league_phase"`
+	PlayoffPhase  PlayoffPhase       `bson:"playoff_phase" json:"playoff_phase"`
+	Status        string             `bson:"status" json:"status"`
+	Champion      string             `bson:"champion" json:"champion"`
+	AssociationId string             `bson:"association_id" json:"association_id"`
+	Status_Data   `bson:"status_data" json:"status_data"`
 }
 
 func (tournament *Tournament) SetCreatedDate() {

@@ -5,10 +5,10 @@ import (
 )
 
 type Personal_Data struct {
-	Name        string    `bson:"name" json:"name,omitempty"`
-	Surname     string    `bson:"surname" json:"surname,omitempty"`
-	DateOfBirth time.Time `bson:"date_of_birth" json:"date_of_birth,omitempty"`
-	Dni         string    `bson:"dni" json:"dni,omitempty"`
+	Name        string    `bson:"name" json:"name"`
+	Surname     string    `bson:"surname" json:"surname"`
+	DateOfBirth time.Time `bson:"date_of_birth" json:"date_of_birth"`
+	Dni         string    `bson:"dni" json:"dni"`
 	PhoneNumber string    `bson:"phone_number" json:"phone_number"`
-	Avatar      string    `bson:"avatar" json:"avatar,omitempty"`
+	Avatar      string    `bson:"avatar" json:"avatar"`
 }

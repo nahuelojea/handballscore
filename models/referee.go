@@ -7,10 +7,10 @@ import (
 )
 
 type Referee struct {
-	Id primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Personal_Data
-	AssociationId string `bson:"association_id" json:"association_id,omitempty"`
-	Status_Data
+	Id            primitive.ObjectID `bson:"_id" json:"id"`
+	Personal_Data `bson:"personal_data" json:"personal_data"`
+	AssociationId string `bson:"association_id" json:"association_id"`
+	Status_Data   `bson:"status_data" json:"status_data"`
 }
 
 func (referee *Referee) SetCreatedDate() {

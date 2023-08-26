@@ -146,6 +146,21 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, Id string) (bool, error
 	return repositories.Update(match_collection, updateDataMap, Id)
 }
 
+/*func MatchGoal(matchGoalRequest dto.MatchGoalRequest, Id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["players_local"] = startMatchRequest.PlayersLocal
+	updateDataMap["players_visiting"] = startMatchRequest.PlayersVisiting
+	updateDataMap["coachs_local"] = startMatchRequest.CoachsLocal
+	updateDataMap["coachs_visiting"] = startMatchRequest.CoachsVisiting
+	updateDataMap["referees"] = startMatchRequest.Referees
+	updateDataMap["scorekeeper"] = startMatchRequest.Scorekeeper
+	updateDataMap["timekeeper"] = startMatchRequest.Timekeeper
+	updateDataMap["status"] = models.FirstHalf
+
+	return repositories.Update(match_collection, updateDataMap, Id)
+}*/
+
 /*func UpdateMatch(match models.Match, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if len(match.Name) > 0 {

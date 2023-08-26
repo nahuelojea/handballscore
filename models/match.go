@@ -22,7 +22,7 @@ const (
 )
 
 type Match struct {
-	Id               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Id               primitive.ObjectID `bson:"_id" json:"id"`
 	Date             time.Time          `bson:"date" json:"date"`
 	TeamLocal        MatchTeam          `bson:"team_local" json:"team_local"`
 	TeamVisiting     MatchTeam          `bson:"team_visiting" json:"team_visiting"`
@@ -42,24 +42,24 @@ type Match struct {
 	TimeoutsVisiting []TimeOuts         `bson:"timeouts_visiting" json:"timeouts_visiting"`
 	PhaseId          string             `bson:"phase_id" json:"phase_id"`
 	AssociationId    string             `bson:"association_id" json:"association_id"`
-	Status_Data
+	Status_Data      `bson:"status_data" json:"status_data"`
 }
 
 type MatchPlayer struct {
 	Id              string `bson:"_id" json:"id"`
 	Name            string `bson:"name" json:"name"`
-	AffiliateNumber string `bson:"affiliate_number" json:"affiliate_number,omitempty"`
+	AffiliateNumber string `bson:"affiliate_number" json:"affiliate_number"`
 	Avatar          string `bson:"avatar" json:"avatar"`
 	Number          string `bson:"number" json:"number"`
-	Goals
-	Sanctions
+	Goals           `bson:"goals" json:"goals"`
+	Sanctions       `bson:"sanctions" json:"sanctions"`
 }
 
 type MatchCoach struct {
-	Id     string `bson:"_id" json:"id"`
-	Name   string `bson:"name" json:"name"`
-	Avatar string `bson:"avatar" json:"avatar"`
-	Sanctions
+	Id        string `bson:"_id" json:"id"`
+	Name      string `bson:"name" json:"name"`
+	Avatar    string `bson:"avatar" json:"avatar"`
+	Sanctions `bson:"sanctions" json:"sanctions"`
 }
 
 type MatchReferee struct {

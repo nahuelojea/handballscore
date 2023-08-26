@@ -14,13 +14,13 @@ const (
 type Role string
 
 type User struct {
-	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Id            primitive.ObjectID `bson:"_id" json:"id"`
 	Email         string             `bson:"email" json:"email"`
 	Password      string             `bson:"password" json:"password,omitempty"`
-	Role          Role               `bson:"role" json:"role,omitempty"`
-	Avatar        string             `bson:"avatar" json:"avatar,omitempty"`
-	AssociationId string             `bson:"association_id" json:"association_id,omitempty"`
-	Status_Data
+	Role          Role               `bson:"role" json:"role"`
+	Avatar        string             `bson:"avatar" json:"avatar"`
+	AssociationId string             `bson:"association_id" json:"association_id"`
+	Status_Data   `bson:"status_data" json:"status_data"`
 }
 
 func (user *User) SetCreatedDate() {
