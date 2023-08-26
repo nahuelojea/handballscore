@@ -41,7 +41,9 @@ func Login(ctx context.Context) dto.RestResponse {
 	}
 
 	resp := dto.LoginResponse{
-		Token: jwtKey,
+		Token:         jwtKey,
+		Avatar:        userData.Avatar,
+		AssociationId: userData.AssociationId,
 	}
 
 	token, err2 := json.Marshal(resp)

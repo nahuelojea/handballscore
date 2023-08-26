@@ -51,7 +51,7 @@ func GetUser(ID string) (models.User, bool, error) {
 func UpdateUser(user models.User, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if len(user.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = user.Avatar
+		updateDataMap["avatar"] = user.Avatar
 	}
 
 	return repositories.Update(user_collection, updateDataMap, ID)
