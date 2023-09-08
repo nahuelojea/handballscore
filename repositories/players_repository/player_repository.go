@@ -70,19 +70,21 @@ func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.P
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
 
-	sortField := filterOptions.SortField
-	if sortField == "" {
-		sortField = "personal_data.surname"
-	}
 	sortOrder := 1
 	if filterOptions.SortOrder == -1 {
 		sortOrder = -1
 	}
 
+	sortFields := bson.D{
+		{Key: "status_data.disabled", Value: sortOrder},
+		{Key: "personal_data.surname", Value: sortOrder},
+		{Key: "personal_data.name", Value: sortOrder},
+	}
+
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+	findOptions.SetSort(sortFields)
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
@@ -125,9 +127,6 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	if !player.DateOfBirth.IsZero() {
 		updateDataMap["personal_data.date_of_birth"] = player.DateOfBirth
 	}
-	if len(player.Dni) > 0 {
-		updateDataMap["personal_data.dni"] = player.Dni
-	}
 	if len(player.PhoneNumber) > 0 {
 		updateDataMap["personal_data.phone_number"] = player.PhoneNumber
 	}
@@ -136,6 +135,9 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	}
 	if len(player.Gender) > 0 {
 		updateDataMap["gender"] = player.Gender
+	}
+	if !player.DateOfBirth.IsZero() {
+		updateDataMap["expiration_insurance"] = player.ExpirationInsurance
 	}
 	if len(player.TeamId) > 0 {
 		updateDataMap["team_id"] = player.TeamId

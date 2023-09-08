@@ -29,3 +29,20 @@ func Generate(ctx context.Context, t models.User) (string, error) {
 
 	return tokenStr, nil
 }
+
+func GenerateRefreshToken(ctx context.Context, t models.User) (string, error) {
+	jwtSign := ctx.Value(dto.Key("jwtSign")).(string)
+	key := []byte(jwtSign)
+
+	payload := jwt.MapClaims{
+		"exp": time.Now().Add(7 * 24 * time.Hour).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	tokenStr, err := token.SignedString(key)
+	if err != nil {
+		return tokenStr, err
+	}
+
+	return tokenStr, nil
+}

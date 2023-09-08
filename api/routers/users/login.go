@@ -40,8 +40,15 @@ func Login(ctx context.Context) dto.RestResponse {
 		return r
 	}
 
+	refreshJwtKey, err := jwt.GenerateRefreshToken(ctx, userData)
+	if err != nil {
+		r.Message = "Error to generate refresh token > " + err.Error()
+		return r
+	}
+
 	resp := dto.LoginResponse{
 		Token:         jwtKey,
+		RefreshToken:  refreshJwtKey,
 		Avatar:        userData.Avatar,
 		AssociationId: userData.AssociationId,
 	}
@@ -52,12 +59,19 @@ func Login(ctx context.Context) dto.RestResponse {
 		return r
 	}
 
-	cookie := &http.Cookie{
+	tokenCookie := &http.Cookie{
 		Name:    "token",
 		Value:   jwtKey,
 		Expires: time.Now().Add(24 * time.Hour),
 	}
-	cookieString := cookie.String()
+	cookieString := tokenCookie.String()
+
+	refreshTokenCookie := &http.Cookie{
+		Name:    "refresh_token",
+		Value:   refreshJwtKey,
+		Expires: time.Now().Add(7 * 24 * time.Hour),
+	}
+	refreshCookieString := refreshTokenCookie.String()
 
 	res := &events.APIGatewayProxyResponse{
 		StatusCode: http.StatusOK,
@@ -65,7 +79,7 @@ func Login(ctx context.Context) dto.RestResponse {
 		Headers: map[string]string{
 			"Content-Type":                "application/json",
 			"Access-Control-Allow-Origin": "*",
-			"Set-Cookie":                  cookieString,
+			"Set-Cookie":                  cookieString + "; " + refreshCookieString,
 		},
 	}
 
