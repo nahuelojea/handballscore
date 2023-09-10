@@ -12,7 +12,7 @@ const (
 )
 
 type Category struct {
-	Id            primitive.ObjectID `bson:"_id" json:"id"`
+	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name          string             `bson:"name" json:"name"`
 	Gender        string             `bson:"gender" json:"gender"`
 	AgeLimitFrom  int                `bson:"age_limit_from" json:"age_limit_from"`

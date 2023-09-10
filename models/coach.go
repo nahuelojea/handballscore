@@ -7,7 +7,7 @@ import (
 )
 
 type Coach struct {
-	Id            primitive.ObjectID `bson:"_id" json:"id"`
+	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Personal_Data `bson:"personal_data" json:"personal_data"`
 	Status_Data   `bson:"status_data" json:"status_data"`
 	TeamId        string `bson:"team_id" json:"team_id"`

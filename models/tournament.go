@@ -12,7 +12,7 @@ const (
 )
 
 type Tournament struct {
-	Id            primitive.ObjectID `bson:"_id" json:"id"`
+	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name          string             `bson:"name" json:"name"`
 	CategoryId    string             `bson:"categoty_id" json:"categoty_id"`
 	Teams         []MatchTeam        `bson:"teams" json:"teams"`

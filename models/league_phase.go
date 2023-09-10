@@ -3,7 +3,7 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type LeaguePhase struct {
-	Id               primitive.ObjectID `bson:"_id" json:"id"`
+	Id               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Teams            []MatchTeam        `bson:"teams" json:"teams"`
 	HomeAndAway      bool               `bson:"home_and_away" json:"home_and_away"`
 	ClassifiedNumber int                `bson:"classified_number" json:"classified_number"`

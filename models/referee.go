@@ -7,7 +7,7 @@ import (
 )
 
 type Referee struct {
-	Id            primitive.ObjectID `bson:"_id" json:"id"`
+	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Personal_Data `bson:"personal_data" json:"personal_data"`
 	AssociationId string `bson:"association_id" json:"association_id"`
 	Status_Data   `bson:"status_data" json:"status_data"`

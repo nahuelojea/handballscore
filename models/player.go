@@ -7,7 +7,7 @@ import (
 )
 
 type Player struct {
-	Id                  primitive.ObjectID `bson:"_id" json:"id"`
+	Id                  primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Personal_Data       `bson:"personal_data" json:"personal_data"`
 	Gender              string    `bson:"gender" json:"gender"`
 	AffiliateNumber     string    `bson:"affiliate_number" json:"affiliate_number"`

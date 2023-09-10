@@ -7,7 +7,7 @@ import (
 )
 
 type Team struct {
-	Id               primitive.ObjectID `bson:"_id" json:"id"`
+	Id               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name             string             `bson:"name" json:"name"`
 	Address          string             `bson:"address" json:"address"`
 	PhoneNumber      string             `bson:"phone_number" json:"phone_number"`

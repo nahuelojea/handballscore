@@ -14,7 +14,7 @@ const (
 type Role string
 
 type User struct {
-	Id            primitive.ObjectID `bson:"_id" json:"id"`
+	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Email         string             `bson:"email" json:"email"`
 	Password      string             `bson:"password" json:"password,omitempty"`
 	Role          Role               `bson:"role" json:"role"`

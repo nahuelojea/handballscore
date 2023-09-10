@@ -7,7 +7,7 @@ import (
 )
 
 type Association struct {
-	Id               primitive.ObjectID `bson:"_id" json:"id"`
+	Id               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name             string             `bson:"name" json:"name"`
 	DateOfFoundation time.Time          `bson:"date_of_foundation" json:"date_of_foundation"`
 	Email            string             `bson:"email" json:"email"`

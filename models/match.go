@@ -22,7 +22,7 @@ const (
 )
 
 type Match struct {
-	Id               primitive.ObjectID `bson:"_id" json:"id"`
+	Id               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Date             time.Time          `bson:"date" json:"date"`
 	TeamLocal        MatchTeam          `bson:"team_local" json:"team_local"`
 	TeamVisiting     MatchTeam          `bson:"team_visiting" json:"team_visiting"`
