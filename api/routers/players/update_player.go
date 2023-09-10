@@ -30,6 +30,14 @@ func UpdatePlayer(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
+	if len(player.Dni) > 0 {
+		_, exist, _ := players_repository.GetPlayerByDni(player.Dni)
+		if exist {
+			response.Status = http.StatusBadRequest
+			response.Message = "There is already a registered player with this dni"
+		}
+	}
+
 	status, err := players_repository.UpdatePlayer(player, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError

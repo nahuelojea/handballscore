@@ -30,6 +30,14 @@ func UpdateReferee(ctx context.Context, request events.APIGatewayProxyRequest) d
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
+	if len(referee.Dni) > 0 {
+		_, exist, _ := referees_repository.GetRefereeByDni(referee.Dni)
+		if exist {
+			response.Status = http.StatusBadRequest
+			response.Message = "There is already a registered referee with this dni"
+		}
+	}
+
 	status, err := referees_repository.UpdateReferee(referee, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError

@@ -121,6 +121,9 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	if len(player.Surname) > 0 {
 		updateDataMap["personal_data.surname"] = player.Surname
 	}
+	if len(player.Dni) > 0 {
+		updateDataMap["personal_data.dni"] = player.Dni
+	}
 	if len(player.Avatar) > 0 {
 		updateDataMap["personal_data.avatar"] = player.Avatar
 	}

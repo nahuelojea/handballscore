@@ -30,6 +30,14 @@ func UpdateCoach(ctx context.Context, request events.APIGatewayProxyRequest) dto
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
+	if len(coach.Dni) > 0 {
+		_, exist, _ := coaches_repository.GetCoachByDni(coach.Dni)
+		if exist {
+			response.Status = http.StatusBadRequest
+			response.Message = "There is already a registered coach with this dni"
+		}
+	}
+
 	status, err := coaches_repository.UpdateCoach(coach, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
