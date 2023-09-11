@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
+	"github.com/nahuelojea/handballscore/repositories/categories_repository"
 	"github.com/nahuelojea/handballscore/repositories/players_repository"
 )
 
@@ -20,12 +21,30 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 	dni := request.QueryStringParameters["dni"]
 	gender := request.QueryStringParameters["gender"]
 	teamId := request.QueryStringParameters["teamId"]
+	categoryId := request.QueryStringParameters["categoryId"]
+	excludeExpiredInsurance, err := strconv.ParseBool(request.QueryStringParameters["excludeExpiredInsurance"])
 	associationId := claim.AssociationId
+
+	if err != nil {
+		response.Status = http.StatusBadRequest
+		response.Message = "'excludeExpiredInsurance' param is invalid"
+		return response
+	}
 
 	if len(associationId) < 1 {
 		response.Status = http.StatusBadRequest
 		response.Message = "'associationId' param is mandatory"
 		return response
+	}
+
+	var yearLimitFrom, yearLimitTo int
+	if len(categoryId) > 1 {
+		yearLimitFrom, yearLimitTo, gender, err = categories_repository.GetLimitYearsByCategory(categoryId)
+		if err != nil {
+			response.Status = http.StatusNotFound
+			response.Message = "Error to get category: " + err.Error()
+			return response
+		}
 	}
 
 	page, err := strconv.Atoi(pageStr)
@@ -39,16 +58,19 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 	}
 
 	filterOptions := players_repository.GetPlayersOptions{
-		Name:          name,
-		Surname:       surname,
-		Dni:           dni,
-		Gender:        gender,
-		TeamId:        teamId,
-		AssociationId: associationId,
-		Page:          page,
-		PageSize:      pageSize,
-		SortField:     "personal_data.surname",
-		SortOrder:     1,
+		Name:                    name,
+		Surname:                 surname,
+		Dni:                     dni,
+		Gender:                  gender,
+		TeamId:                  teamId,
+		ExcludeExpiredInsurance: excludeExpiredInsurance,
+		YearLimitFrom:           yearLimitFrom,
+		YearLimitTo:             yearLimitTo,
+		AssociationId:           associationId,
+		Page:                    page,
+		PageSize:                pageSize,
+		SortField:               "personal_data.surname",
+		SortOrder:               1,
 	}
 
 	playersList, totalRecords, err := players_repository.GetPlayersFilteredAndPaginated(filterOptions)

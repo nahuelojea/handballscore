@@ -2,6 +2,7 @@ package players_repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -30,16 +31,19 @@ func GetPlayer(ID string) (models.Player, bool, error) {
 }
 
 type GetPlayersOptions struct {
-	Name          string
-	Surname       string
-	Dni           string
-	Gender        string
-	TeamId        string
-	AssociationId string
-	Page          int
-	PageSize      int
-	SortField     string
-	SortOrder     int
+	Name                    string
+	Surname                 string
+	Dni                     string
+	Gender                  string
+	TeamId                  string
+	AssociationId           string
+	ExcludeExpiredInsurance bool
+	YearLimitFrom           int
+	YearLimitTo             int
+	Page                    int
+	PageSize                int
+	SortField               string
+	SortOrder               int
 }
 
 func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.Player, int64, error) {
@@ -65,6 +69,15 @@ func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.P
 	}
 	if filterOptions.TeamId != "" {
 		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
+	}
+	if filterOptions.ExcludeExpiredInsurance {
+		filter["expiration_insurance"] = bson.M{"$gte": time.Now()}
+	}
+	if filterOptions.YearLimitFrom > 0 && filterOptions.YearLimitTo > 0 {
+		filter["personal_data.date_of_birth"] = bson.M{
+			"$gte": time.Date(filterOptions.YearLimitFrom, 1, 1, 0, 0, 0, 0, time.UTC),
+			"$lte": time.Date(filterOptions.YearLimitTo, 12, 31, 23, 59, 59, 999, time.UTC),
+		}
 	}
 
 	page := filterOptions.Page
