@@ -51,34 +51,7 @@ func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.P
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(player_collection)
 
-	filter := bson.M{
-		"association_id": filterOptions.AssociationId,
-	}
-
-	if filterOptions.Name != "" {
-		filter["personal_data.name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
-	}
-	if filterOptions.Surname != "" {
-		filter["personal_data.surname"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}}
-	}
-	if filterOptions.Dni != "" {
-		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
-	}
-	if filterOptions.Gender != "" {
-		filter["gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
-	}
-	if filterOptions.TeamId != "" {
-		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
-	}
-	if filterOptions.ExcludeExpiredInsurance {
-		filter["expiration_insurance"] = bson.M{"$gte": time.Now()}
-	}
-	if filterOptions.YearLimitFrom > 0 && filterOptions.YearLimitTo > 0 {
-		filter["personal_data.date_of_birth"] = bson.M{
-			"$gte": time.Date(filterOptions.YearLimitFrom, 1, 1, 0, 0, 0, 0, time.UTC),
-			"$lte": time.Date(filterOptions.YearLimitTo, 12, 31, 23, 59, 59, 999, time.UTC),
-		}
-	}
+	filter := buildPlayersFilter(filterOptions)
 
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
@@ -124,6 +97,38 @@ func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.P
 	}
 
 	return players, totalRecords, nil
+}
+
+func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
+	filter := bson.M{
+		"association_id": filterOptions.AssociationId,
+	}
+
+	if filterOptions.Name != "" {
+		filter["personal_data.name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
+	}
+	if filterOptions.Surname != "" {
+		filter["personal_data.surname"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}}
+	}
+	if filterOptions.Dni != "" {
+		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
+	}
+	if filterOptions.Gender != "" {
+		filter["gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
+	}
+	if filterOptions.TeamId != "" {
+		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
+	}
+	if filterOptions.ExcludeExpiredInsurance {
+		filter["expiration_insurance"] = bson.M{"$gte": time.Now()}
+	}
+	if filterOptions.YearLimitFrom > 0 && filterOptions.YearLimitTo > 0 {
+		filter["personal_data.date_of_birth"] = bson.M{
+			"$gte": time.Date(filterOptions.YearLimitFrom, 1, 1, 0, 0, 0, 0, time.UTC),
+			"$lte": time.Date(filterOptions.YearLimitTo, 12, 31, 23, 59, 59, 999, time.UTC),
+		}
+	}
+	return filter
 }
 
 func UpdatePlayer(player models.Player, ID string) (bool, error) {

@@ -13,6 +13,7 @@ import (
 
 func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
+	var err error
 
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
@@ -22,13 +23,17 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 	gender := request.QueryStringParameters["gender"]
 	teamId := request.QueryStringParameters["teamId"]
 	categoryId := request.QueryStringParameters["categoryId"]
-	excludeExpiredInsurance, err := strconv.ParseBool(request.QueryStringParameters["excludeExpiredInsurance"])
+	excludeExpiredInsuranceStr := request.QueryStringParameters["excludeExpiredInsurance"]
 	associationId := claim.AssociationId
 
-	if err != nil {
-		response.Status = http.StatusBadRequest
-		response.Message = "'excludeExpiredInsurance' param is invalid"
-		return response
+	var excludeExpiredInsurance bool
+	if excludeExpiredInsuranceStr != "" {
+		excludeExpiredInsurance, err = strconv.ParseBool(excludeExpiredInsuranceStr)
+		if err != nil {
+			response.Status = http.StatusBadRequest
+			response.Message = "'excludeExpiredInsurance' param is invalid"
+			return response
+		}
 	}
 
 	if len(associationId) < 1 {
