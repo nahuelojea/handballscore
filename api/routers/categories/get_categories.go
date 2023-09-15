@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/categories_repository"
+	"github.com/nahuelojea/handballscore/services/categories_service"
 )
 
 func GetCategories(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -35,7 +35,7 @@ func GetCategories(request events.APIGatewayProxyRequest, claim dto.Claim) dto.R
 		pageSize = 20
 	}
 
-	filterOptions := categories_repository.GetCategoriesOptions{
+	filterOptions := categories_service.GetCategoriesOptions{
 		Name:          name,
 		Gender:        gender,
 		AssociationId: associationId,
@@ -45,7 +45,7 @@ func GetCategories(request events.APIGatewayProxyRequest, claim dto.Claim) dto.R
 		SortOrder:     1,
 	}
 
-	categoriesList, totalRecords, err := categories_repository.GetCategoriesFilteredAndPaginated(filterOptions)
+	categoriesList, totalRecords, err := categories_service.GetCategories(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get categories: " + err.Error()

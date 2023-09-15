@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/categories_repository"
+	"github.com/nahuelojea/handballscore/services/categories_service"
 )
 
 func GetCategory(request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -19,7 +19,7 @@ func GetCategory(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	category, _, err := categories_repository.GetCategory(id)
+	category, _, err := categories_service.GetCategory(id)
 	if err != nil {
 		response.Status = http.StatusNotFound
 		response.Message = "Error to get category: " + err.Error()

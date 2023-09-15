@@ -2,7 +2,6 @@ package categories_repository
 
 import (
 	"context"
-	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -120,16 +119,4 @@ func UpdateCategory(category models.Category, ID string) (bool, error) {
 
 func DisableCategory(ID string) (bool, error) {
 	return repositories.Disable(category_collection, ID)
-}
-
-func GetLimitYearsByCategory(ID string) (int, int, string, error) {
-	category, _, err := GetCategory(ID)
-	if err != nil {
-		return 0, 0, "", err
-	}
-
-	ageLimitFromYear := time.Now().Year() - category.AgeLimitTo
-	ageLimitToYear := time.Now().Year() - category.AgeLimitFrom
-
-	return ageLimitFromYear, ageLimitToYear, category.Gender, nil
 }

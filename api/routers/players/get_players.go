@@ -7,8 +7,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/categories_repository"
 	"github.com/nahuelojea/handballscore/repositories/players_repository"
+	"github.com/nahuelojea/handballscore/services/categories_service"
 )
 
 func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -44,7 +44,7 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 
 	var yearLimitFrom, yearLimitTo int
 	if len(categoryId) > 1 {
-		yearLimitFrom, yearLimitTo, gender, err = categories_repository.GetLimitYearsByCategory(categoryId)
+		yearLimitFrom, yearLimitTo, gender, err = categories_service.GetLimitYearsByCategory(categoryId)
 		if err != nil {
 			response.Status = http.StatusNotFound
 			response.Message = "Error to get category: " + err.Error()
