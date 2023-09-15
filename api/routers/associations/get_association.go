@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/associations_repository"
+	"github.com/nahuelojea/handballscore/services/associations_service"
 )
 
 func GetAssociation(claim dto.Claim) dto.RestResponse {
@@ -19,7 +19,7 @@ func GetAssociation(claim dto.Claim) dto.RestResponse {
 		return response
 	}
 
-	association, _, err := associations_repository.GetAssociation(associationId)
+	association, _, err := associations_service.GetAssociation(associationId)
 	if err != nil {
 		response.Status = http.StatusNotFound
 		response.Message = "Error to get association: " + err.Error()

@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/associations_repository"
+	"github.com/nahuelojea/handballscore/services/associations_service"
 )
 
 func GetAssociations(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -27,7 +27,7 @@ func GetAssociations(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 		pageSize = 20
 	}
 
-	filterOptions := associations_repository.GetAssociationsOptions{
+	filterOptions := associations_service.GetAssociationsOptions{
 		Name:      name,
 		Page:      page,
 		PageSize:  pageSize,
@@ -35,7 +35,7 @@ func GetAssociations(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 		SortOrder: 1,
 	}
 
-	associationsList, totalRecords, err := associations_repository.GetAssociationsFilteredAndPaginated(filterOptions)
+	associationsList, totalRecords, err := associations_service.GetAssociations(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get associations: " + err.Error()
