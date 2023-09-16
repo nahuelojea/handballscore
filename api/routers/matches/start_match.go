@@ -32,6 +32,36 @@ func StartMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.
 		return response
 	}
 
+	if len(startMatchRequest.PlayersLocal) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "There must be a minimum of one player on the home team"
+		return response
+	}
+
+	if len(startMatchRequest.PlayersVisiting) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "There must be a minimum of one player on the visiting team"
+		return response
+	}
+
+	if len(startMatchRequest.Referees) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "There must be a minimum of one referee"
+		return response
+	}
+
+	if len(startMatchRequest.Timekeeper) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "Timekeeper is required"
+		return response
+	}
+
+	if len(startMatchRequest.Scorekeeper) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "Scorekeeper is required"
+		return response
+	}
+
 	_, err = matches_service.StartMatch(startMatchRequest, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError

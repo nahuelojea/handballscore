@@ -50,20 +50,5 @@ func ProgramMatch(matchTime time.Time, place string, id string) (bool, error) {
 }
 
 func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error) {
-	if len(startMatchRequest.PlayersLocal) < 1 {
-		return false, errors.New("There must be a minimum of one player on the home team")
-	}
-	if len(startMatchRequest.PlayersVisiting) < 1 {
-		return false, errors.New("There must be a minimum of one player on the visiting team")
-	}
-	if len(startMatchRequest.Referees) < 1 {
-		return false, errors.New("There must be a minimum of one referee")
-	}
-	if len(startMatchRequest.Timekeeper) < 1 {
-		return false, errors.New("Timekeeper is required")
-	}
-	if len(startMatchRequest.Scorekeeper) < 1 {
-		return false, errors.New("Scorekeeper is required")
-	}
 	return matches_repository.StartMatch(startMatchRequest, id)
 }
