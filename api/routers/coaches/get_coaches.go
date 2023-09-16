@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/coaches_repository"
+	"github.com/nahuelojea/handballscore/services/coaches_service"
 )
 
 func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -37,7 +37,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 		pageSize = 20
 	}
 
-	filterOptions := coaches_repository.GetCoachsOptions{
+	filterOptions := coaches_service.GetCoachsOptions{
 		Name:          name,
 		Surname:       surname,
 		Dni:           dni,
@@ -49,7 +49,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 		SortOrder:     1,
 	}
 
-	coachesList, totalRecords, err := coaches_repository.GetCoachsFilteredAndPaginated(filterOptions)
+	coachesList, totalRecords, err := coaches_service.GetCoachs(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get coaches: " + err.Error()

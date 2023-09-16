@@ -30,8 +30,10 @@ func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dt
 	filename = "avatars/players/" + id + ".jpg"
 	player.Avatar = filename
 
-	hasError, response := storage.UploadImage(ctx, request, response, filename)
-	if hasError {
+	err := storage.UploadImage(ctx, request.Headers["Content-Type"], request.Body, filename)
+	if err != nil {
+		response.Status = http.StatusInternalServerError
+		response.Message = "Error to upload image: " + err.Error()
 		return response
 	}
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/coaches_repository"
+	"github.com/nahuelojea/handballscore/services/coaches_service"
 )
 
 func GetCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -19,7 +19,7 @@ func GetCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	coach, _, err := coaches_repository.GetCoach(id)
+	coach, _, err := coaches_service.GetCoach(id)
 	if err != nil {
 		response.Status = http.StatusNotFound
 		response.Message = "Error to get coach: " + err.Error()

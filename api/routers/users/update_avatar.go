@@ -24,15 +24,17 @@ func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest, cl
 	filename = "avatars/users/" + userId + ".jpg"
 	user.Avatar = filename
 
-	hasError, response := storage.UploadImage(ctx, request, response, filename)
-	if hasError {
+	err := storage.UploadImage(ctx, request.Headers["Content-Type"], request.Body, filename)
+	if err != nil {
+		response.Status = http.StatusInternalServerError
+		response.Message = "Error to upload image: " + err.Error()
 		return response
 	}
 
 	status, err := users_repository.UpdateUser(user, userId)
 	if err != nil || !status {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update user " + err.Error()
+		response.Message = "Error to update user: " + err.Error()
 		return response
 	}
 

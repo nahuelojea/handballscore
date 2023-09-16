@@ -138,20 +138,14 @@ func DisableCoach(ID string) (bool, error) {
 	return repositories.Disable(coach_collection, ID)
 }
 
-func GetCoachByDni(dni string) (models.Coach, bool, string) {
-	ctx := context.TODO()
-
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(coach_collection)
-
+func GetCoachByDni(associationId, dni string) (models.Coach, bool, string) {
 	condition := bson.M{"personal_data.dni": dni}
 
-	var result models.Coach
-
-	err := collection.FindOne(ctx, condition).Decode(&result)
-	id := result.Id.Hex()
+	var coach models.Coach
+	_, err := repositories.FindOne(coach_collection, associationId, condition, &coach)
+	id := coach.Id.Hex()
 	if err != nil {
-		return result, false, id
+		return coach, false, id
 	}
-	return result, true, id
+	return coach, true, id
 }

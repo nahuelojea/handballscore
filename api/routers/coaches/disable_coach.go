@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/coaches_repository"
+	"github.com/nahuelojea/handballscore/services/coaches_service"
 )
 
 func DisableCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -18,7 +18,7 @@ func DisableCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	isDisabled, err := coaches_repository.DisableCoach(Id)
+	isDisabled, err := coaches_service.DisableCoach(Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to disable coach: " + err.Error()

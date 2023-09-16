@@ -7,8 +7,7 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/coaches_repository"
-	"github.com/nahuelojea/handballscore/repositories/teams_repository"
+	"github.com/nahuelojea/handballscore/services/coaches_service"
 )
 
 func AddCoach(ctx context.Context, claim dto.Claim) dto.RestResponse {
@@ -40,19 +39,7 @@ func AddCoach(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		return restResponse
 	}
 
-	_, exist, _ := teams_repository.GetTeam(coach.TeamId)
-	if !exist {
-		restResponse.Message = "No team found with this id"
-		return restResponse
-	}
-
-	_, exist, _ = coaches_repository.GetCoachByDni(coach.Dni)
-	if exist {
-		restResponse.Message = "There is already a registered coach with this dni"
-		return restResponse
-	}
-
-	id, status, err := coaches_repository.CreateCoach(claim.AssociationId, coach)
+	id, status, err := coaches_service.CreateCoach(claim.AssociationId, coach)
 	if err != nil {
 		restResponse.Message = "Error to create coach: " + err.Error()
 		return restResponse

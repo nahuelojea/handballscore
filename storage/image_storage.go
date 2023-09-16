@@ -4,19 +4,18 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"mime"
 	"mime/multipart"
-	"net/http"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws"
 
 	"github.com/nahuelojea/handballscore/config/awsgo"
@@ -33,56 +32,44 @@ func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
 	return 0, nil
 }
 
-func UploadImage(ctx context.Context, request events.APIGatewayProxyRequest, response dto.RestResponse, filename string) (bool, dto.RestResponse) {
+func UploadImage(ctx context.Context, contentType, body, filename string) error {
 	bucket := aws.String(ctx.Value(dto.Key("bucketName")).(string))
 
-	mediaType, params, err := mime.ParseMediaType(request.Headers["Content-Type"])
+	mediaType, params, err := mime.ParseMediaType(contentType)
 	if err != nil {
-		response.Status = http.StatusInternalServerError
-		response.Message = err.Error()
-		return true, response
+		return err
 	}
 
 	if strings.HasPrefix(mediaType, "multipart/") {
 
-		body, err := base64.StdEncoding.DecodeString(request.Body)
+		body, err := base64.StdEncoding.DecodeString(body)
 		if err != nil {
-			response.Status = http.StatusInternalServerError
-			response.Message = err.Error()
-			return true, response
+			return err
 		}
 
 		imageSize := len(body)
 		if imageSize > maxImageSize {
-			response.Status = http.StatusBadRequest
-			response.Message = fmt.Sprintf("Image size exceeds the maximum allowed size of %d bytes", maxImageSize)
-			return true, response
+			return errors.New(fmt.Sprintf("Image size exceeds the maximum allowed size of %d bytes", maxImageSize))
 		}
 
 		mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
 		p, err := mr.NextPart()
 		if err != nil && err != io.EOF {
-			response.Status = http.StatusInternalServerError
-			response.Message = err.Error()
-			return true, response
+			return err
 		}
 
 		if err != io.EOF {
 			if p.FileName() != "" {
 				buf := bytes.NewBuffer(nil)
 				if _, err := io.Copy(buf, p); err != nil {
-					response.Status = http.StatusInternalServerError
-					response.Message = err.Error()
-					return true, response
+					return err
 				}
 
 				sess, err := session.NewSession(&aws.Config{
 					Region: aws.String(awsgo.DefaultRegion)})
 
 				if err != nil {
-					response.Status = http.StatusInternalServerError
-					response.Message = err.Error()
-					return true, response
+					return err
 				}
 
 				uploader := s3manager.NewUploader(sess)
@@ -93,18 +80,14 @@ func UploadImage(ctx context.Context, request events.APIGatewayProxyRequest, res
 				})
 
 				if err != nil {
-					response.Status = http.StatusInternalServerError
-					response.Message = err.Error()
-					return true, response
+					return err
 				}
 			}
 		}
 	} else {
-		response.Message = "You must send an image with the 'Content-Type' of type 'multipart/' in the Header"
-		response.Status = http.StatusBadRequest
-		return true, response
+		return errors.New("You must send an image with the 'Content-Type' of type 'multipart/' in the Header")
 	}
-	return false, dto.RestResponse{}
+	return nil
 }
 
 func GetFile(ctx context.Context, filename string) (*bytes.Buffer, error) {

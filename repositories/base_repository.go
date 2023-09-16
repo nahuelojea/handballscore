@@ -11,16 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type FilterOptions struct {
-	AssociationId string
-	Page          int
-	PageSize      int
-	SortField     string
-	SortOrder     int
-	ExtraFields   map[string]interface{}
-}
-
-func Create(collectionName string, association_id string, entity models.Entity) (string, bool, error) {
+func Create(collectionName, association_id string, entity models.Entity) (string, bool, error) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
@@ -40,7 +31,7 @@ func Create(collectionName string, association_id string, entity models.Entity) 
 	return ObjID.Hex(), true, nil
 }
 
-func CreateMultiple(collectionName string, associationID string, entities []models.Entity) ([]string, bool, error) {
+func CreateMultiple(collectionName, associationID string, entities []models.Entity) ([]string, bool, error) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
@@ -73,7 +64,7 @@ func CreateMultiple(collectionName string, associationID string, entities []mode
 	return insertedIDs, true, nil
 }
 
-func GetById(collectionName string, Id string, model interface{}) (interface{}, error) {
+func GetById(collectionName, Id string, model interface{}) (interface{}, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(collectionName)
@@ -86,6 +77,31 @@ func GetById(collectionName string, Id string, model interface{}) (interface{}, 
 	filter := bson.M{"_id": objId}
 
 	err = collection.FindOne(ctx, filter).Decode(model)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
+}
+
+func FindOne(collectionName, associationID string, condition bson.M, model interface{}) (interface{}, error) {
+	ctx := context.TODO()
+
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(collectionName)
+
+	baseCondition := bson.M{
+		"association_id": associationID,
+	}
+
+	combinedCondition := bson.M{
+		"$and": []bson.M{
+			baseCondition,
+			condition,
+		},
+	}
+
+	err := collection.FindOne(ctx, combinedCondition).Decode(model)
 	if err != nil {
 		return nil, err
 	}
@@ -118,67 +134,10 @@ func Update(collectionName string, updateDataMap map[string]interface{}, id stri
 	return true, nil
 }
 
-func Disable(collectionName string, id string) (bool, error) {
+func Disable(collectionName, id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
 	updateDataMap["status_data.disabled"] = true
 
 	return Update(collectionName, updateDataMap, id)
 }
-
-/*func GetEntitiesFilteredAndPaginated(collectionName string, filterOptions FilterOptions) ([]models.Entity, int64, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(collectionName)
-
-	filter := bson.M{
-		"association_id": filterOptions.AssociationId,
-	}
-
-	for key, value := range filterOptions.ExtraFields {
-		if valueStr, ok := value.(string); ok {
-			filter[key] = bson.M{"$regex": primitive.Regex{Pattern: valueStr, Options: "i"}}
-		}
-	}
-
-	page := filterOptions.Page
-	pageSize := filterOptions.PageSize
-
-	sortField := filterOptions.SortField
-
-	sortOrder := 1
-	if filterOptions.SortOrder == -1 {
-		sortOrder = -1
-	}
-
-	findOptions := options.Find()
-	findOptions.SetLimit(int64(pageSize))
-	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
-
-	cur, err := collection.Find(ctx, filter, findOptions)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer cur.Close(ctx)
-
-	var entities []models.Entity
-	for cur.Next(ctx) {
-		var entity models.Entity
-		if err := cur.Decode(&entity); err != nil {
-			return nil, 0, err
-		}
-		entities = append(entities, entity)
-	}
-
-	if err := cur.Err(); err != nil {
-		return nil, 0, err
-	}
-
-	totalRecords, err := collection.CountDocuments(ctx, filter)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return entities, totalRecords, nil
-}*/
