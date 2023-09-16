@@ -31,8 +31,8 @@ func UpdateReferee(ctx context.Context, request events.APIGatewayProxyRequest) d
 	}
 
 	if len(referee.Dni) > 0 {
-		_, exist, _ := referees_repository.GetRefereeByDni(referee.Dni)
-		if exist {
+		result, exist, _ := referees_repository.GetRefereeByDni(referee.Dni)
+		if exist && referee.Id != result.Id {
 			response.Status = http.StatusBadRequest
 			response.Message = "There is already a registered referee with this dni"
 		}

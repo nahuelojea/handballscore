@@ -60,8 +60,8 @@ func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
 
 func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 	if len(coach.Dni) > 0 {
-		_, exist, _ := GetCoachByDni(coach.AssociationId, coach.Dni)
-		if exist {
+		result, exist, _ := GetCoachByDni(coach.AssociationId, coach.Dni)
+		if exist && coach.Id != result.Id {
 			return false, errors.New("There is already a registered coach with this dni")
 		}
 	}
@@ -94,7 +94,7 @@ func GetAvatar(id string, ctx context.Context) (*bytes.Buffer, string, error) {
 	return file, filename, nil
 }
 
-func uploadAvatar(ctx context.Context, contentType, body, id string) error {
+func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var filename string
 	var coach models.Coach
 

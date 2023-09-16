@@ -31,8 +31,8 @@ func UpdatePlayer(ctx context.Context, request events.APIGatewayProxyRequest) dt
 	}
 
 	if len(player.Dni) > 0 {
-		_, exist, _ := players_repository.GetPlayerByDni(player.Dni)
-		if exist {
+		result, exist, _ := players_repository.GetPlayerByDni(player.Dni)
+		if exist && player.Id != result.Id {
 			response.Status = http.StatusBadRequest
 			response.Message = "There is already a registered player with this dni"
 		}

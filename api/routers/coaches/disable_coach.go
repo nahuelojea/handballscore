@@ -18,16 +18,10 @@ func DisableCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	isDisabled, err := coaches_service.DisableCoach(Id)
+	_, err := coaches_service.DisableCoach(Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to disable coach: " + err.Error()
-		return response
-	}
-
-	if !isDisabled {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to disable coach in database"
 		return response
 	}
 
