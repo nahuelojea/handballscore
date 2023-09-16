@@ -114,7 +114,7 @@ func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
 	}
 	if filterOptions.Gender != "" {
-		filter["gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
+		filter["personal_data.gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
 	}
 	if filterOptions.TeamId != "" {
 		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
@@ -148,14 +148,14 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	if !player.DateOfBirth.IsZero() {
 		updateDataMap["personal_data.date_of_birth"] = player.DateOfBirth
 	}
+	if len(player.Gender) > 0 {
+		updateDataMap["personal_data.gender"] = player.Gender
+	}
 	if len(player.PhoneNumber) > 0 {
 		updateDataMap["personal_data.phone_number"] = player.PhoneNumber
 	}
 	if len(player.AffiliateNumber) > 0 {
 		updateDataMap["affiliate_number"] = player.AffiliateNumber
-	}
-	if len(player.Gender) > 0 {
-		updateDataMap["gender"] = player.Gender
 	}
 	if !player.DateOfBirth.IsZero() {
 		updateDataMap["expiration_insurance"] = player.ExpirationInsurance

@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/referees_repository"
+	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
 func GetReferee(request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -19,7 +19,7 @@ func GetReferee(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	referee, err := referees_repository.GetReferee(id)
+	referee, err := referees_service.GetReferee(id)
 	if err != nil {
 		response.Status = http.StatusNotFound
 		response.Message = "Error to get referee: " + err.Error()

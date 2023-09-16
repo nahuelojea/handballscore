@@ -33,6 +33,7 @@ type GetRefereesOptions struct {
 	Name          string
 	Surname       string
 	Dni           string
+	Gender        string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -57,6 +58,9 @@ func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models
 	}
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
+	}
+	if filterOptions.Dni != "" {
+		filter["personal_data.gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
 	}
 
 	page := filterOptions.Page
@@ -120,6 +124,9 @@ func UpdateReferee(referee models.Referee, ID string) (bool, error) {
 	if len(referee.Dni) > 0 {
 		updateDataMap["personal_data.dni"] = referee.Dni
 	}
+	if len(referee.Dni) > 0 {
+		updateDataMap["personal_data.gender"] = referee.Gender
+	}
 	if len(referee.PhoneNumber) > 0 {
 		updateDataMap["personal_data.phone_number"] = referee.PhoneNumber
 	}
@@ -131,20 +138,14 @@ func DisableReferee(ID string) (bool, error) {
 	return repositories.Disable(referee_collection, ID)
 }
 
-func GetRefereeByDni(dni string) (models.Referee, bool, string) {
-	ctx := context.TODO()
-
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(referee_collection)
-
+func GetRefereeByDni(associationId, dni string) (models.Referee, bool, string) {
 	condition := bson.M{"personal_data.dni": dni}
 
-	var result models.Referee
-
-	err := collection.FindOne(ctx, condition).Decode(&result)
-	id := result.Id.Hex()
+	var referee models.Referee
+	_, err := repositories.FindOne(referee_collection, associationId, condition, &referee)
+	id := referee.Id.Hex()
 	if err != nil {
-		return result, false, id
+		return referee, false, id
 	}
-	return result, true, id
+	return referee, true, id
 }

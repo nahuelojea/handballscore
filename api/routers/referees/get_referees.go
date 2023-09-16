@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/referees_repository"
+	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
 func GetReferees(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -18,6 +18,7 @@ func GetReferees(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Res
 	name := request.QueryStringParameters["name"]
 	surname := request.QueryStringParameters["surname"]
 	dni := request.QueryStringParameters["dni"]
+	gender := request.QueryStringParameters["gender"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
@@ -36,10 +37,11 @@ func GetReferees(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Res
 		pageSize = 20
 	}
 
-	filterOptions := referees_repository.GetRefereesOptions{
+	filterOptions := referees_service.GetRefereesOptions{
 		Name:          name,
 		Surname:       surname,
 		Dni:           dni,
+		Gender:        gender,
 		AssociationId: associationId,
 		Page:          page,
 		PageSize:      pageSize,
@@ -47,7 +49,7 @@ func GetReferees(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Res
 		SortOrder:     1,
 	}
 
-	refereesList, totalRecords, err := referees_repository.GetRefereesFilteredAndPaginated(filterOptions)
+	refereesList, totalRecords, err := referees_service.GetReferees(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get referees: " + err.Error()

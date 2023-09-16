@@ -7,7 +7,7 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/referees_repository"
+	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
 func AddReferee(ctx context.Context, claim dto.Claim) dto.RestResponse {
@@ -35,20 +35,9 @@ func AddReferee(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		return restResponse
 	}
 
-	_, exist, _ := referees_repository.GetRefereeByDni(referee.Dni)
-	if exist {
-		restResponse.Message = "There is already a registered referee with this dni"
-		return restResponse
-	}
-
-	id, status, err := referees_repository.CreateReferee(claim.AssociationId, referee)
+	id, _, err := referees_service.CreateReferee(claim.AssociationId, referee)
 	if err != nil {
 		restResponse.Message = "Error to create referee: " + err.Error()
-		return restResponse
-	}
-
-	if !status {
-		restResponse.Message = "Error to create referee"
 		return restResponse
 	}
 

@@ -33,6 +33,7 @@ type GetCoachsOptions struct {
 	Name          string
 	Surname       string
 	Dni           string
+	Gender        string
 	TeamId        string
 	AssociationId string
 	Page          int
@@ -58,6 +59,9 @@ func GetCoachsFilteredAndPaginated(filterOptions GetCoachsOptions) ([]models.Coa
 	}
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
+	}
+	if filterOptions.Dni != "" {
+		filter["personal_data.gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
 	}
 	if filterOptions.TeamId != "" {
 		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
@@ -123,6 +127,9 @@ func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 	}
 	if len(coach.Dni) > 0 {
 		updateDataMap["personal_data.dni"] = coach.Dni
+	}
+	if len(coach.Dni) > 0 {
+		updateDataMap["personal_data.gender"] = coach.Gender
 	}
 	if len(coach.PhoneNumber) > 0 {
 		updateDataMap["personal_data.phone_number"] = coach.PhoneNumber

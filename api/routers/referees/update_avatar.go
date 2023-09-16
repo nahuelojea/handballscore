@@ -7,9 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/referees_repository"
-	"github.com/nahuelojea/handballscore/storage"
+	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
 func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -24,23 +22,10 @@ func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	var filename string
-	var referee models.Referee
-
-	filename = "avatars/referees/" + id + ".jpg"
-	referee.Avatar = filename
-
-	err := storage.UploadImage(ctx, request.Headers["Content-Type"], request.Body, filename)
+	err := referees_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to upload image: " + err.Error()
-		return response
-	}
-
-	status, err := referees_repository.UpdateReferee(referee, id)
-	if err != nil || !status {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update referee " + err.Error()
+		response.Message = "Error to update player " + err.Error()
 		return response
 	}
 

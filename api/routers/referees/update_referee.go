@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/referees_repository"
+	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
 func UpdateReferee(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -30,15 +30,7 @@ func UpdateReferee(ctx context.Context, request events.APIGatewayProxyRequest) d
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	if len(referee.Dni) > 0 {
-		result, exist, _ := referees_repository.GetRefereeByDni(referee.Dni)
-		if exist && referee.Id != result.Id {
-			response.Status = http.StatusBadRequest
-			response.Message = "There is already a registered referee with this dni"
-		}
-	}
-
-	status, err := referees_repository.UpdateReferee(referee, Id)
+	status, err := referees_service.UpdateReferee(referee, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update referee: " + err.Error()

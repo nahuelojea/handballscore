@@ -9,7 +9,6 @@ import (
 type Player struct {
 	Id                  primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Personal_Data       `bson:"personal_data" json:"personal_data"`
-	Gender              string    `bson:"gender" json:"gender"`
 	AffiliateNumber     string    `bson:"affiliate_number" json:"affiliate_number"`
 	TeamId              string    `bson:"team_id" json:"team_id"`
 	ExpirationInsurance time.Time `bson:"expiration_insurance" json:"expiration_insurance"`

@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/referees_repository"
+	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
 func DisableReferee(request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -18,7 +18,7 @@ func DisableReferee(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	isDisabled, err := referees_repository.DisableReferee(Id)
+	isDisabled, err := referees_service.DisableReferee(Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to disable referee: " + err.Error()
