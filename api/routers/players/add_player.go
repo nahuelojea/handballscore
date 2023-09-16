@@ -7,8 +7,7 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/players_repository"
-	"github.com/nahuelojea/handballscore/repositories/teams_repository"
+	"github.com/nahuelojea/handballscore/services/players_service"
 )
 
 func AddPlayer(ctx context.Context, claim dto.Claim) dto.RestResponse {
@@ -44,19 +43,7 @@ func AddPlayer(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		return restResponse
 	}
 
-	_, exist, _ := teams_repository.GetTeam(player.TeamId)
-	if !exist {
-		restResponse.Message = "No team found with this id"
-		return restResponse
-	}
-
-	_, exist, _ = players_repository.GetPlayerByDni(player.Dni)
-	if exist {
-		restResponse.Message = "There is already a registered player with this dni"
-		return restResponse
-	}
-
-	id, status, err := players_repository.CreatePlayer(claim.AssociationId, player)
+	id, status, err := players_service.CreatePlayer(claim.AssociationId, player)
 	if err != nil {
 		restResponse.Message = "Error to create player: " + err.Error()
 		return restResponse

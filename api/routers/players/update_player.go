@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/players_repository"
+	"github.com/nahuelojea/handballscore/services/players_service"
 )
 
 func UpdatePlayer(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -30,15 +30,7 @@ func UpdatePlayer(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	if len(player.Dni) > 0 {
-		result, exist, _ := players_repository.GetPlayerByDni(player.Dni)
-		if exist && player.Id != result.Id {
-			response.Status = http.StatusBadRequest
-			response.Message = "There is already a registered player with this dni"
-		}
-	}
-
-	status, err := players_repository.UpdatePlayer(player, Id)
+	status, err := players_service.UpdatePlayer(player, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update player: " + err.Error()

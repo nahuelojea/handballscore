@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/players_repository"
+	"github.com/nahuelojea/handballscore/services/players_service"
 )
 
 func DisablePlayer(request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -18,16 +18,10 @@ func DisablePlayer(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	isDisabled, err := players_repository.DisablePlayer(Id)
+	_, err := players_service.DisablePlayer(Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to disable player: " + err.Error()
-		return response
-	}
-
-	if !isDisabled {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to disable player in database"
 		return response
 	}
 

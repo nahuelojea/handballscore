@@ -7,8 +7,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/players_repository"
 	"github.com/nahuelojea/handballscore/services/categories_service"
+	"github.com/nahuelojea/handballscore/services/players_service"
 )
 
 func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -62,7 +62,7 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		pageSize = 20
 	}
 
-	filterOptions := players_repository.GetPlayersOptions{
+	filterOptions := players_service.GetPlayersOptions{
 		Name:                    name,
 		Surname:                 surname,
 		Dni:                     dni,
@@ -78,7 +78,7 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		SortOrder:               1,
 	}
 
-	playersList, totalRecords, err := players_repository.GetPlayersFilteredAndPaginated(filterOptions)
+	playersList, totalRecords, err := players_service.GetPlayers(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get players: " + err.Error()

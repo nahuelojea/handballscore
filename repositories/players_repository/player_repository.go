@@ -171,20 +171,14 @@ func DisablePlayer(ID string) (bool, error) {
 	return repositories.Disable(player_collection, ID)
 }
 
-func GetPlayerByDni(dni string) (models.Player, bool, string) {
-	ctx := context.TODO()
-
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(player_collection)
-
+func GetPlayerByDni(associationId, dni string) (models.Player, bool, string) {
 	condition := bson.M{"personal_data.dni": dni}
 
-	var result models.Player
-
-	err := collection.FindOne(ctx, condition).Decode(&result)
-	id := result.Id.Hex()
+	var player models.Player
+	_, err := repositories.FindOne(player_collection, associationId, condition, &player)
+	id := player.Id.Hex()
 	if err != nil {
-		return result, false, id
+		return player, false, id
 	}
-	return result, true, id
+	return player, true, id
 }
