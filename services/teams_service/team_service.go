@@ -1,0 +1,87 @@
+package teams_service
+
+import (
+	"bytes"
+	"context"
+	"errors"
+
+	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories/teams_repository"
+	"github.com/nahuelojea/handballscore/storage"
+)
+
+const AvatarUrl = "avatars/teams/"
+
+type GetTeamsOptions struct {
+	Name          string
+	AssociationId string
+	Page          int
+	PageSize      int
+	SortField     string
+	SortOrder     int
+}
+
+func CreateTeam(association_id string, team models.Team) (string, bool, error) {
+	return teams_repository.CreateTeam(association_id, team)
+}
+
+func GetTeam(ID string) (models.Team, bool, error) {
+	return teams_repository.GetTeam(ID)
+}
+
+func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
+	filters := teams_repository.GetTeamsOptions{
+		Name:          filterOptions.Name,
+		AssociationId: filterOptions.AssociationId,
+		Page:          filterOptions.Page,
+		PageSize:      filterOptions.PageSize,
+		SortField:     filterOptions.SortField,
+		SortOrder:     filterOptions.SortOrder,
+	}
+	return teams_repository.GetTeamsFilteredAndPaginated(filters)
+}
+
+func UpdateTeam(team models.Team, ID string) (bool, error) {
+	return teams_repository.UpdateTeam(team, ID)
+}
+
+func DisableTeam(ID string) (bool, error) {
+	return teams_repository.DisableTeam(ID)
+}
+
+func UploadAvatar(ctx context.Context, contentType, body, id string) error {
+	var filename string
+	var team models.Team
+
+	filename = AvatarUrl + id + ".jpg"
+	team.Avatar = filename
+
+	err := storage.UploadImage(ctx, contentType, body, filename)
+	if err != nil {
+		return errors.New("Error to upload image: " + err.Error())
+	}
+
+	status, err := teams_repository.UpdateTeam(team, id)
+	if err != nil || !status {
+		return errors.New("Error to update team " + err.Error())
+	}
+	return nil
+}
+
+func GetAvatar(id string, ctx context.Context) (*bytes.Buffer, string, error) {
+	team, _, err := GetTeam(id)
+	if err != nil {
+		return nil, "", errors.New("Error to get team: " + err.Error())
+	}
+
+	var filename = team.Avatar
+	if len(filename) < 1 {
+		return nil, "", errors.New("The team has no avatar")
+	}
+
+	file, err := storage.GetFile(ctx, filename)
+	if err != nil {
+		return nil, "", errors.New("Error to download file in S3 " + err.Error())
+	}
+	return file, filename, nil
+}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/teams_repository"
+	"github.com/nahuelojea/handballscore/services/teams_service"
 )
 
 func AddTeam(ctx context.Context, claim dto.Claim) dto.RestResponse {
@@ -27,14 +27,9 @@ func AddTeam(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		return restResponse
 	}
 
-	id, status, err := teams_repository.CreateTeam(claim.AssociationId, team)
+	id, _, err := teams_service.CreateTeam(claim.AssociationId, team)
 	if err != nil {
 		restResponse.Message = "Error to create team: " + err.Error()
-		return restResponse
-	}
-
-	if !status {
-		restResponse.Message = "Error to create team"
 		return restResponse
 	}
 

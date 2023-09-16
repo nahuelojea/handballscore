@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/teams_repository"
+	"github.com/nahuelojea/handballscore/services/teams_service"
 )
 
 func UpdateTeam(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -30,7 +30,7 @@ func UpdateTeam(ctx context.Context, request events.APIGatewayProxyRequest) dto.
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	status, err := teams_repository.UpdateTeam(team, Id)
+	status, err := teams_service.UpdateTeam(team, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update team: " + err.Error()

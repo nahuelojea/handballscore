@@ -7,9 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/teams_repository"
-	"github.com/nahuelojea/handballscore/storage"
+	"github.com/nahuelojea/handballscore/services/teams_service"
 )
 
 func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -24,21 +22,8 @@ func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	var filename string
-	var team models.Team
-
-	filename = "avatars/teams/" + id + ".jpg"
-	team.Avatar = filename
-
-	err := storage.UploadImage(ctx, request.Headers["Content-Type"], request.Body, filename)
+	err := teams_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, id)
 	if err != nil {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to upload image: " + err.Error()
-		return response
-	}
-
-	status, err := teams_repository.UpdateTeam(team, id)
-	if err != nil || !status {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update team " + err.Error()
 		return response

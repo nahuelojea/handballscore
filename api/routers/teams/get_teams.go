@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/teams_repository"
+	"github.com/nahuelojea/handballscore/services/teams_service"
 )
 
 func GetTeams(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -34,7 +34,7 @@ func GetTeams(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestRe
 		pageSize = 20
 	}
 
-	filterOptions := teams_repository.GetTeamsOptions{
+	filterOptions := teams_service.GetTeamsOptions{
 		Name:          name,
 		AssociationId: associationId,
 		Page:          page,
@@ -43,7 +43,7 @@ func GetTeams(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestRe
 		SortOrder:     1,
 	}
 
-	teamsList, totalRecords, err := teams_repository.GetTeamsFilteredAndPaginated(filterOptions)
+	teamsList, totalRecords, err := teams_service.GetTeams(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get teams: " + err.Error()
