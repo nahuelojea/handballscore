@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/matches_repository"
+	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
 func ProgramMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -33,22 +32,10 @@ func ProgramMatch(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	if programMatchRequest.Date.Compare(time.Now()) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "The date cannot be earlier than the current date"
-		return response
-	}
-
-	status, err := matches_repository.ProgramMatch(programMatchRequest.Date, programMatchRequest.Place, Id)
+	_, err = matches_service.ProgramMatch(programMatchRequest.Date, programMatchRequest.Place, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to program match data: " + err.Error()
-		return response
-	}
-
-	if !status {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to program match data"
 		return response
 	}
 

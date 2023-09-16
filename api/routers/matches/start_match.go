@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/matches_repository"
+	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
 func StartMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -32,46 +32,10 @@ func StartMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.
 		return response
 	}
 
-	if len(startMatchRequest.PlayersLocal) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "There must be a minimum of one player on the home team"
-		return response
-	}
-
-	if len(startMatchRequest.PlayersVisiting) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "There must be a minimum of one player on the visiting team"
-		return response
-	}
-
-	if len(startMatchRequest.Referees) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "There must be a minimum of one referee"
-		return response
-	}
-
-	if len(startMatchRequest.Timekeeper) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "Timekeeper is required"
-		return response
-	}
-
-	if len(startMatchRequest.Scorekeeper) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "Scorekeeper is required"
-		return response
-	}
-
-	status, err := matches_repository.StartMatch(startMatchRequest, Id)
+	_, err = matches_service.StartMatch(startMatchRequest, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to start match: " + err.Error()
-		return response
-	}
-
-	if !status {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to start match"
 		return response
 	}
 
