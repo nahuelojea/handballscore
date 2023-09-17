@@ -1,7 +1,6 @@
 package teams_service
 
 import (
-	"bytes"
 	"context"
 	"errors"
 
@@ -66,22 +65,4 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 		return errors.New("Error to update team " + err.Error())
 	}
 	return nil
-}
-
-func GetAvatar(id string, ctx context.Context) (*bytes.Buffer, string, error) {
-	team, _, err := GetTeam(id)
-	if err != nil {
-		return nil, "", errors.New("Error to get team: " + err.Error())
-	}
-
-	var filename = team.Avatar
-	if len(filename) < 1 {
-		return nil, "", errors.New("The team has no avatar")
-	}
-
-	file, err := storage.GetFile(ctx, filename)
-	if err != nil {
-		return nil, "", errors.New("Error to download file in S3 " + err.Error())
-	}
-	return file, filename, nil
 }

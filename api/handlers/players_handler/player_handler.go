@@ -22,15 +22,13 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 			return players.GetPlayer(request)
 		case "player/filter":
 			return players.GetPlayers(request, claim)
-		case "player/avatar":
-			return players.GetAvatar(ctx, request)
 		}
 	case "PUT":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "player":
 			return players.UpdatePlayer(ctx, request)
 		case "player/avatar":
-			return players.UpdateAvatar(ctx, request)
+			return players.UploadAvatar(ctx, request)
 		}
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {

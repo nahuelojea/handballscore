@@ -18,6 +18,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 	name := request.QueryStringParameters["name"]
 	surname := request.QueryStringParameters["surname"]
 	dni := request.QueryStringParameters["dni"]
+	gender := request.QueryStringParameters["gender"]
 	teamId := request.QueryStringParameters["teamId"]
 	associationId := claim.AssociationId
 
@@ -41,6 +42,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 		Name:          name,
 		Surname:       surname,
 		Dni:           dni,
+		Gender:        gender,
 		TeamId:        teamId,
 		AssociationId: associationId,
 		Page:          page,

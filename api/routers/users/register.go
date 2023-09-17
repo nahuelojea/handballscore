@@ -8,8 +8,8 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/associations_repository"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/services/associations_service"
+	"github.com/nahuelojea/handballscore/services/users_service"
 )
 
 func Register(ctx context.Context) dto.RestResponse {
@@ -41,14 +41,14 @@ func Register(ctx context.Context) dto.RestResponse {
 		return restResponse
 	}
 
-	_, exist, _ := associations_repository.GetAssociation(user.AssociationId)
+	_, exist, _ := associations_service.GetAssociation(user.AssociationId)
 	if !exist {
 		restResponse.Message = "No association found with this id"
 		fmt.Println(restResponse.Message)
 		return restResponse
 	}
 
-	_, exist, _ = users_repository.FindUserByEmail(user.Email)
+	_, exist, _ = users_service.FindUserByEmail(user.Email)
 	if exist {
 		restResponse.Message = "There is already a registered user with this email"
 		fmt.Println(restResponse.Message)
@@ -57,7 +57,7 @@ func Register(ctx context.Context) dto.RestResponse {
 
 	user.Role = models.Viewer
 
-	_, status, err := users_repository.CreateUser(user)
+	_, status, err := users_service.CreateUser(user)
 	if err != nil {
 		restResponse.Message = "Error to register user: " + err.Error()
 		fmt.Println(restResponse.Message)

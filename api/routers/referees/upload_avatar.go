@@ -10,7 +10,7 @@ import (
 	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
-func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
+func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 
 	var response dto.RestResponse
 	response.Status = http.StatusBadRequest

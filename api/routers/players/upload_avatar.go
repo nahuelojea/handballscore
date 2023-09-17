@@ -1,4 +1,4 @@
-package coaches
+package players
 
 import (
 	"context"
@@ -7,10 +7,10 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/services/coaches_service"
+	"github.com/nahuelojea/handballscore/services/players_service"
 )
 
-func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
+func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 
 	var response dto.RestResponse
 	response.Status = http.StatusBadRequest
@@ -22,10 +22,10 @@ func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	err := coaches_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, id)
+	err := players_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update coach " + err.Error()
+		response.Message = "Error to update player " + err.Error()
 		return response
 	}
 

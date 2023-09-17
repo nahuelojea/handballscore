@@ -7,43 +7,37 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/nahuelojea/handballscore/config/jwt"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/services/users_service"
 )
 
 func Login(ctx context.Context) dto.RestResponse {
-	var t models.User
-	var r dto.RestResponse
-	r.Status = http.StatusBadRequest
+	var user models.User
+	var response dto.RestResponse
+	response.Status = http.StatusBadRequest
 
 	body := ctx.Value(dto.Key("body")).(string)
-	err := json.Unmarshal([]byte(body), &t)
+	err := json.Unmarshal([]byte(body), &user)
 	if err != nil {
-		r.Message = "Invalid User and/or Password " + err.Error()
-		return r
+		response.Message = "Invalid User and/or Password " + err.Error()
+		return response
 	}
-	if len(t.Email) == 0 {
-		r.Message = "Email is required"
-		return r
+	if len(user.Email) == 0 {
+		response.Message = "Email is required"
+		return response
 	}
-	userData, exist := users_repository.UserLogin(t.Email, t.Password)
+
+	userData, jwtKey, refreshJwtKey, exist, err := users_service.UserLogin(ctx, user.Email, user.Password)
+
 	if !exist {
-		r.Message = "Invalid User and/or Password "
-		return r
+		response.Message = "Invalid User"
+		return response
 	}
 
-	jwtKey, err := jwt.Generate(ctx, userData)
 	if err != nil {
-		r.Message = "Error to generate token > " + err.Error()
-		return r
-	}
-
-	refreshJwtKey, err := jwt.GenerateRefreshToken(ctx, userData)
-	if err != nil {
-		r.Message = "Error to generate refresh token > " + err.Error()
-		return r
+		response.Message = err.Error()
+		return response
 	}
 
 	resp := dto.LoginResponse{
@@ -55,8 +49,8 @@ func Login(ctx context.Context) dto.RestResponse {
 
 	token, err2 := json.Marshal(resp)
 	if err2 != nil {
-		r.Message = "Error formatting token to JSON > " + err2.Error()
-		return r
+		response.Message = "Error formatting token to JSON > " + err2.Error()
+		return response
 	}
 
 	tokenCookie := &http.Cookie{
@@ -83,9 +77,9 @@ func Login(ctx context.Context) dto.RestResponse {
 		},
 	}
 
-	r.Status = http.StatusOK
-	r.Message = string(token)
-	r.CustomResp = res
+	response.Status = http.StatusOK
+	response.Message = string(token)
+	response.CustomResp = res
 
-	return r
+	return response
 }

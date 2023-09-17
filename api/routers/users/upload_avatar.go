@@ -8,11 +8,11 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/services/users_service"
 	"github.com/nahuelojea/handballscore/storage"
 )
 
-func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
+func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 
 	var response dto.RestResponse
 	response.Status = http.StatusBadRequest
@@ -31,7 +31,7 @@ func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest, cl
 		return response
 	}
 
-	status, err := users_repository.UpdateUser(user, userId)
+	status, err := users_service.UpdateUser(user, userId)
 	if err != nil || !status {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update user: " + err.Error()

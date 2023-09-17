@@ -9,8 +9,8 @@ import (
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/matches_repository"
-	"github.com/nahuelojea/handballscore/repositories/tournaments_repository"
+	"github.com/nahuelojea/handballscore/services/matches_service"
+	"github.com/nahuelojea/handballscore/services/tournaments_service"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -69,7 +69,7 @@ func CreateTournament(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		//TODO Para pensar
 	}
 
-	id, status, err := tournaments_repository.CreateTournament(claim.AssociationId, tournament)
+	id, status, err := tournaments_service.CreateTournament(claim.AssociationId, tournament)
 	if err != nil {
 		session.AbortTransaction(context.TODO())
 		restResponse.Message = "Error to create tournament: " + err.Error()
@@ -81,7 +81,7 @@ func CreateTournament(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		return restResponse
 	}
 
-	_, isOk, err := matches_repository.CreateMatches(claim.AssociationId, matches)
+	_, isOk, err := matches_service.CreateMatches(claim.AssociationId, matches)
 	if !isOk {
 		session.AbortTransaction(context.TODO())
 		restResponse.Message = "Error to create league matches"
