@@ -7,9 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/services/users_service"
-	"github.com/nahuelojea/handballscore/storage"
 )
 
 func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -18,23 +16,10 @@ func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest, cl
 	response.Status = http.StatusBadRequest
 	userId := claim.Id.Hex()
 
-	var filename string
-	var user models.User
-
-	filename = "avatars/users/" + userId + ".jpg"
-	user.Avatar = filename
-
-	err := storage.UploadImage(ctx, request.Headers["Content-Type"], request.Body, filename)
+	err := users_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, userId)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to upload image: " + err.Error()
-		return response
-	}
-
-	status, err := users_service.UpdateUser(user, userId)
-	if err != nil || !status {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update user: " + err.Error()
+		response.Message = "Error to update user avatar: " + err.Error()
 		return response
 	}
 

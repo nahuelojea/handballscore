@@ -31,3 +31,7 @@ func (player *Player) SetDisabled(disabled bool) {
 func (player *Player) SetAssociationId(associationId string) {
 	player.AssociationId = associationId
 }
+
+func (player *Player) SetAvatarURL(filename string) {
+	player.Avatar = ImagesBaseURL + filename
+}

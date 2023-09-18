@@ -25,7 +25,7 @@ func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dt
 	err := coaches_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update coach " + err.Error()
+		response.Message = "Error to update coach avatar: " + err.Error()
 		return response
 	}
 

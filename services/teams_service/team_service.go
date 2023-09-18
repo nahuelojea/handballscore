@@ -53,13 +53,13 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var team models.Team
 
 	filename = AvatarUrl + id + ".jpg"
-	team.Avatar = filename
 
 	err := storage.UploadImage(ctx, contentType, body, filename)
 	if err != nil {
 		return errors.New("Error to upload image: " + err.Error())
 	}
 
+	team.SetAvatarURL(filename)
 	status, err := teams_repository.UpdateTeam(team, id)
 	if err != nil || !status {
 		return errors.New("Error to update team " + err.Error())

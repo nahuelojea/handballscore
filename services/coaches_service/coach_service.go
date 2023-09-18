@@ -82,13 +82,13 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var coach models.Coach
 
 	filename = AvatarUrl + id + ".jpg"
-	coach.Avatar = filename
 
 	err := storage.UploadImage(ctx, contentType, body, filename)
 	if err != nil {
 		return errors.New("Error to upload image: " + err.Error())
 	}
 
+	coach.SetAvatarURL(filename)
 	status, err := coaches_repository.UpdateCoach(coach, id)
 	if err != nil || !status {
 		return errors.New("Error to update coach " + err.Error())

@@ -28,3 +28,7 @@ func (referee *Referee) SetDisabled(disabled bool) {
 func (referee *Referee) SetAssociationId(associationId string) {
 	referee.AssociationId = associationId
 }
+
+func (referee *Referee) SetAvatarURL(filename string) {
+	referee.Avatar = ImagesBaseURL + filename
+}

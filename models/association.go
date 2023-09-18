@@ -11,6 +11,6 @@ type Association struct {
 	Name             string             `bson:"name" json:"name"`
 	DateOfFoundation time.Time          `bson:"date_of_foundation" json:"date_of_foundation"`
 	Email            string             `bson:"email" json:"email"`
-	Logo             string             `bson:"logo" json:"logo"`
+	Avatar           string             `bson:"avatar" json:"avatar"`
 	PhoneNumber      string             `bson:"phone_number" json:"phone_number"`
 }

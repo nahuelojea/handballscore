@@ -77,13 +77,13 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var referee models.Referee
 
 	filename = AvatarUrl + id + ".jpg"
-	referee.Avatar = filename
 
 	err := storage.UploadImage(ctx, contentType, body, filename)
 	if err != nil {
 		return errors.New("Error to upload image: " + err.Error())
 	}
 
+	referee.SetAvatarURL(filename)
 	status, err := referees_repository.UpdateReferee(referee, id)
 	if err != nil || !status {
 		return errors.New("Error to update referee " + err.Error())

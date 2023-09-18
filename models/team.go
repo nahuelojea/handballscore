@@ -33,3 +33,7 @@ func (team *Team) SetDisabled(disabled bool) {
 func (team *Team) SetAssociationId(associationId string) {
 	team.AssociationId = associationId
 }
+
+func (team *Team) SetAvatarURL(filename string) {
+	team.Avatar = ImagesBaseURL + filename
+}
