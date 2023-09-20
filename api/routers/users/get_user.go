@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/services/users_service"
 )
 
 func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -19,7 +19,7 @@ func GetUser(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	user, _, err := users_repository.GetUser(id)
+	user, _, err := users_service.GetUser(id)
 	if err != nil {
 		response.Status = http.StatusNotFound
 		response.Message = "Error to get user: " + err.Error()

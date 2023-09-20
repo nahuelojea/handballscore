@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/tournaments_repository"
+	"github.com/nahuelojea/handballscore/services/tournaments_service"
 )
 
 func UpdateTournament(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
@@ -30,7 +30,7 @@ func UpdateTournament(ctx context.Context, request events.APIGatewayProxyRequest
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	status, err := tournaments_repository.UpdateTournament(tournament, Id)
+	status, err := tournaments_service.UpdateTournament(tournament, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update tournament: " + err.Error()

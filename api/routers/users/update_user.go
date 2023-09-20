@@ -7,7 +7,7 @@ import (
 
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/users_repository"
+	"github.com/nahuelojea/handballscore/services/users_service"
 )
 
 func UpdateUser(ctx context.Context, claim dto.Claim) dto.RestResponse {
@@ -22,7 +22,7 @@ func UpdateUser(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	status, err := users_repository.UpdateUser(user, claim.Id.Hex())
+	status, err := users_service.UpdateUser(user, claim.Id.Hex())
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update user: " + err.Error()

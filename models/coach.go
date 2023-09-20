@@ -29,3 +29,7 @@ func (coach *Coach) SetDisabled(disabled bool) {
 func (coach *Coach) SetAssociationId(associationId string) {
 	coach.AssociationId = associationId
 }
+
+func (coach *Coach) SetAvatarURL(filename string) {
+	coach.Avatar = ImagesBaseURL + filename
+}

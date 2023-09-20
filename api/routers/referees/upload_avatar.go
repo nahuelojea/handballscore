@@ -10,7 +10,7 @@ import (
 	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
-func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
+func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 
 	var response dto.RestResponse
 	response.Status = http.StatusBadRequest
@@ -25,7 +25,7 @@ func UpdateAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dt
 	err := referees_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update player " + err.Error()
+		response.Message = "Error to update referee avatar: " + err.Error()
 		return response
 	}
 

@@ -38,3 +38,7 @@ func (user *User) SetDisabled(disabled bool) {
 func (user *User) SetAssociationId(associationId string) {
 	user.AssociationId = associationId
 }
+
+func (user *User) SetAvatarURL(filename string) {
+	user.Avatar = ImagesBaseURL + filename
+}

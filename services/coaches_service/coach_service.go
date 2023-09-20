@@ -1,7 +1,6 @@
 package coaches_service
 
 import (
-	"bytes"
 	"context"
 	"errors"
 
@@ -17,6 +16,7 @@ type GetCoachsOptions struct {
 	Name          string
 	Surname       string
 	Dni           string
+	Gender        string
 	TeamId        string
 	AssociationId string
 	Page          int
@@ -47,6 +47,7 @@ func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
 		Name:          filterOptions.Name,
 		Surname:       filterOptions.Surname,
 		Dni:           filterOptions.Dni,
+		Gender:        filterOptions.Gender,
 		TeamId:        filterOptions.TeamId,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
@@ -76,36 +77,18 @@ func GetCoachByDni(associationId, dni string) (models.Coach, bool, string) {
 	return coaches_repository.GetCoachByDni(associationId, dni)
 }
 
-func GetAvatar(id string, ctx context.Context) (*bytes.Buffer, string, error) {
-	coach, _, err := GetCoach(id)
-	if err != nil {
-		return nil, "", errors.New("Error to get coach: " + err.Error())
-	}
-
-	var filename = coach.Avatar
-	if len(filename) < 1 {
-		return nil, "", errors.New("The coach has no avatar")
-	}
-
-	file, err := storage.GetFile(ctx, filename)
-	if err != nil {
-		return nil, "", errors.New("Error to download file in S3 " + err.Error())
-	}
-	return file, filename, nil
-}
-
 func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var filename string
 	var coach models.Coach
 
 	filename = AvatarUrl + id + ".jpg"
-	coach.Avatar = filename
 
 	err := storage.UploadImage(ctx, contentType, body, filename)
 	if err != nil {
 		return errors.New("Error to upload image: " + err.Error())
 	}
 
+	coach.SetAvatarURL(filename)
 	status, err := coaches_repository.UpdateCoach(coach, id)
 	if err != nil || !status {
 		return errors.New("Error to update coach " + err.Error())

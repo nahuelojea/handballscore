@@ -35,7 +35,11 @@ func GenerateRefreshToken(ctx context.Context, t models.User) (string, error) {
 	key := []byte(jwtSign)
 
 	payload := jwt.MapClaims{
-		"exp": time.Now().Add(7 * 24 * time.Hour).Unix(),
+		"email":          t.Email,
+		"role":           t.Role,
+		"association_id": t.AssociationId,
+		"_id":            t.Id.Hex(),
+		"exp":            time.Now().Add(7 * 24 * time.Hour).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)

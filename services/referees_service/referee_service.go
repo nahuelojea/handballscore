@@ -1,7 +1,6 @@
 package referees_service
 
 import (
-	"bytes"
 	"context"
 	"errors"
 
@@ -78,34 +77,16 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var referee models.Referee
 
 	filename = AvatarUrl + id + ".jpg"
-	referee.Avatar = filename
 
 	err := storage.UploadImage(ctx, contentType, body, filename)
 	if err != nil {
 		return errors.New("Error to upload image: " + err.Error())
 	}
 
+	referee.SetAvatarURL(filename)
 	status, err := referees_repository.UpdateReferee(referee, id)
 	if err != nil || !status {
 		return errors.New("Error to update referee " + err.Error())
 	}
 	return nil
-}
-
-func GetAvatar(id string, ctx context.Context) (*bytes.Buffer, string, error) {
-	referee, err := GetReferee(id)
-	if err != nil {
-		return nil, "", errors.New("Error to get referee: " + err.Error())
-	}
-
-	var filename = referee.Avatar
-	if len(filename) < 1 {
-		return nil, "", errors.New("The referee has no avatar")
-	}
-
-	file, err := storage.GetFile(ctx, filename)
-	if err != nil {
-		return nil, "", errors.New("Error to download file in S3 " + err.Error())
-	}
-	return file, filename, nil
 }
