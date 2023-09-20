@@ -9,44 +9,47 @@ import (
 	"github.com/nahuelojea/handballscore/models"
 )
 
-func Generate(ctx context.Context, t models.User) (string, error) {
+func GenerateTokens(ctx context.Context, user models.User) (string, string, error) {
 	jwtSign := ctx.Value(dto.Key("jwtSign")).(string)
 	key := []byte(jwtSign)
 
+	token := generateToken(user)
+	tokenStr, err := token.SignedString(key)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken := generateRefreshToken(user)
+	refreshTokenStr, err := refreshToken.SignedString(key)
+	if err != nil {
+		return "", "", err
+	}
+
+	return tokenStr, refreshTokenStr, nil
+}
+
+func generateToken(user models.User) *jwt.Token {
 	payload := jwt.MapClaims{
-		"email":          t.Email,
-		"role":           t.Role,
-		"association_id": t.AssociationId,
-		"_id":            t.Id.Hex(),
+		"email":          user.Email,
+		"role":           user.Role,
+		"association_id": user.AssociationId,
+		"_id":            user.Id.Hex(),
 		"exp":            time.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
-	tokenStr, err := token.SignedString(key)
-	if err != nil {
-		return tokenStr, err
-	}
-
-	return tokenStr, nil
+	return token
 }
 
-func GenerateRefreshToken(ctx context.Context, t models.User) (string, error) {
-	jwtSign := ctx.Value(dto.Key("jwtSign")).(string)
-	key := []byte(jwtSign)
-
+func generateRefreshToken(user models.User) *jwt.Token {
 	payload := jwt.MapClaims{
-		"email":          t.Email,
-		"role":           t.Role,
-		"association_id": t.AssociationId,
-		"_id":            t.Id.Hex(),
+		"email":          user.Email,
+		"role":           user.Role,
+		"association_id": user.AssociationId,
+		"_id":            user.Id.Hex(),
 		"exp":            time.Now().Add(7 * 24 * time.Hour).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
-	tokenStr, err := token.SignedString(key)
-	if err != nil {
-		return tokenStr, err
-	}
-
-	return tokenStr, nil
+	return token
 }

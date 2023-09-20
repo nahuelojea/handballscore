@@ -35,14 +35,9 @@ func UserLogin(ctx context.Context, email, password string) (models.User, string
 		return user, "", "", exist, errors.New("Incorrect password: " + err.Error())
 	}
 
-	jwtKey, err := jwt.Generate(ctx, user)
+	jwtKey, refreshJwtKey, err := jwt.GenerateTokens(ctx, user)
 	if err != nil {
-		return user, "", "", exist, errors.New("Error to generate token: " + err.Error())
-	}
-
-	refreshJwtKey, err := jwt.GenerateRefreshToken(ctx, user)
-	if err != nil {
-		return user, "", "", exist, errors.New("Error to generate refresh token: " + err.Error())
+		return user, "", "", exist, errors.New("Error to generate tokens: " + err.Error())
 	}
 
 	return user, jwtKey, refreshJwtKey, exist, nil
