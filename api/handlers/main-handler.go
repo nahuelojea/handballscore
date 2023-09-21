@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"golang.org/x/exp/slices"
-
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/api/handlers/associations_handler"
+	"github.com/nahuelojea/handballscore/api/handlers/authorization_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/categories_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/coaches_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/matches_handler"
@@ -22,12 +21,6 @@ import (
 	"github.com/nahuelojea/handballscore/dto"
 )
 
-func getAuthorizedUrls() []string {
-	return []string{
-		"user/register",
-		"user/login"}
-}
-
 func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 
 	fmt.Println("API Request: " + ctx.Value(dto.Key("path")).(string) + " > " + ctx.Value(dto.Key("method")).(string))
@@ -35,9 +28,9 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 	var restResponse dto.RestResponse
 	restResponse.Status = http.StatusBadRequest
 
-	isOk, statusCode, msg, claim := validAuthorization(ctx, request)
+	isOk, msg, claim := jwt.ValidAuthorization(ctx, request.Headers["Authorization"])
 	if !isOk {
-		restResponse.Status = statusCode
+		restResponse.Status = http.StatusUnauthorized
 		restResponse.Message = msg
 		return restResponse
 	}
@@ -50,6 +43,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 		switch entityPath {
 		case "association":
 			return associations_handler.ProcessRequest(ctx, request, claim, restResponse)
+		case "auth":
+			return authorization_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "category":
 			return categories_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "coach":
@@ -71,30 +66,4 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 
 	restResponse.Message = "Method Invalid"
 	return restResponse
-}
-
-func validAuthorization(ctx context.Context, request events.APIGatewayProxyRequest) (bool, int, string, dto.Claim) {
-	path := ctx.Value(dto.Key("path")).(string)
-
-	if slices.Contains(getAuthorizedUrls(), path) {
-		return true, http.StatusOK, "", dto.Claim{}
-	}
-
-	token := request.Headers["Authorization"]
-	if len(token) == 0 {
-		return false, http.StatusUnauthorized, "Token is required", dto.Claim{}
-	}
-
-	claim, isOk, msg, err := jwt.ProcessToken(token, ctx.Value(dto.Key("jwtSign")).(string))
-	if !isOk {
-		if err != nil {
-			fmt.Println("Error with token " + err.Error())
-			return false, http.StatusUnauthorized, err.Error(), dto.Claim{}
-		} else {
-			fmt.Println("Error with token " + msg)
-			return false, http.StatusUnauthorized, msg, dto.Claim{}
-		}
-	}
-
-	return true, http.StatusOK, msg, *claim
 }

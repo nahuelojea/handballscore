@@ -1,4 +1,4 @@
-package users
+package authorization
 
 import (
 	"context"
@@ -8,43 +8,23 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/services/users_service"
+	"github.com/nahuelojea/handballscore/services/authorization_service"
 )
 
-func Login(ctx context.Context) dto.RestResponse {
-	var user models.User
+func RefreshToken(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 	response.Status = http.StatusBadRequest
 
-	body := ctx.Value(dto.Key("body")).(string)
-	err := json.Unmarshal([]byte(body), &user)
-	if err != nil {
-		response.Message = "Invalid User and/or Password " + err.Error()
-		return response
-	}
-	if len(user.Email) == 0 {
-		response.Message = "Email is required"
-		return response
-	}
-
-	userData, jwtKey, refreshJwtKey, exist, err := users_service.UserLogin(ctx, user.Email, user.Password)
-
-	if !exist {
-		response.Message = "Invalid User"
-		return response
-	}
+	_, jwtKey, refreshJwtKey, err := authorization_service.RefreshToken(ctx, request.Headers["Authorization"])
 
 	if err != nil {
 		response.Message = err.Error()
 		return response
 	}
 
-	resp := dto.LoginResponse{
-		Token:         jwtKey,
-		RefreshToken:  refreshJwtKey,
-		Avatar:        userData.Avatar,
-		AssociationId: userData.AssociationId,
+	resp := dto.RefreshTokenResponse{
+		Token:        jwtKey,
+		RefreshToken: refreshJwtKey,
 	}
 
 	token, err2 := json.Marshal(resp)

@@ -7,7 +7,15 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
+	"golang.org/x/exp/slices"
 )
+
+func getAuthorizedUrls() []string {
+	return []string{
+		"user/register",
+		"auth/login",
+		"auth/refresh"}
+}
 
 func GenerateTokens(ctx context.Context, user models.User) (string, string, error) {
 	jwtSign := ctx.Value(dto.Key("jwtSign")).(string)
@@ -26,6 +34,29 @@ func GenerateTokens(ctx context.Context, user models.User) (string, string, erro
 	}
 
 	return tokenStr, refreshTokenStr, nil
+}
+
+func ValidAuthorization(ctx context.Context, token string) (bool, string, dto.Claim) {
+	path := ctx.Value(dto.Key("path")).(string)
+
+	if slices.Contains(getAuthorizedUrls(), path) {
+		return true, "", dto.Claim{}
+	}
+
+	if len(token) == 0 {
+		return false, "Token is required", dto.Claim{}
+	}
+
+	claim, isOk, message, err := ProcessToken(token, ctx.Value(dto.Key("jwtSign")).(string))
+	if !isOk {
+		if err != nil {
+			return false, err.Error(), dto.Claim{}
+		} else {
+			return false, message, dto.Claim{}
+		}
+	}
+
+	return true, message, *claim
 }
 
 func generateToken(user models.User) *jwt.Token {

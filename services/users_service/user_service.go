@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/nahuelojea/handballscore/config/jwt"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/users_repository"
 	"github.com/nahuelojea/handballscore/storage"
@@ -19,28 +18,6 @@ const (
 func CreateUser(user models.User) (string, bool, error) {
 	user.Password, _ = encryptPassword(user.Password)
 	return users_repository.CreateUser(user)
-}
-
-func UserLogin(ctx context.Context, email, password string) (models.User, string, string, bool, error) {
-	user, exist, _ := FindUserByEmail(email)
-	if !exist {
-		return user, "", "", exist, nil
-	}
-
-	passwordBytes := []byte(password)
-	passwordBD := []byte(user.Password)
-
-	err := bcrypt.CompareHashAndPassword(passwordBD, passwordBytes)
-	if err != nil {
-		return user, "", "", exist, errors.New("Incorrect password: " + err.Error())
-	}
-
-	jwtKey, refreshJwtKey, err := jwt.GenerateTokens(ctx, user)
-	if err != nil {
-		return user, "", "", exist, errors.New("Error to generate tokens: " + err.Error())
-	}
-
-	return user, jwtKey, refreshJwtKey, exist, nil
 }
 
 func GetUser(ID string) (models.User, bool, error) {

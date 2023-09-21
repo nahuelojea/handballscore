@@ -15,8 +15,6 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "user/register":
 			return users.Register(ctx)
-		case "user/login":
-			return users.Login(ctx)
 		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
