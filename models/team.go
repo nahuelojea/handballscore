@@ -26,10 +26,6 @@ func (team *Team) SetModifiedDate() {
 	team.ModifiedDate = time.Now()
 }
 
-func (team *Team) SetDisabled(disabled bool) {
-	team.Disabled = disabled
-}
-
 func (team *Team) SetAssociationId(associationId string) {
 	team.AssociationId = associationId
 }

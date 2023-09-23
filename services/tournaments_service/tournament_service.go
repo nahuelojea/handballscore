@@ -42,6 +42,6 @@ func UpdateTournament(tournament models.Tournament, ID string) (bool, error) {
 	return tournaments_repository.UpdateTournament(tournament, ID)
 }
 
-func DisableTournament(ID string) (bool, error) {
-	return tournaments_repository.DisableTournament(ID)
+func DeleteTournament(ID string) (bool, error) {
+	return tournaments_repository.DeleteTournament(ID)
 }

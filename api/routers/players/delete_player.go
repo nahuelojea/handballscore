@@ -1,14 +1,14 @@
-package teams
+package players
 
 import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/services/teams_service"
+	"github.com/nahuelojea/handballscore/services/players_service"
 )
 
-func DisableTeam(request events.APIGatewayProxyRequest) dto.RestResponse {
+func DeletePlayer(request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
 	Id := request.QueryStringParameters["id"]
@@ -18,14 +18,14 @@ func DisableTeam(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	_, err := teams_service.DisableTeam(Id)
+	_, err := players_service.DeletePlayer(Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to disable team: " + err.Error()
+		response.Message = "Error to delete player: " + err.Error()
 		return response
 	}
 
 	response.Status = http.StatusOK
-	response.Message = "Team disabled"
+	response.Message = "Player deleted"
 	return response
 }

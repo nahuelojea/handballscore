@@ -119,6 +119,6 @@ func UpdateTeam(team models.Team, ID string) (bool, error) {
 	return repositories.Update(team_collection, updateDataMap, ID)
 }
 
-func DisableTeam(ID string) (bool, error) {
-	return repositories.Disable(team_collection, ID)
+func DeleteTeam(ID string) (bool, error) {
+	return repositories.Delete(team_collection, ID)
 }

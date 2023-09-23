@@ -154,6 +154,8 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	if len(player.PhoneNumber) > 0 {
 		updateDataMap["personal_data.phone_number"] = player.PhoneNumber
 	}
+	updateDataMap["personal_data.disabled"] = player.Disabled
+
 	if len(player.AffiliateNumber) > 0 {
 		updateDataMap["affiliate_number"] = player.AffiliateNumber
 	}
@@ -167,8 +169,8 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	return repositories.Update(player_collection, updateDataMap, ID)
 }
 
-func DisablePlayer(ID string) (bool, error) {
-	return repositories.Disable(player_collection, ID)
+func DeletePlayer(ID string) (bool, error) {
+	return repositories.Delete(player_collection, ID)
 }
 
 func GetPlayerByDni(associationId, dni string) (models.Player, bool, string) {

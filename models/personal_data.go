@@ -12,4 +12,5 @@ type Personal_Data struct {
 	Gender      string    `bson:"gender" json:"gender"`
 	PhoneNumber string    `bson:"phone_number" json:"phone_number"`
 	Avatar      string    `bson:"avatar" json:"avatar"`
+	Disabled    bool      `bson:"disabled" json:"disabled"`
 }

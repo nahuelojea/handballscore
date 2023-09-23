@@ -44,8 +44,8 @@ func UpdateTeam(team models.Team, ID string) (bool, error) {
 	return teams_repository.UpdateTeam(team, ID)
 }
 
-func DisableTeam(ID string) (bool, error) {
-	return teams_repository.DisableTeam(ID)
+func DeleteTeam(ID string) (bool, error) {
+	return teams_repository.DeleteTeam(ID)
 }
 
 func UploadAvatar(ctx context.Context, contentType, body, id string) error {

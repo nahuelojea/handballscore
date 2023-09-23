@@ -1,14 +1,14 @@
-package players
+package referees
 
 import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/services/players_service"
+	"github.com/nahuelojea/handballscore/services/referees_service"
 )
 
-func DisablePlayer(request events.APIGatewayProxyRequest) dto.RestResponse {
+func DeleteReferee(request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
 	Id := request.QueryStringParameters["id"]
@@ -18,14 +18,14 @@ func DisablePlayer(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	_, err := players_service.DisablePlayer(Id)
+	_, err := referees_service.DeleteReferee(Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to disable player: " + err.Error()
+		response.Message = "Error to delete referee: " + err.Error()
 		return response
 	}
 
 	response.Status = http.StatusOK
-	response.Message = "Player disabled"
+	response.Message = "Referee deleted"
 	return response
 }

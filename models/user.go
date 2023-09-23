@@ -18,9 +18,9 @@ type User struct {
 	Email         string             `bson:"email" json:"email"`
 	Password      string             `bson:"password" json:"password,omitempty"`
 	Role          Role               `bson:"role" json:"role"`
-	Avatar        string             `bson:"avatar" json:"avatar"`
-	AssociationId string             `bson:"association_id" json:"association_id"`
+	Personal_Data `bson:"personal_data" json:"personal_data"`
 	Status_Data   `bson:"status_data" json:"status_data"`
+	AssociationId string `bson:"association_id" json:"association_id"`
 }
 
 func (user *User) SetCreatedDate() {

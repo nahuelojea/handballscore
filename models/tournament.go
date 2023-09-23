@@ -32,10 +32,6 @@ func (tournament *Tournament) SetModifiedDate() {
 	tournament.ModifiedDate = time.Now()
 }
 
-func (tournament *Tournament) SetDisabled(disabled bool) {
-	tournament.Disabled = disabled
-}
-
 func (tournament *Tournament) SetAssociationId(associationId string) {
 	tournament.AssociationId = associationId
 }

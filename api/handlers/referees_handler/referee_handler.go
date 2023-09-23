@@ -33,7 +33,7 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
-			return referees.DisableReferee(request)
+			return referees.DeleteReferee(request)
 		}
 	}
 

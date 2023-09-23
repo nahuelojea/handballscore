@@ -118,6 +118,6 @@ func UpdateTournament(tournament models.Tournament, ID string) (bool, error) {
 	return repositories.Update(tournament_collection, updateDataMap, ID)
 }
 
-func DisableTournament(ID string) (bool, error) {
-	return repositories.Disable(tournament_collection, ID)
+func DeleteTournament(ID string) (bool, error) {
+	return repositories.Delete(tournament_collection, ID)
 }

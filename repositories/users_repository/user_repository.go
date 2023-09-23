@@ -28,9 +28,28 @@ func GetUser(ID string) (models.User, bool, error) {
 
 func UpdateUser(user models.User, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
-	if len(user.Avatar) > 0 {
-		updateDataMap["avatar"] = user.Avatar
+	if len(user.Name) > 0 {
+		updateDataMap["personal_data.name"] = user.Name
 	}
+	if len(user.Surname) > 0 {
+		updateDataMap["personal_data.surname"] = user.Surname
+	}
+	if len(user.Dni) > 0 {
+		updateDataMap["personal_data.dni"] = user.Dni
+	}
+	if len(user.Avatar) > 0 {
+		updateDataMap["personal_data.avatar"] = user.Avatar
+	}
+	if !user.DateOfBirth.IsZero() {
+		updateDataMap["personal_data.date_of_birth"] = user.DateOfBirth
+	}
+	if len(user.Gender) > 0 {
+		updateDataMap["personal_data.gender"] = user.Gender
+	}
+	if len(user.PhoneNumber) > 0 {
+		updateDataMap["personal_data.phone_number"] = user.PhoneNumber
+	}
+	updateDataMap["personal_data.disabled"] = user.Disabled
 
 	return repositories.Update(user_collection, updateDataMap, ID)
 }

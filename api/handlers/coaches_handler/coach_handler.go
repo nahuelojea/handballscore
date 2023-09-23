@@ -33,7 +33,7 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "coach":
-			return coaches.DisableCoach(request)
+			return coaches.DeleteCoach(request)
 		}
 	}
 

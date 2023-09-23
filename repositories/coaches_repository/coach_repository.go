@@ -134,6 +134,8 @@ func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 	if len(coach.PhoneNumber) > 0 {
 		updateDataMap["personal_data.phone_number"] = coach.PhoneNumber
 	}
+	updateDataMap["personal_data.disabled"] = coach.Disabled
+
 	if len(coach.TeamId) > 0 {
 		updateDataMap["team_id"] = coach.TeamId
 	}
@@ -141,8 +143,8 @@ func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 	return repositories.Update(coach_collection, updateDataMap, ID)
 }
 
-func DisableCoach(ID string) (bool, error) {
-	return repositories.Disable(coach_collection, ID)
+func DeleteCoach(ID string) (bool, error) {
+	return repositories.Delete(coach_collection, ID)
 }
 
 func GetCoachByDni(associationId, dni string) (models.Coach, bool, string) {

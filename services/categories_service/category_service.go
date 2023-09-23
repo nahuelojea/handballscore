@@ -43,8 +43,8 @@ func UpdateCategory(category models.Category, ID string) (bool, error) {
 	return categories_repository.UpdateCategory(category, ID)
 }
 
-func DisableCategory(ID string) (bool, error) {
-	return categories_repository.DisableCategory(ID)
+func DeleteCategory(ID string) (bool, error) {
+	return categories_repository.DeleteCategory(ID)
 }
 
 func GetLimitYearsByCategory(ID string) (int, int, string, error) {

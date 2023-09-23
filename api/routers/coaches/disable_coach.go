@@ -8,7 +8,7 @@ import (
 	"github.com/nahuelojea/handballscore/services/coaches_service"
 )
 
-func DisableCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
+func DeleteCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
 	Id := request.QueryStringParameters["id"]
@@ -18,14 +18,14 @@ func DisableCoach(request events.APIGatewayProxyRequest) dto.RestResponse {
 		return response
 	}
 
-	_, err := coaches_service.DisableCoach(Id)
+	_, err := coaches_service.DeleteCoach(Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to disable coach: " + err.Error()
+		response.Message = "Error to delete coach: " + err.Error()
 		return response
 	}
 
 	response.Status = http.StatusOK
-	response.Message = "Coach disabled"
+	response.Message = "Coach deleted"
 	return response
 }

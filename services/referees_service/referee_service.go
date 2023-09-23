@@ -64,8 +64,8 @@ func UpdateReferee(referee models.Referee, ID string) (bool, error) {
 	return referees_repository.UpdateReferee(referee, ID)
 }
 
-func DisableReferee(ID string) (bool, error) {
-	return referees_repository.DisableReferee(ID)
+func DeleteReferee(ID string) (bool, error) {
+	return referees_repository.DeleteReferee(ID)
 }
 
 func GetRefereeByDni(association_id, dni string) (models.Referee, bool, string) {

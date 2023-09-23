@@ -19,7 +19,6 @@ func Create(collectionName, association_id string, entity models.Entity) (string
 
 	entity.SetCreatedDate()
 	entity.SetModifiedDate()
-	entity.SetDisabled(false)
 	entity.SetAssociationId(association_id)
 
 	result, err := collection.InsertOne(ctx, entity)
@@ -42,7 +41,6 @@ func CreateMultiple(collectionName, associationID string, entities []models.Enti
 	for _, entity := range entities {
 		entity.SetCreatedDate()
 		entity.SetModifiedDate()
-		entity.SetDisabled(false)
 		entity.SetAssociationId(associationID)
 		documents = append(documents, entity)
 	}
@@ -134,10 +132,22 @@ func Update(collectionName string, updateDataMap map[string]interface{}, id stri
 	return true, nil
 }
 
-func Disable(collectionName, id string) (bool, error) {
-	updateDataMap := make(map[string]interface{})
+func Delete(collectionName string, id string) (bool, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(collectionName)
 
-	updateDataMap["status_data.disabled"] = true
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return false, err
+	}
 
-	return Update(collectionName, updateDataMap, id)
+	filter := bson.M{"_id": objId}
+
+	_, err = collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

@@ -69,8 +69,8 @@ func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 	return coaches_repository.UpdateCoach(coach, ID)
 }
 
-func DisableCoach(ID string) (bool, error) {
-	return coaches_repository.DisableCoach(ID)
+func DeleteCoach(ID string) (bool, error) {
+	return coaches_repository.DeleteCoach(ID)
 }
 
 func GetCoachByDni(associationId, dni string) (models.Coach, bool, string) {

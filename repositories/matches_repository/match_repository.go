@@ -23,7 +23,6 @@ func CreateMatches(associationID string, matches []models.Match) ([]string, bool
 	for _, match := range matches {
 		match.SetCreatedDate()
 		match.SetModifiedDate()
-		match.SetDisabled(false)
 		match.SetAssociationId(associationID)
 
 		id, created, err := repositories.Create(match_collection, associationID, &match)

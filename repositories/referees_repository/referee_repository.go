@@ -130,12 +130,13 @@ func UpdateReferee(referee models.Referee, ID string) (bool, error) {
 	if len(referee.PhoneNumber) > 0 {
 		updateDataMap["personal_data.phone_number"] = referee.PhoneNumber
 	}
+	updateDataMap["personal_data.disabled"] = referee.Disabled
 
 	return repositories.Update(referee_collection, updateDataMap, ID)
 }
 
-func DisableReferee(ID string) (bool, error) {
-	return repositories.Disable(referee_collection, ID)
+func DeleteReferee(ID string) (bool, error) {
+	return repositories.Delete(referee_collection, ID)
 }
 
 func GetRefereeByDni(associationId, dni string) (models.Referee, bool, string) {

@@ -29,10 +29,6 @@ func (category *Category) SetModifiedDate() {
 	category.ModifiedDate = time.Now()
 }
 
-func (category *Category) SetDisabled(disabled bool) {
-	category.Disabled = disabled
-}
-
 func (category *Category) SetAssociationId(associationId string) {
 	category.AssociationId = associationId
 }

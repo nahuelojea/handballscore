@@ -74,8 +74,8 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	return players_repository.UpdatePlayer(player, ID)
 }
 
-func DisablePlayer(ID string) (bool, error) {
-	return players_repository.DisablePlayer(ID)
+func DeletePlayer(ID string) (bool, error) {
+	return players_repository.DeletePlayer(ID)
 }
 
 func GetPlayerByDni(association_id, dni string) (models.Player, bool, string) {
@@ -84,19 +84,12 @@ func GetPlayerByDni(association_id, dni string) (models.Player, bool, string) {
 
 func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var filename string
-	var player models.Player
 
 	filename = AvatarUrl + id + ".jpg"
 
 	err := storage.UploadImage(ctx, contentType, body, filename)
 	if err != nil {
 		return errors.New("Error to upload image: " + err.Error())
-	}
-
-	player.SetAvatarURL(filename)
-	status, err := players_repository.UpdatePlayer(player, id)
-	if err != nil || !status {
-		return errors.New("Error to update player " + err.Error())
 	}
 	return nil
 }

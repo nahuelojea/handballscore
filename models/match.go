@@ -106,10 +106,6 @@ func (match *Match) SetModifiedDate() {
 	match.ModifiedDate = time.Now()
 }
 
-func (match *Match) SetDisabled(disabled bool) {
-	match.Disabled = disabled
-}
-
 func (match *Match) SetAssociationId(associationId string) {
 	match.AssociationId = associationId
 }

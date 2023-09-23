@@ -117,6 +117,6 @@ func UpdateCategory(category models.Category, ID string) (bool, error) {
 	return repositories.Update(category_collection, updateDataMap, ID)
 }
 
-func DisableCategory(ID string) (bool, error) {
-	return repositories.Disable(category_collection, ID)
+func DeleteCategory(ID string) (bool, error) {
+	return repositories.Delete(category_collection, ID)
 }
