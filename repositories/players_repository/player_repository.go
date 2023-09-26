@@ -142,9 +142,6 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	if len(player.Dni) > 0 {
 		updateDataMap["personal_data.dni"] = player.Dni
 	}
-	if len(player.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = player.Avatar
-	}
 	if !player.DateOfBirth.IsZero() {
 		updateDataMap["personal_data.date_of_birth"] = player.DateOfBirth
 	}
@@ -164,6 +161,15 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	}
 	if len(player.TeamId) > 0 {
 		updateDataMap["team_id"] = player.TeamId
+	}
+
+	return repositories.Update(player_collection, updateDataMap, ID)
+}
+
+func UpdateAvatar(player models.Player, ID string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+	if len(player.Avatar) > 0 {
+		updateDataMap["personal_data.avatar"] = player.Avatar
 	}
 
 	return repositories.Update(player_collection, updateDataMap, ID)

@@ -119,9 +119,6 @@ func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 	if len(coach.Surname) > 0 {
 		updateDataMap["personal_data.surname"] = coach.Surname
 	}
-	if len(coach.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = coach.Avatar
-	}
 	if !coach.DateOfBirth.IsZero() {
 		updateDataMap["personal_data.date_of_birth"] = coach.DateOfBirth
 	}
@@ -138,6 +135,15 @@ func UpdateCoach(coach models.Coach, ID string) (bool, error) {
 
 	if len(coach.TeamId) > 0 {
 		updateDataMap["team_id"] = coach.TeamId
+	}
+
+	return repositories.Update(coach_collection, updateDataMap, ID)
+}
+
+func UpdateAvatar(coach models.Coach, ID string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+	if len(coach.Avatar) > 0 {
+		updateDataMap["personal_data.avatar"] = coach.Avatar
 	}
 
 	return repositories.Update(coach_collection, updateDataMap, ID)

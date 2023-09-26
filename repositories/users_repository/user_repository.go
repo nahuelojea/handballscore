@@ -37,9 +37,6 @@ func UpdateUser(user models.User, ID string) (bool, error) {
 	if len(user.Dni) > 0 {
 		updateDataMap["personal_data.dni"] = user.Dni
 	}
-	if len(user.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = user.Avatar
-	}
 	if !user.DateOfBirth.IsZero() {
 		updateDataMap["personal_data.date_of_birth"] = user.DateOfBirth
 	}
@@ -70,4 +67,13 @@ func FindUserByEmail(email string) (models.User, bool, string) {
 		return result, false, id
 	}
 	return result, true, id
+}
+
+func UpdateAvatar(user models.User, ID string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+	if len(user.Avatar) > 0 {
+		updateDataMap["personal_data.avatar"] = user.Avatar
+	}
+
+	return repositories.Update(user_collection, updateDataMap, ID)
 }

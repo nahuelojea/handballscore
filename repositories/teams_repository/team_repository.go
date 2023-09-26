@@ -106,14 +106,20 @@ func UpdateTeam(team models.Team, ID string) (bool, error) {
 	if len(team.PhoneNumber) > 0 {
 		updateDataMap["phone_number"] = team.PhoneNumber
 	}
-	if len(team.Avatar) > 0 {
-		updateDataMap["avatar"] = team.Avatar
-	}
 	if !team.DateOfFoundation.IsZero() {
 		updateDataMap["date_of_foundation"] = team.DateOfFoundation
 	}
 	if len(team.Email) > 0 {
 		updateDataMap["email"] = team.Email
+	}
+
+	return repositories.Update(team_collection, updateDataMap, ID)
+}
+
+func UpdateAvatar(team models.Team, ID string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+	if len(team.Avatar) > 0 {
+		updateDataMap["avatar"] = team.Avatar
 	}
 
 	return repositories.Update(team_collection, updateDataMap, ID)

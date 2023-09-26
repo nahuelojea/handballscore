@@ -84,7 +84,7 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	}
 
 	referee.SetAvatarURL(filename)
-	status, err := referees_repository.UpdateReferee(referee, id)
+	status, err := referees_repository.UpdateAvatar(referee, id)
 	if err != nil || !status {
 		return errors.New("Error to update referee " + err.Error())
 	}

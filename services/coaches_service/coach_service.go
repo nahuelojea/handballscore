@@ -89,7 +89,7 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	}
 
 	coach.SetAvatarURL(filename)
-	status, err := coaches_repository.UpdateCoach(coach, id)
+	status, err := coaches_repository.UpdateAvatar(coach, id)
 	if err != nil || !status {
 		return errors.New("Error to update coach " + err.Error())
 	}

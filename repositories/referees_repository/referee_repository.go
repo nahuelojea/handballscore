@@ -115,9 +115,6 @@ func UpdateReferee(referee models.Referee, ID string) (bool, error) {
 	if len(referee.Surname) > 0 {
 		updateDataMap["personal_data.surname"] = referee.Surname
 	}
-	if len(referee.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = referee.Avatar
-	}
 	if !referee.DateOfBirth.IsZero() {
 		updateDataMap["personal_data.date_of_birth"] = referee.DateOfBirth
 	}
@@ -131,6 +128,15 @@ func UpdateReferee(referee models.Referee, ID string) (bool, error) {
 		updateDataMap["personal_data.phone_number"] = referee.PhoneNumber
 	}
 	updateDataMap["personal_data.disabled"] = referee.Disabled
+
+	return repositories.Update(referee_collection, updateDataMap, ID)
+}
+
+func UpdateAvatar(referee models.Referee, ID string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+	if len(referee.Avatar) > 0 {
+		updateDataMap["personal_data.avatar"] = referee.Avatar
+	}
 
 	return repositories.Update(referee_collection, updateDataMap, ID)
 }

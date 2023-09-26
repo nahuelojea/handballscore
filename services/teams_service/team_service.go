@@ -60,7 +60,7 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	}
 
 	team.SetAvatarURL(filename)
-	status, err := teams_repository.UpdateTeam(team, id)
+	status, err := teams_repository.UpdateAvatar(team, id)
 	if err != nil || !status {
 		return errors.New("Error to update team " + err.Error())
 	}

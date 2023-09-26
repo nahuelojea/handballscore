@@ -84,6 +84,7 @@ func GetPlayerByDni(association_id, dni string) (models.Player, bool, string) {
 
 func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var filename string
+	var player models.Player
 
 	filename = AvatarUrl + id + ".jpg"
 
@@ -91,5 +92,12 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	if err != nil {
 		return errors.New("Error to upload image: " + err.Error())
 	}
+
+	player.SetAvatarURL(filename)
+	status, err := players_repository.UpdateAvatar(player, id)
+	if err != nil || !status {
+		return errors.New("Error to update player " + err.Error())
+	}
+
 	return nil
 }
