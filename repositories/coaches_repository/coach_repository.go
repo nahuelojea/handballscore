@@ -34,11 +34,11 @@ type GetCoachsOptions struct {
 	Surname       string
 	Dni           string
 	Gender        string
+	OnlyEnabled   bool
 	TeamId        string
 	AssociationId string
 	Page          int
 	PageSize      int
-	SortField     string
 	SortOrder     int
 }
 
@@ -60,8 +60,11 @@ func GetCoachsFilteredAndPaginated(filterOptions GetCoachsOptions) ([]models.Coa
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
 	}
-	if filterOptions.Dni != "" {
-		filter["personal_data.gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
+	if filterOptions.Gender != "" {
+		filter["personal_data.gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
+	}
+	if filterOptions.OnlyEnabled {
+		filter["personal_data.disabled"] = false
 	}
 	if filterOptions.TeamId != "" {
 		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
@@ -70,19 +73,21 @@ func GetCoachsFilteredAndPaginated(filterOptions GetCoachsOptions) ([]models.Coa
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
 
-	sortField := filterOptions.SortField
-	if sortField == "" {
-		sortField = "personal_data.surname"
-	}
 	sortOrder := 1
 	if filterOptions.SortOrder == -1 {
 		sortOrder = -1
 	}
 
+	sortFields := bson.D{
+		{Key: "status_data.disabled", Value: sortOrder},
+		{Key: "personal_data.surname", Value: sortOrder},
+		{Key: "personal_data.name", Value: sortOrder},
+	}
+
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+	findOptions.SetSort(sortFields)
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {

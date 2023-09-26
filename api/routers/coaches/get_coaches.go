@@ -12,6 +12,7 @@ import (
 
 func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
+	var err error
 
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
@@ -19,8 +20,19 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 	surname := request.QueryStringParameters["surname"]
 	dni := request.QueryStringParameters["dni"]
 	gender := request.QueryStringParameters["gender"]
+	onlyEnabledStr := request.QueryStringParameters["onlyEnabled"]
 	teamId := request.QueryStringParameters["teamId"]
 	associationId := claim.AssociationId
+
+	var onlyEnabled bool
+	if onlyEnabledStr != "" {
+		onlyEnabled, err = strconv.ParseBool(onlyEnabledStr)
+		if err != nil {
+			response.Status = http.StatusBadRequest
+			response.Message = "'onlyEnabled' param is invalid"
+			return response
+		}
+	}
 
 	if len(associationId) < 1 {
 		response.Status = http.StatusBadRequest
@@ -43,11 +55,11 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 		Surname:       surname,
 		Dni:           dni,
 		Gender:        gender,
+		OnlyEnabled:   onlyEnabled,
 		TeamId:        teamId,
 		AssociationId: associationId,
 		Page:          page,
 		PageSize:      pageSize,
-		SortField:     "personal_data.surname",
 		SortOrder:     1,
 	}
 

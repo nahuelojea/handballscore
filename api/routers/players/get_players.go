@@ -21,10 +21,21 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 	surname := request.QueryStringParameters["surname"]
 	dni := request.QueryStringParameters["dni"]
 	gender := request.QueryStringParameters["gender"]
+	onlyEnabledStr := request.QueryStringParameters["onlyEnabled"]
 	teamId := request.QueryStringParameters["teamId"]
 	categoryId := request.QueryStringParameters["categoryId"]
 	excludeExpiredInsuranceStr := request.QueryStringParameters["excludeExpiredInsurance"]
 	associationId := claim.AssociationId
+
+	var onlyEnabled bool
+	if onlyEnabledStr != "" {
+		onlyEnabled, err = strconv.ParseBool(onlyEnabledStr)
+		if err != nil {
+			response.Status = http.StatusBadRequest
+			response.Message = "'onlyEnabled' param is invalid"
+			return response
+		}
+	}
 
 	var excludeExpiredInsurance bool
 	if excludeExpiredInsuranceStr != "" {
@@ -67,6 +78,7 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		Surname:                 surname,
 		Dni:                     dni,
 		Gender:                  gender,
+		OnlyEnabled:             onlyEnabled,
 		TeamId:                  teamId,
 		ExcludeExpiredInsurance: excludeExpiredInsurance,
 		YearLimitFrom:           yearLimitFrom,
@@ -74,7 +86,6 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		AssociationId:           associationId,
 		Page:                    page,
 		PageSize:                pageSize,
-		SortField:               "personal_data.surname",
 		SortOrder:               1,
 	}
 

@@ -35,6 +35,7 @@ type GetPlayersOptions struct {
 	Surname                 string
 	Dni                     string
 	Gender                  string
+	OnlyEnabled             bool
 	TeamId                  string
 	AssociationId           string
 	ExcludeExpiredInsurance bool
@@ -42,7 +43,6 @@ type GetPlayersOptions struct {
 	YearLimitTo             int
 	Page                    int
 	PageSize                int
-	SortField               string
 	SortOrder               int
 }
 
@@ -115,6 +115,9 @@ func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
 	}
 	if filterOptions.Gender != "" {
 		filter["personal_data.gender"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Gender, Options: "i"}}
+	}
+	if filterOptions.OnlyEnabled {
+		filter["personal_data.disabled"] = false
 	}
 	if filterOptions.TeamId != "" {
 		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}

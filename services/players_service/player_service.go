@@ -17,6 +17,7 @@ type GetPlayersOptions struct {
 	Surname                 string
 	Dni                     string
 	Gender                  string
+	OnlyEnabled             bool
 	TeamId                  string
 	AssociationId           string
 	ExcludeExpiredInsurance bool
@@ -51,6 +52,7 @@ func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error)
 		Surname:                 filterOptions.Surname,
 		Dni:                     filterOptions.Dni,
 		Gender:                  filterOptions.Gender,
+		OnlyEnabled:             filterOptions.OnlyEnabled,
 		TeamId:                  filterOptions.TeamId,
 		ExcludeExpiredInsurance: filterOptions.ExcludeExpiredInsurance,
 		YearLimitFrom:           filterOptions.YearLimitFrom,
@@ -58,7 +60,6 @@ func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error)
 		AssociationId:           filterOptions.AssociationId,
 		Page:                    filterOptions.Page,
 		PageSize:                filterOptions.PageSize,
-		SortField:               filterOptions.SortField,
 		SortOrder:               filterOptions.SortOrder,
 	}
 	return players_repository.GetPlayersFilteredAndPaginated(filters)

@@ -17,6 +17,7 @@ type GetCoachsOptions struct {
 	Surname       string
 	Dni           string
 	Gender        string
+	OnlyEnabled   bool
 	TeamId        string
 	AssociationId string
 	Page          int
@@ -48,11 +49,11 @@ func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
 		Surname:       filterOptions.Surname,
 		Dni:           filterOptions.Dni,
 		Gender:        filterOptions.Gender,
+		OnlyEnabled:   filterOptions.OnlyEnabled,
 		TeamId:        filterOptions.TeamId,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
 		PageSize:      filterOptions.PageSize,
-		SortField:     filterOptions.SortField,
 		SortOrder:     filterOptions.SortOrder,
 	}
 

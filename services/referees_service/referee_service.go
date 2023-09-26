@@ -16,6 +16,7 @@ type GetRefereesOptions struct {
 	Surname                 string
 	Dni                     string
 	Gender                  string
+	OnlyEnabled             bool
 	TeamId                  string
 	AssociationId           string
 	ExcludeExpiredInsurance bool
@@ -45,10 +46,10 @@ func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, err
 		Surname:       filterOptions.Surname,
 		Dni:           filterOptions.Dni,
 		Gender:        filterOptions.Gender,
+		OnlyEnabled:   filterOptions.OnlyEnabled,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
 		PageSize:      filterOptions.PageSize,
-		SortField:     filterOptions.SortField,
 		SortOrder:     filterOptions.SortOrder,
 	}
 	return referees_repository.GetRefereesFilteredAndPaginated(filters)
