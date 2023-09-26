@@ -21,10 +21,6 @@ func (referee *Referee) SetModifiedDate() {
 	referee.ModifiedDate = time.Now()
 }
 
-func (referee *Referee) SetDisabled(disabled bool) {
-	referee.Disabled = disabled
-}
-
 func (referee *Referee) SetAssociationId(associationId string) {
 	referee.AssociationId = associationId
 }

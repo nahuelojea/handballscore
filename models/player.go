@@ -24,10 +24,6 @@ func (player *Player) SetModifiedDate() {
 	player.ModifiedDate = time.Now()
 }
 
-func (player *Player) SetDisabled(disabled bool) {
-	player.Disabled = disabled
-}
-
 func (player *Player) SetAssociationId(associationId string) {
 	player.AssociationId = associationId
 }
