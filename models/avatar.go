@@ -1,6 +1,6 @@
 package models
 
-const ImagesBaseURL = "https://handballscore.s3.amazonaws.com/"
+const ImagesBaseURL = "https://handball-score.s3.sa-east-1.amazonaws.com/"
 
 type Avatar interface {
 	SetAvatarURL()

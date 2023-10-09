@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-const DefaultRegion = "us-east-1"
+const DefaultRegion = "sa-east-1"
 
 var Ctx context.Context
 var Cfg aws.Config

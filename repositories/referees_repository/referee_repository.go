@@ -75,7 +75,7 @@ func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models
 	}
 
 	sortFields := bson.D{
-		{Key: "status_data.disabled", Value: sortOrder},
+		{Key: "personal_data.disabled", Value: sortOrder},
 		{Key: "personal_data.surname", Value: sortOrder},
 		{Key: "personal_data.name", Value: sortOrder},
 	}
