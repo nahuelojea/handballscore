@@ -3,6 +3,7 @@ package players
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 
@@ -22,7 +23,13 @@ func UploadAvatar(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	err := players_service.UploadAvatar(ctx, request.Headers["Content-Type"], request.Body, id)
+	normalizedHeaders := make(map[string]string)
+	for key, value := range request.Headers {
+		normalizedKey := strings.ToLower(key)
+		normalizedHeaders[normalizedKey] = value
+	}
+
+	err := players_service.UploadAvatar(ctx, normalizedHeaders["content-type"], request.Body, id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update player avatar: " + err.Error()

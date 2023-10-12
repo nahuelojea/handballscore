@@ -35,6 +35,12 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 		return restResponse
 	}
 
+	fmt.Println("Request headers: > ")
+	for header, value := range request.Headers {
+		fmt.Printf("-----> %s > %s\n", header, value)
+	}
+	fmt.Println("Request body: > " + request.Body)
+
 	parts := strings.Split(ctx.Value(dto.Key("path")).(string), "/")
 
 	if len(parts) > 0 {

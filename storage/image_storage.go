@@ -35,10 +35,14 @@ func (rs *readSeeker) Seek(offset int64, whence int) (int64, error) {
 func UploadImage(ctx context.Context, contentType, body, filename string) error {
 	bucket := aws.String(ctx.Value(dto.Key("bucketName")).(string))
 
+	fmt.Println("ContentType: > " + contentType)
+
 	mediaType, params, err := mime.ParseMediaType(contentType)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("MediaType: > " + mediaType)
 
 	if strings.HasPrefix(mediaType, "multipart/") {
 
@@ -47,16 +51,22 @@ func UploadImage(ctx context.Context, contentType, body, filename string) error 
 			return err
 		}
 
+		fmt.Println("Llegue 1")
+
 		imageSize := len(body)
 		if imageSize > maxImageSize {
 			return errors.New(fmt.Sprintf("Image size exceeds the maximum allowed size of %d bytes", maxImageSize))
 		}
+
+		fmt.Println("Llegue 2")
 
 		mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
 		p, err := mr.NextPart()
 		if err != nil && err != io.EOF {
 			return err
 		}
+
+		fmt.Println("Llegue 3")
 
 		if err != io.EOF {
 			if p.FileName() != "" {
@@ -65,6 +75,8 @@ func UploadImage(ctx context.Context, contentType, body, filename string) error 
 					return err
 				}
 
+				fmt.Println("Llegue 4")
+
 				sess, err := session.NewSession(&aws.Config{
 					Region: aws.String(awsgo.DefaultRegion)})
 
@@ -72,12 +84,16 @@ func UploadImage(ctx context.Context, contentType, body, filename string) error 
 					return err
 				}
 
+				fmt.Println("Llegue 5")
+
 				uploader := s3manager.NewUploader(sess)
 				_, err = uploader.Upload(&s3manager.UploadInput{
 					Bucket: bucket,
 					Key:    aws.String(filename),
 					Body:   &readSeeker{buf},
 				})
+
+				fmt.Println("Llegue 6")
 
 				if err != nil {
 					return err

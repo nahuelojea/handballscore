@@ -15,6 +15,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
 			return referees.AddReferee(ctx, claim)
+		case "referee/avatar":
+			return referees.UploadAvatar(ctx, request)
 		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
@@ -27,8 +29,6 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "referee":
 			return referees.UpdateReferee(ctx, request)
-		case "referee/avatar":
-			return referees.UploadAvatar(ctx, request)
 		}
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {

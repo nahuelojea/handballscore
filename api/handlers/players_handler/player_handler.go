@@ -15,6 +15,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "player":
 			return players.AddPlayer(ctx, claim)
+		case "player/avatar":
+			return players.UploadAvatar(ctx, request)
 		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
@@ -27,8 +29,6 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "player":
 			return players.UpdatePlayer(ctx, request)
-		case "player/avatar":
-			return players.UploadAvatar(ctx, request)
 		}
 	case "DELETE":
 		switch ctx.Value(dto.Key("path")).(string) {
