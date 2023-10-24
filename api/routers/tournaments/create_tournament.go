@@ -15,7 +15,7 @@ import (
 )
 
 func CreateTournament(ctx context.Context, claim dto.Claim) dto.RestResponse {
-	var tournament models.Tournament
+	var tournament models.TournamentCategory
 	var restResponse dto.RestResponse
 	restResponse.Status = http.StatusBadRequest
 

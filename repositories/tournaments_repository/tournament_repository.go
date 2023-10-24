@@ -15,15 +15,15 @@ const (
 	tournament_collection = "tournaments"
 )
 
-func CreateTournament(association_id string, tournament models.Tournament) (string, bool, error) {
+func CreateTournament(association_id string, tournament models.TournamentCategory) (string, bool, error) {
 	return repositories.Create(tournament_collection, association_id, &tournament)
 }
 
-func GetTournament(ID string) (models.Tournament, bool, error) {
-	var tournament models.Tournament
+func GetTournament(ID string) (models.TournamentCategory, bool, error) {
+	var tournament models.TournamentCategory
 	_, err := repositories.GetById(tournament_collection, ID, &tournament)
 	if err != nil {
-		return models.Tournament{}, false, err
+		return models.TournamentCategory{}, false, err
 	}
 
 	return tournament, true, nil
@@ -40,7 +40,7 @@ type GetTournamentsOptions struct {
 	SortOrder     int
 }
 
-func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]models.Tournament, int64, error) {
+func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]models.TournamentCategory, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(tournament_collection)
@@ -82,9 +82,9 @@ func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]
 	}
 	defer cur.Close(ctx)
 
-	var tournaments []models.Tournament
+	var tournaments []models.TournamentCategory
 	for cur.Next(ctx) {
-		var tournament models.Tournament
+		var tournament models.TournamentCategory
 		if err := cur.Decode(&tournament); err != nil {
 			return nil, 0, err
 		}
@@ -103,7 +103,7 @@ func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]
 	return tournaments, totalRecords, nil
 }
 
-func UpdateTournament(tournament models.Tournament, ID string) (bool, error) {
+func UpdateTournament(tournament models.TournamentCategory, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if len(tournament.Name) > 0 {
 		updateDataMap["name"] = tournament.Name

@@ -14,7 +14,7 @@ import (
 func UpdateTournament(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
-	var tournament models.Tournament
+	var tournament models.TournamentCategory
 
 	Id := request.QueryStringParameters["id"]
 	if len(Id) < 1 {

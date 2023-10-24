@@ -16,15 +16,15 @@ type GetTournamentsOptions struct {
 	SortOrder     int
 }
 
-func CreateTournament(association_id string, tournament models.Tournament) (string, bool, error) {
+func CreateTournament(association_id string, tournament models.TournamentCategory) (string, bool, error) {
 	return tournaments_repository.CreateTournament(association_id, tournament)
 }
 
-func GetTournament(ID string) (models.Tournament, bool, error) {
+func GetTournament(ID string) (models.TournamentCategory, bool, error) {
 	return tournaments_repository.GetTournament(ID)
 }
 
-func GetTournaments(filterOptions GetTournamentsOptions) ([]models.Tournament, int64, error) {
+func GetTournaments(filterOptions GetTournamentsOptions) ([]models.TournamentCategory, int64, error) {
 	filters := tournaments_repository.GetTournamentsOptions{
 		Name:          filterOptions.Name,
 		CategoryId:    filterOptions.CategoryId,
@@ -38,7 +38,7 @@ func GetTournaments(filterOptions GetTournamentsOptions) ([]models.Tournament, i
 	return tournaments_repository.GetTournamentsFilteredAndPaginated(filters)
 }
 
-func UpdateTournament(tournament models.Tournament, ID string) (bool, error) {
+func UpdateTournament(tournament models.TournamentCategory, ID string) (bool, error) {
 	return tournaments_repository.UpdateTournament(tournament, ID)
 }
 
