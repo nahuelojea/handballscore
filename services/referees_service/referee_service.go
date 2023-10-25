@@ -52,7 +52,7 @@ func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, err
 		PageSize:      filterOptions.PageSize,
 		SortOrder:     filterOptions.SortOrder,
 	}
-	return referees_repository.GetRefereesFilteredAndPaginated(filters)
+	return referees_repository.GetReferees(filters)
 }
 
 func UpdateReferee(referee models.Referee, ID string) (bool, error) {

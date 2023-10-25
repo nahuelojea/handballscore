@@ -42,7 +42,7 @@ type GetAssociationsOptions struct {
 	SortOrder int
 }
 
-func GetAssociationsFilteredAndPaginated(filterOptions GetAssociationsOptions) ([]models.Association, int64, error) {
+func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(association_collection)

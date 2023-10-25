@@ -37,7 +37,7 @@ func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
 		SortField:     filterOptions.SortField,
 		SortOrder:     filterOptions.SortOrder,
 	}
-	return teams_repository.GetTeamsFilteredAndPaginated(filters)
+	return teams_repository.GetTeams(filters)
 }
 
 func UpdateTeam(team models.Team, ID string) (bool, error) {

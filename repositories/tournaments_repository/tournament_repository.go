@@ -15,24 +15,9 @@ const (
 	tournament_collection = "tournaments"
 )
 
-func CreateTournament(association_id string, tournament models.TournamentCategory) (string, bool, error) {
-	return repositories.Create(tournament_collection, association_id, &tournament)
-}
-
-func GetTournament(ID string) (models.TournamentCategory, bool, error) {
-	var tournament models.TournamentCategory
-	_, err := repositories.GetById(tournament_collection, ID, &tournament)
-	if err != nil {
-		return models.TournamentCategory{}, false, err
-	}
-
-	return tournament, true, nil
-}
-
 type GetTournamentsOptions struct {
 	Name          string
-	CategoryId    string
-	Status        string
+	OnlyEnabled   bool
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -40,7 +25,21 @@ type GetTournamentsOptions struct {
 	SortOrder     int
 }
 
-func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]models.TournamentCategory, int64, error) {
+func CreateTournament(association_id string, tournament models.Tournament) (string, bool, error) {
+	return repositories.Create(tournament_collection, association_id, &tournament)
+}
+
+func GetTournament(ID string) (models.Tournament, bool, error) {
+	var tournament models.Tournament
+	_, err := repositories.GetById(tournament_collection, ID, &tournament)
+	if err != nil {
+		return models.Tournament{}, false, err
+	}
+
+	return tournament, true, nil
+}
+
+func GetTournaments(filterOptions GetTournamentsOptions) ([]models.Tournament, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(tournament_collection)
@@ -52,29 +51,27 @@ func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]
 	if filterOptions.Name != "" {
 		filter["name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
 	}
-	if filterOptions.CategoryId != "" {
-		filter["category_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.CategoryId, Options: "i"}}
-	}
-	if filterOptions.CategoryId != "" {
-		filter["status"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Status, Options: "i"}}
+	if filterOptions.OnlyEnabled {
+		filter["disabled"] = false
 	}
 
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
 
-	sortField := filterOptions.SortField
-	if sortField == "" {
-		sortField = "name"
-	}
 	sortOrder := 1
 	if filterOptions.SortOrder == -1 {
 		sortOrder = -1
 	}
 
+	sortFields := bson.D{
+		{Key: "name", Value: sortOrder},
+		{Key: "disabled", Value: sortOrder},
+	}
+
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+	findOptions.SetSort(sortFields)
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
@@ -82,9 +79,9 @@ func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]
 	}
 	defer cur.Close(ctx)
 
-	var tournaments []models.TournamentCategory
+	var tournaments []models.Tournament
 	for cur.Next(ctx) {
-		var tournament models.TournamentCategory
+		var tournament models.Tournament
 		if err := cur.Decode(&tournament); err != nil {
 			return nil, 0, err
 		}
@@ -103,17 +100,12 @@ func GetTournamentsFilteredAndPaginated(filterOptions GetTournamentsOptions) ([]
 	return tournaments, totalRecords, nil
 }
 
-func UpdateTournament(tournament models.TournamentCategory, ID string) (bool, error) {
+func UpdateTournament(tournament models.Tournament, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if len(tournament.Name) > 0 {
 		updateDataMap["name"] = tournament.Name
 	}
-	if len(tournament.Champion) > 0 {
-		updateDataMap["champion"] = tournament.Champion
-	}
-	if len(tournament.Status) > 0 {
-		updateDataMap["status"] = tournament.Status
-	}
+	updateDataMap["disabled"] = tournament.Disabled
 
 	return repositories.Update(tournament_collection, updateDataMap, ID)
 }

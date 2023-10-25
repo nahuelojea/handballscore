@@ -38,7 +38,7 @@ func GetTeam(ID string) (models.Team, bool, error) {
 	return team, true, nil
 }
 
-func GetTeamsFilteredAndPaginated(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
+func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(team_collection)

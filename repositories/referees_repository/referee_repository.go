@@ -41,7 +41,7 @@ type GetRefereesOptions struct {
 	SortOrder     int
 }
 
-func GetRefereesFilteredAndPaginated(filterOptions GetRefereesOptions) ([]models.Referee, int64, error) {
+func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(referee_collection)

@@ -42,7 +42,7 @@ type GetCoachsOptions struct {
 	SortOrder     int
 }
 
-func GetCoachsFilteredAndPaginated(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
+func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(coach_collection)

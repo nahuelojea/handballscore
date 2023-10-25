@@ -60,7 +60,7 @@ type GetMatchesOptions struct {
 	SortOrder     int
 }
 
-func GetMatchesFilteredAndPaginated(filterOptions GetMatchesOptions) ([]models.Match, int64, error) {
+func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(match_collection)

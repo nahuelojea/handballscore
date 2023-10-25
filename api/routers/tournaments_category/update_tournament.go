@@ -8,13 +8,13 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/services/tournaments_service"
+	tournaments_service "github.com/nahuelojea/handballscore/services/tournaments_category_service"
 )
 
-func UpdateTournament(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
+func UpdateTournamentCategory(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 
-	var tournament models.Tournament
+	var tournament models.TournamentCategory
 
 	Id := request.QueryStringParameters["id"]
 	if len(Id) < 1 {
@@ -30,20 +30,20 @@ func UpdateTournament(ctx context.Context, request events.APIGatewayProxyRequest
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	status, err := tournaments_service.UpdateTournament(tournament, Id)
+	status, err := tournaments_service.UpdateTournamentCategory(tournament, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update tournament: " + err.Error()
+		response.Message = "Error to update tournament category: " + err.Error()
 		return response
 	}
 
 	if !status {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update tournament in database"
+		response.Message = "Error to update tournament category in database"
 		return response
 	}
 
 	response.Status = http.StatusOK
-	response.Message = "Tournament updated"
+	response.Message = "Tournament category updated"
 	return response
 }

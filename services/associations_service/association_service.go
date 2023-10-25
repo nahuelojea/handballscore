@@ -27,5 +27,5 @@ func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association
 		SortOrder: filterOptions.SortOrder,
 	}
 
-	return associations_repository.GetAssociationsFilteredAndPaginated(filters)
+	return associations_repository.GetAssociations(filters)
 }

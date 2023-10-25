@@ -62,7 +62,7 @@ func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error)
 		PageSize:                filterOptions.PageSize,
 		SortOrder:               filterOptions.SortOrder,
 	}
-	return players_repository.GetPlayersFilteredAndPaginated(filters)
+	return players_repository.GetPlayers(filters)
 }
 
 func UpdatePlayer(player models.Player, ID string) (bool, error) {

@@ -36,7 +36,7 @@ func GetCategories(filterOptions GetCategoriesOptions) ([]models.Category, int64
 		SortOrder:     filterOptions.SortOrder,
 	}
 
-	return categories_repository.GetCategoriesFilteredAndPaginated(filters)
+	return categories_repository.GetCategories(filters)
 }
 
 func UpdateCategory(category models.Category, ID string) (bool, error) {

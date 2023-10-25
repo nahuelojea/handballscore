@@ -7,33 +7,23 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/services/tournaments_service"
+	tournaments_service "github.com/nahuelojea/handballscore/services/tournaments_category_service"
 )
 
-func GetTournaments(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
+func GetTournamentsCategory(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
-	var err error
 
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	name := request.QueryStringParameters["name"]
-	onlyEnabledStr := request.QueryStringParameters["onlyEnabled"]
+	categoryId := request.QueryStringParameters["category_id"]
+	status := request.QueryStringParameters["status"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
 		response.Status = http.StatusBadRequest
 		response.Message = "'associationId' param is mandatory"
 		return response
-	}
-
-	var onlyEnabled bool
-	if onlyEnabledStr != "" {
-		onlyEnabled, err = strconv.ParseBool(onlyEnabledStr)
-		if err != nil {
-			response.Status = http.StatusBadRequest
-			response.Message = "'onlyEnabled' param is invalid"
-			return response
-		}
 	}
 
 	page, err := strconv.Atoi(pageStr)
@@ -46,9 +36,10 @@ func GetTournaments(request events.APIGatewayProxyRequest, claim dto.Claim) dto.
 		pageSize = 20
 	}
 
-	filterOptions := tournaments_service.GetTournamentsOptions{
+	filterOptions := tournaments_service.GetTournamentsCategoryOptions{
 		Name:          name,
-		OnlyEnabled:   onlyEnabled,
+		CategoryId:    categoryId,
+		Status:        status,
 		AssociationId: associationId,
 		Page:          page,
 		PageSize:      pageSize,
@@ -56,10 +47,10 @@ func GetTournaments(request events.APIGatewayProxyRequest, claim dto.Claim) dto.
 		SortOrder:     1,
 	}
 
-	tournamentsList, totalRecords, err := tournaments_service.GetTournaments(filterOptions)
+	tournamentsList, totalRecords, err := tournaments_service.GetTournamentsCategory(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to get tournaments: " + err.Error()
+		response.Message = "Error to get tournaments category: " + err.Error()
 		return response
 	}
 
@@ -74,7 +65,7 @@ func GetTournaments(request events.APIGatewayProxyRequest, claim dto.Claim) dto.
 	jsonResponse, err := json.Marshal(paginatedResponse)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error formatting tournaments to JSON: " + err.Error()
+		response.Message = "Error formatting tournaments category to JSON: " + err.Error()
 		return response
 	}
 

@@ -7,8 +7,7 @@ import (
 
 type GetTournamentsOptions struct {
 	Name          string
-	CategoryId    string
-	Status        string
+	OnlyEnabled   bool
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -16,29 +15,28 @@ type GetTournamentsOptions struct {
 	SortOrder     int
 }
 
-func CreateTournament(association_id string, tournament models.TournamentCategory) (string, bool, error) {
+func CreateTournament(association_id string, tournament models.Tournament) (string, bool, error) {
 	return tournaments_repository.CreateTournament(association_id, tournament)
 }
 
-func GetTournament(ID string) (models.TournamentCategory, bool, error) {
+func GetTournament(ID string) (models.Tournament, bool, error) {
 	return tournaments_repository.GetTournament(ID)
 }
 
-func GetTournaments(filterOptions GetTournamentsOptions) ([]models.TournamentCategory, int64, error) {
+func GetTournaments(filterOptions GetTournamentsOptions) ([]models.Tournament, int64, error) {
 	filters := tournaments_repository.GetTournamentsOptions{
 		Name:          filterOptions.Name,
-		CategoryId:    filterOptions.CategoryId,
-		Status:        filterOptions.Status,
+		OnlyEnabled:   filterOptions.OnlyEnabled,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
 		PageSize:      filterOptions.PageSize,
 		SortField:     filterOptions.Name,
 		SortOrder:     filterOptions.SortOrder,
 	}
-	return tournaments_repository.GetTournamentsFilteredAndPaginated(filters)
+	return tournaments_repository.GetTournaments(filters)
 }
 
-func UpdateTournament(tournament models.TournamentCategory, ID string) (bool, error) {
+func UpdateTournament(tournament models.Tournament, ID string) (bool, error) {
 	return tournaments_repository.UpdateTournament(tournament, ID)
 }
 

@@ -46,7 +46,7 @@ type GetPlayersOptions struct {
 	SortOrder               int
 }
 
-func GetPlayersFilteredAndPaginated(filterOptions GetPlayersOptions) ([]models.Player, int64, error) {
+func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(player_collection)

@@ -57,7 +57,7 @@ func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
 		SortOrder:     filterOptions.SortOrder,
 	}
 
-	return coaches_repository.GetCoachsFilteredAndPaginated(filters)
+	return coaches_repository.GetCoachs(filters)
 }
 
 func UpdateCoach(coach models.Coach, ID string) (bool, error) {

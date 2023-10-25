@@ -39,7 +39,7 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) 
 		SortField:     filterOptions.SortField,
 		SortOrder:     filterOptions.SortOrder,
 	}
-	return matches_repository.GetMatchesFilteredAndPaginated(filters)
+	return matches_repository.GetMatches(filters)
 }
 
 func ProgramMatch(matchTime time.Time, place string, id string) (bool, error) {

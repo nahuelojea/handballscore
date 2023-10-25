@@ -39,7 +39,7 @@ type GetCategoriesOptions struct {
 	SortOrder     int
 }
 
-func GetCategoriesFilteredAndPaginated(filterOptions GetCategoriesOptions) ([]models.Category, int64, error) {
+func GetCategories(filterOptions GetCategoriesOptions) ([]models.Category, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(category_collection)
