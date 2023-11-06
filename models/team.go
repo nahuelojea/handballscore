@@ -30,6 +30,10 @@ func (team *Team) SetAssociationId(associationId string) {
 	team.AssociationId = associationId
 }
 
+func (team *Team) SetId(id primitive.ObjectID) {
+	team.Id = id
+}
+
 func (team *Team) SetAvatarURL(filename string) {
 	team.Avatar = ImagesBaseURL + filename
 }

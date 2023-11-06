@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func Create(collectionName, association_id string, entity models.Entity) (string, bool, error) {
+func Create(collectionName, associationId string, entity models.Entity) (string, bool, error) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
@@ -19,7 +19,7 @@ func Create(collectionName, association_id string, entity models.Entity) (string
 
 	entity.SetCreatedDate()
 	entity.SetModifiedDate()
-	entity.SetAssociationId(association_id)
+	entity.SetAssociationId(associationId)
 
 	result, err := collection.InsertOne(ctx, entity)
 	if err != nil {
@@ -30,7 +30,7 @@ func Create(collectionName, association_id string, entity models.Entity) (string
 	return ObjID.Hex(), true, nil
 }
 
-func CreateMultiple(collectionName, associationID string, entities []models.Entity) ([]string, bool, error) {
+func CreateMultiple(collectionName, associationId string, entities []models.Entity) ([]string, bool, error) {
 	ctx := context.TODO()
 
 	db := db.MongoClient.Database(db.DatabaseName)
@@ -41,7 +41,7 @@ func CreateMultiple(collectionName, associationID string, entities []models.Enti
 	for _, entity := range entities {
 		entity.SetCreatedDate()
 		entity.SetModifiedDate()
-		entity.SetAssociationId(associationID)
+		entity.SetAssociationId(associationId)
 		documents = append(documents, entity)
 	}
 

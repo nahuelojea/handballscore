@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
-	"github.com/nahuelojea/handballscore/dto"
+	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories"
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,23 +18,13 @@ const (
 )
 
 func CreateMatches(associationID string, matches []models.Match) ([]string, bool, error) {
-	var createdIDs []string
-
-	for _, match := range matches {
-		match.SetCreatedDate()
-		match.SetModifiedDate()
-		match.SetAssociationId(associationID)
-
-		id, created, err := repositories.Create(match_collection, associationID, &match)
-		if err != nil {
-			return createdIDs, false, err
-		}
-		if created {
-			createdIDs = append(createdIDs, id)
-		}
+	entities := make([]models.Entity, len(matches))
+	for i, v := range matches {
+		match := v
+		entities[i] = models.Entity(&match)
 	}
 
-	return createdIDs, true, nil
+	return repositories.CreateMultiple(match_collection, associationID, entities)
 }
 
 func CreateMatch(association_id string, match models.Match) (string, bool, error) {

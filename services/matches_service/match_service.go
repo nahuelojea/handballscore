@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/nahuelojea/handballscore/dto"
+	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 )

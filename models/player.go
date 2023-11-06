@@ -28,6 +28,10 @@ func (player *Player) SetAssociationId(associationId string) {
 	player.AssociationId = associationId
 }
 
+func (player *Player) SetId(id primitive.ObjectID) {
+	player.Id = id
+}
+
 func (player *Player) SetAvatarURL(filename string) {
 	player.Avatar = ImagesBaseURL + filename
 }

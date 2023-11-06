@@ -6,15 +6,12 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/services/matches_service"
-	tournaments_service "github.com/nahuelojea/handballscore/services/tournaments_category_service"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	TournamentDTO "github.com/nahuelojea/handballscore/dto/tournaments"
+	TournamentsService "github.com/nahuelojea/handballscore/services/tournaments_category_service"
 )
 
-func CreateTournamentCategory(ctx context.Context, claim dto.Claim) dto.RestResponse {
+/*func CreateTournamentCategory(ctx context.Context, claim dto.Claim) dto.RestResponse {
 	var tournament models.TournamentCategory
 	var restResponse dto.RestResponse
 	restResponse.Status = http.StatusBadRequest
@@ -26,10 +23,6 @@ func CreateTournamentCategory(ctx context.Context, claim dto.Claim) dto.RestResp
 		return restResponse
 	}
 
-	if len(tournament.Name) == 0 {
-		restResponse.Message = "Name is required"
-		return restResponse
-	}
 	if len(tournament.CategoryId) == 0 {
 		restResponse.Message = "Category id is required"
 		return restResponse
@@ -69,15 +62,10 @@ func CreateTournamentCategory(ctx context.Context, claim dto.Claim) dto.RestResp
 		//TODO Para pensar
 	}
 
-	id, status, err := tournaments_service.CreateTournamentCategory(claim.AssociationId, tournament)
+	id, _, err := tournaments_service.CreateTournamentCategory(claim.AssociationId, tournament)
 	if err != nil {
 		session.AbortTransaction(context.TODO())
 		restResponse.Message = "Error to create tournament category: " + err.Error()
-		return restResponse
-	}
-	if !status {
-		session.AbortTransaction(context.TODO())
-		restResponse.Message = "Error to create tournament category"
 		return restResponse
 	}
 
@@ -96,6 +84,43 @@ func CreateTournamentCategory(ctx context.Context, claim dto.Claim) dto.RestResp
 	err = session.CommitTransaction(context.TODO())
 	if err != nil {
 		restResponse.Message = "Error committing transaction: " + err.Error()
+		return restResponse
+	}
+
+	restResponse.Status = http.StatusCreated
+	restResponse.Message = id
+	return restResponse
+}*/
+
+func CreateTournamentCategory(ctx context.Context, claim dto.Claim) dto.RestResponse {
+	var createTournamentCategoryRequest TournamentDTO.CreateTournamentCategoryRequest
+	var restResponse dto.RestResponse
+	restResponse.Status = http.StatusBadRequest
+
+	body := ctx.Value(dto.Key("body")).(string)
+	err := json.Unmarshal([]byte(body), &createTournamentCategoryRequest)
+	if err != nil {
+		restResponse.Message = err.Error()
+		return restResponse
+	}
+
+	if len(createTournamentCategoryRequest.CategoryId) == 0 {
+		restResponse.Message = "Category id is required"
+		return restResponse
+	}
+	if len(createTournamentCategoryRequest.Teams) == 0 {
+		restResponse.Message = "Teams are required"
+		return restResponse
+	}
+	if reflect.DeepEqual(createTournamentCategoryRequest.LeaguePhase, TournamentDTO.LeaguePhaseRequest{}) &&
+		reflect.DeepEqual(createTournamentCategoryRequest.PlayoffPhase, TournamentDTO.PlayoffPhaseRequest{}) {
+		restResponse.Message = "Type of tournament category is required"
+		return restResponse
+	}
+
+	id, _, err := TournamentsService.CreateTournamentCategory(ctx, claim.AssociationId, createTournamentCategoryRequest)
+	if err != nil {
+		restResponse.Message = "Error to create tournament category: " + err.Error()
 		return restResponse
 	}
 

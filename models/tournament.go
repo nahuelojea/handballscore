@@ -25,3 +25,7 @@ func (tournament *Tournament) SetCreatedDate() {
 func (tournament *Tournament) SetModifiedDate() {
 	tournament.ModifiedDate = time.Now()
 }
+
+func (tournament *Tournament) SetId(id primitive.ObjectID) {
+	tournament.Id = id
+}

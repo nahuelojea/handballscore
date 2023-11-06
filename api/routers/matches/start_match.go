@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 
 	"github.com/nahuelojea/handballscore/dto"
+	MatchesDTO "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
@@ -22,7 +23,7 @@ func StartMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.
 		return response
 	}
 
-	var startMatchRequest dto.StartMatchRequest
+	var startMatchRequest MatchesDTO.StartMatchRequest
 
 	body := ctx.Value(dto.Key("body")).(string)
 	err := json.Unmarshal([]byte(body), &startMatchRequest)

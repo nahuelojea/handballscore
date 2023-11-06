@@ -26,6 +26,10 @@ func (coach *Coach) SetAssociationId(associationId string) {
 	coach.AssociationId = associationId
 }
 
+func (coach *Coach) SetId(id primitive.ObjectID) {
+	coach.Id = id
+}
+
 func (coach *Coach) SetAvatarURL(filename string) {
 	coach.Avatar = ImagesBaseURL + filename
 }

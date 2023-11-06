@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
+	loginDTO "github.com/nahuelojea/handballscore/dto/login"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/services/authorization_service"
 )
@@ -40,7 +41,7 @@ func Login(ctx context.Context) dto.RestResponse {
 		return response
 	}
 
-	resp := dto.LoginResponse{
+	resp := loginDTO.LoginResponse{
 		Token:         jwtKey,
 		RefreshToken:  refreshJwtKey,
 		Avatar:        userData.Avatar,

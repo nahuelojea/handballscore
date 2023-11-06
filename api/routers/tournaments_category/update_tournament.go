@@ -30,16 +30,10 @@ func UpdateTournamentCategory(ctx context.Context, request events.APIGatewayProx
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	status, err := tournaments_service.UpdateTournamentCategory(tournament, Id)
+	_, err = tournaments_service.UpdateTournamentCategory(tournament, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update tournament category: " + err.Error()
-		return response
-	}
-
-	if !status {
-		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update tournament category in database"
 		return response
 	}
 

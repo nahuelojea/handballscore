@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
+	loginDTO "github.com/nahuelojea/handballscore/dto/login"
 	"github.com/nahuelojea/handballscore/services/authorization_service"
 )
 
@@ -22,7 +23,7 @@ func RefreshToken(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	resp := dto.RefreshTokenResponse{
+	resp := loginDTO.RefreshTokenResponse{
 		Token:        jwtKey,
 		RefreshToken: refreshJwtKey,
 	}

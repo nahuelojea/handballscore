@@ -32,3 +32,7 @@ func (category *Category) SetModifiedDate() {
 func (category *Category) SetAssociationId(associationId string) {
 	category.AssociationId = associationId
 }
+
+func (category *Category) SetId(id primitive.ObjectID) {
+	category.Id = id
+}

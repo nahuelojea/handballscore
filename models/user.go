@@ -39,6 +39,10 @@ func (user *User) SetAssociationId(associationId string) {
 	user.AssociationId = associationId
 }
 
+func (user *User) SetId(id primitive.ObjectID) {
+	user.Id = id
+}
+
 func (user *User) SetAvatarURL(filename string) {
 	user.Avatar = ImagesBaseURL + filename
 }

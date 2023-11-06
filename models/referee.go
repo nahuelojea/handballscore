@@ -25,6 +25,10 @@ func (referee *Referee) SetAssociationId(associationId string) {
 	referee.AssociationId = associationId
 }
 
+func (referee *Referee) SetId(id primitive.ObjectID) {
+	referee.Id = id
+}
+
 func (referee *Referee) SetAvatarURL(filename string) {
 	referee.Avatar = ImagesBaseURL + filename
 }
