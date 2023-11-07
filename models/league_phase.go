@@ -2,8 +2,6 @@ package models
 
 import (
 	"fmt"
-	"math"
-	"math/rand"
 	"strconv"
 	"time"
 
@@ -150,52 +148,6 @@ func (leaguePhase *LeaguePhase) GenerateMatches(leaguePhaseWeeks []LeaguePhaseWe
 	}
 
 	fmt.Printf("Matches quantity: " + strconv.Itoa(len(matches)))
-
-	rand.Seed(time.Now().UnixNano()) // Inicializar la semilla del generador aleatorio
-
-	for i := 0; i < len(leaguePhaseWeeks); i++ {
-		totalMatchesByWeek := int(math.Floor(float64(totalTeams) / 2))
-
-		// Verificar si quedan partidos por asignar
-		if totalMatchesByWeek <= 0 {
-			break
-		}
-
-		// Obtener partidos aleatorios
-		matchesToAssign := make([]Match, 0)
-
-		// Usar un mapa para realizar un seguimiento de cuántos partidos ha jugado cada equipo
-		teamMatchesCount := make(map[string]int)
-
-		for j := 0; j < totalMatchesByWeek; j++ {
-			if len(matches) == 0 {
-				break // No quedan partidos
-			}
-
-			// Elegir un partido aleatorio
-			matchIndex := rand.Intn(len(matches))
-			match := matches[matchIndex]
-
-			localTeam := match.TeamLocal
-			visitingTeam := match.TeamVisiting
-
-			// Verificar si alguno de los equipos ha alcanzado su límite de partidos en esta fecha
-			if teamMatchesCount[localTeam] >= 1 || teamMatchesCount[visitingTeam] >= 1 {
-				continue
-			}
-
-			// Asignar el partido a la jornada
-			matchesToAssign = append(matchesToAssign, match)
-			matches = append(matches[:matchIndex], matches[matchIndex+1:]...)
-
-			// Actualizar el recuento de partidos para los equipos involucrados
-			teamMatchesCount[localTeam]++
-			teamMatchesCount[visitingTeam]++
-		}
-
-		// Asignar los partidos a la jornada y reducir totalMatchesByWeek
-		totalMatchesByWeek -= len(matchesToAssign)
-	}
 
 	return matches
 }

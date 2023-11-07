@@ -22,7 +22,7 @@ import (
 	"github.com/nahuelojea/handballscore/dto"
 )
 
-const maxImageSize = 600 * 1024
+const maxImageSize = 8000 * 1024
 
 type readSeeker struct {
 	io.Reader
