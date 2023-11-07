@@ -46,7 +46,7 @@ func GetPlayer(ID string) (models.Player, bool, error) {
 	return players_repository.GetPlayer(ID)
 }
 
-func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error) {
+func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, int, error) {
 	filters := players_repository.GetPlayersOptions{
 		Name:                    filterOptions.Name,
 		Surname:                 filterOptions.Surname,

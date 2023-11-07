@@ -89,7 +89,7 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		SortOrder:               1,
 	}
 
-	playersList, totalRecords, err := players_service.GetPlayers(filterOptions)
+	playersList, totalRecords, totalPages, err := players_service.GetPlayers(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get players: " + err.Error()
@@ -98,7 +98,7 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        playersList,

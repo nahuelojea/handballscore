@@ -2,6 +2,7 @@ package players_repository
 
 import (
 	"context"
+	"math"
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
@@ -46,7 +47,7 @@ type GetPlayersOptions struct {
 	SortOrder               int
 }
 
-func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error) {
+func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(player_collection)
@@ -74,7 +75,7 @@ func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error)
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -82,21 +83,23 @@ func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, error)
 	for cur.Next(ctx) {
 		var player models.Player
 		if err := cur.Decode(&player); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		players = append(players, player)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return players, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return players, totalRecords, totalPages, nil
 }
 
 func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
