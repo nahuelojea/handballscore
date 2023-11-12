@@ -58,19 +58,21 @@ func GetCategories(filterOptions GetCategoriesOptions) ([]models.Category, int64
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
 
-	sortField := filterOptions.SortField
-	if sortField == "" {
-		sortField = "name"
-	}
 	sortOrder := 1
 	if filterOptions.SortOrder == -1 {
 		sortOrder = -1
 	}
 
+	sortFields := bson.D{
+		{Key: "age_limit_from", Value: sortOrder},
+		{Key: "age_limit_to", Value: sortOrder},
+		{Key: "gender", Value: sortOrder},
+	}
+
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+	findOptions.SetSort(sortFields)
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
