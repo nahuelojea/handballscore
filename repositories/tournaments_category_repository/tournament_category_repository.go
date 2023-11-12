@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	tournament_category_collection = "tournaments_category"
+	tournament_category_collection = "tournaments_categories"
 )
 
 func CreateTournamentCategory(association_id string, tournament models.TournamentCategory) (string, bool, error) {

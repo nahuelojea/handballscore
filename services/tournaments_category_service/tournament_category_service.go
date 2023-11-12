@@ -91,7 +91,7 @@ func createTournamentWithLeagueFormat(tournamentRequest TournamentDTO.CreateTour
 		}
 
 		leaguePhase.Id = leaguePhaseId
-		leaguePhaseWeeks := leaguePhase.GenerateLeaguePhaseWeeks()
+		leaguePhaseWeeks, rounds := leaguePhase.GenerateLeaguePhaseWeeks()
 
 		_, _, err = league_phase_weeks_service.CreateLeaguePhaseWeeks(associationId, leaguePhaseWeeks)
 		if err != nil {
@@ -105,7 +105,7 @@ func createTournamentWithLeagueFormat(tournamentRequest TournamentDTO.CreateTour
 
 		leaguePhaseWeeks, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
 
-		matches := leaguePhase.GenerateMatches(leaguePhaseWeeks)
+		matches := leaguePhase.GenerateMatches(rounds, leaguePhaseWeeks)
 
 		_, _, err = matches_service.CreateMatches(associationId, matches)
 		if err != nil {

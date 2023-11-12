@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -62,92 +61,172 @@ func (leaguePhase *LeaguePhase) InitializeTeamScores() {
 	}
 }
 
-/*func (leaguePhase *LeaguePhase) GenerateMatches() []Match {
-	var matches []Match
-
-	if leaguePhase.HomeAndAway {
-		for i, teamA := range leaguePhase.Teams {
-			for j := i + 1; j < len(leaguePhase.Teams); j++ {
-				teamB := leaguePhase.Teams[j]
-
-				matches = append(matches, generateLeagueMatch(leaguePhase.Id.Hex(), teamA, teamB))
-				matches = append(matches, generateLeagueMatch(leaguePhase.Id.Hex(), teamB, teamA))
-			}
-		}
-	} else {
-		totalTeams := len(leaguePhase.Teams)
-
-		for i := 0; i < totalTeams-1; i++ {
-			for j := i + 1; j < totalTeams; j++ {
-				var local, visiting string
-
-				if (i+j)%2 == 0 {
-					local, visiting = leaguePhase.Teams[i], leaguePhase.Teams[j]
-				} else {
-					local, visiting = leaguePhase.Teams[j], leaguePhase.Teams[i]
-				}
-
-				matches = append(matches, generateLeagueMatch(leaguePhase.Id.Hex(), local, visiting))
-			}
-		}
-	}
-
-	return matches
-}*/
-
-func (leaguePhase LeaguePhase) GenerateLeaguePhaseWeeks() []LeaguePhaseWeek {
-	totalTeams := len(leaguePhase.Teams)
-	var weeks int
-
-	if leaguePhase.HomeAndAway {
-		weeks = totalTeams*2 - 2
-	} else {
-		weeks = totalTeams - 1
-	}
-
+func (leaguePhase LeaguePhase) GenerateLeaguePhaseWeeks() ([]LeaguePhaseWeek, [][]MatchRound) {
 	var leaguePhaseWeeks []LeaguePhaseWeek
 
-	for i := 1; i <= weeks; i++ {
+	rounds := calculateLeague(leaguePhase.Teams)
+
+	var totalWeeks = len(rounds)
+
+	if leaguePhase.HomeAndAway {
+		totalWeeks = totalWeeks * 2
+	}
+
+	for i := 0; i < totalWeeks; i++ {
 		leaguePhaseWeek := LeaguePhaseWeek{
-			Number:        i,
+			Number:        i + 1,
 			LeaguePhaseId: leaguePhase.Id.Hex(),
 		}
 		leaguePhaseWeeks = append(leaguePhaseWeeks, leaguePhaseWeek)
 	}
 
-	return leaguePhaseWeeks
+	return leaguePhaseWeeks, rounds
 }
 
-func (leaguePhase *LeaguePhase) GenerateMatches(leaguePhaseWeeks []LeaguePhaseWeek) []Match {
+func (leaguePhase LeaguePhase) GenerateMatches(rounds [][]MatchRound, leaguePhaseWeeks []LeaguePhaseWeek) []Match {
 	var matches []Match
-	var totalTeams = len(leaguePhase.Teams)
+	var week = 1
+
+	for i := 0; i < len(rounds); i++ {
+		leaguePhaseWeek, _ := getLeaguePhaseWeekByNumber(leaguePhaseWeeks, week)
+
+		for j := 0; j < len(rounds[i]); j++ {
+			fmt.Printf("   %d-%d", 1+rounds[i][j].Home, 1+rounds[i][j].Away)
+			matches = append(matches, generateLeagueMatch(leaguePhaseWeek.Id.Hex(),
+				leaguePhase.Teams[rounds[i][j].Home],
+				leaguePhase.Teams[rounds[i][j].Away]))
+		}
+
+		week++
+		fmt.Println()
+	}
 
 	if leaguePhase.HomeAndAway {
-		for i, teamA := range leaguePhase.Teams {
-			for j := i + 1; j < totalTeams; j++ {
-				teamB := leaguePhase.Teams[j]
+		for i := 0; i < len(rounds); i++ {
+			leaguePhaseWeek, _ := getLeaguePhaseWeekByNumber(leaguePhaseWeeks, week)
 
-				matches = append(matches, generateLeagueMatch(leaguePhase.Id.Hex(), teamA, teamB))
-				matches = append(matches, generateLeagueMatch(leaguePhase.Id.Hex(), teamB, teamA))
+			for j := 0; j < len(rounds[i]); j++ {
+				fmt.Printf("   %d-%d", 1+rounds[i][j].Away, 1+rounds[i][j].Home)
+				matches = append(matches, generateLeagueMatch(leaguePhaseWeek.Id.Hex(),
+					leaguePhase.Teams[rounds[i][j].Away],
+					leaguePhase.Teams[rounds[i][j].Home]))
 			}
+
+			fmt.Println()
 		}
-	} else {
-		for i := 0; i < totalTeams-1; i++ {
-			for j := i + 1; j < totalTeams; j++ {
-				var local, visiting string
+		week++
+	}
+	return matches
+}
 
-				if (i+j)%2 == 0 {
-					local, visiting = leaguePhase.Teams[i], leaguePhase.Teams[j]
-				} else {
-					local, visiting = leaguePhase.Teams[j], leaguePhase.Teams[i]
-				}
+type MatchRound struct {
+	Home int
+	Away int
+}
 
-				matches = append(matches, generateLeagueMatch(leaguePhase.Id.Hex(), local, visiting))
+func calculateLeagueNumTeamsPair(teams []string) [][]MatchRound {
+	totalTeams := len(teams)
+	totalRounds := totalTeams - 1
+	totalMatchesByRound := totalTeams / 2
+
+	rounds := make([][]MatchRound, totalRounds)
+	for i := 0; i < totalRounds; i++ {
+		rounds[i] = make([]MatchRound, totalMatchesByRound)
+	}
+
+	for i, k := 0, 0; i < totalRounds; i++ {
+		for j := 0; j < totalMatchesByRound; j++ {
+			rounds[i][j] = MatchRound{Home: k}
+
+			k++
+
+			if k == totalRounds {
+				k = 0
 			}
 		}
 	}
 
-	fmt.Printf("Matches quantity: " + strconv.Itoa(len(matches)))
+	for i := 0; i < totalRounds; i++ {
+		if i%2 == 0 {
+			rounds[i][0].Away = totalTeams - 1
+		} else {
+			rounds[i][0].Away = rounds[i][0].Home
+			rounds[i][0].Home = totalTeams - 1
+		}
+	}
 
-	return matches
+	teamHighest := totalTeams - 1
+	teamOddHighest := teamHighest - 1
+
+	for i, k := 0, teamOddHighest; i < totalRounds; i++ {
+		for j := 1; j < totalMatchesByRound; j++ {
+			rounds[i][j].Away = k
+
+			k--
+
+			if k == -1 {
+				k = teamOddHighest
+			}
+		}
+	}
+
+	return rounds
+}
+
+func calculateLeagueNumTeamsOdd(teams []string) [][]MatchRound {
+	totalTeams := len(teams)
+	totalRounds := totalTeams
+	totalMatchesByRound := totalTeams / 2
+
+	rounds := make([][]MatchRound, totalRounds)
+	for i := 0; i < totalRounds; i++ {
+		rounds[i] = make([]MatchRound, totalMatchesByRound)
+	}
+
+	for i, k := 0, 0; i < totalRounds; i++ {
+		for j := -1; j < totalMatchesByRound; j++ {
+			if j >= 0 {
+				rounds[i][j] = MatchRound{Home: k}
+			}
+
+			k++
+
+			if k == totalRounds {
+				k = 0
+			}
+		}
+	}
+
+	teamHighest := totalTeams - 1
+
+	for i, k := 0, teamHighest; i < totalRounds; i++ {
+		for j := 0; j < totalMatchesByRound; j++ {
+			rounds[i][j].Away = k
+
+			k--
+
+			if k == -1 {
+				k = teamHighest
+			}
+		}
+	}
+
+	return rounds
+}
+
+func calculateLeague(teams []string) [][]MatchRound {
+	if len(teams)%2 == 0 {
+		return calculateLeagueNumTeamsPair(teams)
+	} else {
+		return calculateLeagueNumTeamsOdd(teams)
+	}
+}
+
+func getLeaguePhaseWeekByNumber(weeks []LeaguePhaseWeek, weekNumber int) (LeaguePhaseWeek, bool) {
+	for _, week := range weeks {
+		if week.Number == weekNumber {
+			return week, true
+		}
+	}
+	return LeaguePhaseWeek{}, false
 }

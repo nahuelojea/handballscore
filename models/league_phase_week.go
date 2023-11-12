@@ -29,34 +29,3 @@ func (leaguePhaseWeek *LeaguePhaseWeek) SetModifiedDate() {
 func (leaguePhaseWeek *LeaguePhaseWeek) SetId(id primitive.ObjectID) {
 	leaguePhaseWeek.Id = id
 }
-
-func GenerateLeaguePhaseWeeks(leaguePhase LeaguePhase) []LeaguePhaseWeek {
-	totalTeams := len(leaguePhase.Teams)
-	var weeks int
-
-	if leaguePhase.HomeAndAway {
-		weeks = totalTeams*2 - 2
-	} else {
-		weeks = totalTeams - 1
-	}
-
-	var leaguePhaseWeeks []LeaguePhaseWeek
-
-	for i := 1; i <= weeks; i++ {
-		leaguePhaseWeek := LeaguePhaseWeek{
-			Number:        i,
-			LeaguePhaseId: leaguePhase.Id.Hex(),
-		}
-		leaguePhaseWeeks = append(leaguePhaseWeeks, leaguePhaseWeek)
-	}
-
-	return leaguePhaseWeeks
-}
-
-func GenerateLeaguePhaseWeek(leaguePhase LeaguePhase, weekNumber int) LeaguePhaseWeek {
-	return LeaguePhaseWeek{
-		Number:        weekNumber,
-		LeaguePhaseId: leaguePhase.Id.Hex(),
-		AssociationId: leaguePhase.AssociationId,
-	}
-}
