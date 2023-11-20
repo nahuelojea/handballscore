@@ -10,7 +10,7 @@ import (
 )
 
 type GetMatchesOptions struct {
-	PhaseId       string
+	PhaseWeekId   string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -32,7 +32,7 @@ func GetMatch(ID string) (models.Match, bool, error) {
 
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) {
 	filters := matches_repository.GetMatchesOptions{
-		PhaseId:       filterOptions.PhaseId,
+		PhaseWeekId:   filterOptions.PhaseWeekId,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
 		PageSize:      filterOptions.PageSize,

@@ -41,7 +41,7 @@ func GetMatch(ID string) (models.Match, bool, error) {
 }
 
 type GetMatchesOptions struct {
-	PhaseId       string
+	PhaseWeekId   string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -58,8 +58,8 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) 
 		"association_id": filterOptions.AssociationId,
 	}
 
-	if filterOptions.PhaseId != "" {
-		filter["phase_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.PhaseId, Options: "i"}}
+	if filterOptions.PhaseWeekId != "" {
+		filter["phase_week_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.PhaseWeekId, Options: "i"}}
 	}
 
 	page := filterOptions.Page
@@ -67,7 +67,7 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) 
 
 	sortField := filterOptions.SortField
 	if sortField == "" {
-		sortField = "phase_id"
+		sortField = "phase_week_id"
 	}
 	sortOrder := 1
 	if filterOptions.SortOrder == -1 {
