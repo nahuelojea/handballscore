@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
-	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories"
 	"go.mongodb.org/mongo-driver/bson"
@@ -120,16 +119,16 @@ func ProgramMatch(Time time.Time, Place string, Id string) (bool, error) {
 	return repositories.Update(match_collection, updateDataMap, Id)
 }
 
-func StartMatch(startMatchRequest dto.StartMatchRequest, Id string) (bool, error) {
+func StartMatch(match models.Match, Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
-	updateDataMap["players_local"] = startMatchRequest.PlayersLocal
-	updateDataMap["players_visiting"] = startMatchRequest.PlayersVisiting
-	updateDataMap["coachs_local"] = startMatchRequest.CoachsLocal
-	updateDataMap["coachs_visiting"] = startMatchRequest.CoachsVisiting
-	updateDataMap["referees"] = startMatchRequest.Referees
-	updateDataMap["scorekeeper"] = startMatchRequest.Scorekeeper
-	updateDataMap["timekeeper"] = startMatchRequest.Timekeeper
+	updateDataMap["players_home"] = match.PlayersHome
+	updateDataMap["players_away"] = match.PlayersAway
+	updateDataMap["coachs_home"] = match.CoachsHome
+	updateDataMap["coachs_away"] = match.CoachsAway
+	updateDataMap["referees"] = match.Referees
+	updateDataMap["scorekeeper"] = match.Scorekeeper
+	updateDataMap["timekeeper"] = match.Timekeeper
 	updateDataMap["status"] = models.FirstHalf
 
 	return repositories.Update(match_collection, updateDataMap, Id)
@@ -138,10 +137,10 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, Id string) (bool, error
 /*func MatchGoal(matchGoalRequest dto.MatchGoalRequest, Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
-	updateDataMap["players_local"] = startMatchRequest.PlayersLocal
-	updateDataMap["players_visiting"] = startMatchRequest.PlayersVisiting
-	updateDataMap["coachs_local"] = startMatchRequest.CoachsLocal
-	updateDataMap["coachs_visiting"] = startMatchRequest.CoachsVisiting
+	updateDataMap["players_home"] = startMatchRequest.PlayersHome
+	updateDataMap["players_away"] = startMatchRequest.PlayersAway
+	updateDataMap["coachs_home"] = startMatchRequest.CoachsHome
+	updateDataMap["coachs_away"] = startMatchRequest.CoachsAway
 	updateDataMap["referees"] = startMatchRequest.Referees
 	updateDataMap["scorekeeper"] = startMatchRequest.Scorekeeper
 	updateDataMap["timekeeper"] = startMatchRequest.Timekeeper

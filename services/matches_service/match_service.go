@@ -50,5 +50,50 @@ func ProgramMatch(matchTime time.Time, place string, id string) (bool, error) {
 }
 
 func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error) {
-	return matches_repository.StartMatch(startMatchRequest, id)
+	match, _, err := matches_repository.GetMatch(id)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	for _, playerHome := range startMatchRequest.PlayersHome {
+		matchPlayer := models.MatchPlayer{
+			PlayerId:  playerHome.PlayerId,
+			Number:    playerHome.Number,
+			Goals:     models.Goals{FirstHalf: 0, SecondHalf: 0},
+			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+		}
+		match.PlayersHome = append(match.PlayersHome, matchPlayer)
+	}
+
+	for _, playerAway := range startMatchRequest.PlayersAway {
+		matchPlayer := models.MatchPlayer{
+			PlayerId:  playerAway.PlayerId,
+			Number:    playerAway.Number,
+			Goals:     models.Goals{FirstHalf: 0, SecondHalf: 0},
+			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+		}
+		match.PlayersAway = append(match.PlayersAway, matchPlayer)
+	}
+
+	for _, coachHome := range startMatchRequest.CoachsHome {
+		matchCoach := models.MatchCoach{
+			CoachId:   coachHome,
+			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+		}
+		match.CoachsHome = append(match.CoachsHome, matchCoach)
+	}
+
+	for _, coachAway := range startMatchRequest.CoachsAway {
+		matchCoach := models.MatchCoach{
+			CoachId:   coachAway,
+			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+		}
+		match.CoachsAway = append(match.CoachsAway, matchCoach)
+	}
+
+	match.Referees = startMatchRequest.Referees
+	match.Scorekeeper = startMatchRequest.Scorekeeper
+	match.Timekeeper = startMatchRequest.Timekeeper
+
+	return matches_repository.StartMatch(match, id)
 }

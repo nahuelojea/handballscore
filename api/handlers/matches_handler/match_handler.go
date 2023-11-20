@@ -11,11 +11,6 @@ import (
 func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, claim dto.Claim, response dto.RestResponse) dto.RestResponse {
 
 	switch ctx.Value(dto.Key("method")).(string) {
-	case "POST":
-		switch ctx.Value(dto.Key("path")).(string) {
-		case "match":
-			//return categories.AddCategory(ctx)
-		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "match":
@@ -29,11 +24,6 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 			return matches.ProgramMatch(ctx, request)
 		case "match/start":
 			return matches.StartMatch(ctx, request)
-		}
-	case "DELETE":
-		switch ctx.Value(dto.Key("path")).(string) {
-		case "match":
-			//return categories.DisableCategory(request)
 		}
 	}
 
