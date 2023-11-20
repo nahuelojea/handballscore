@@ -30,20 +30,36 @@ func UpdateTournament(ctx context.Context, request events.APIGatewayProxyRequest
 		response.Message = "Invalid data format: " + err.Error()
 	}
 
-	status, err := tournaments_service.UpdateTournament(tournament, Id)
+	_, err = tournaments_service.UpdateTournament(tournament, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to update tournament: " + err.Error()
 		return response
 	}
 
-	if !status {
+	response.Status = http.StatusOK
+	response.Message = "Tournament updated"
+	return response
+}
+
+func DeleteTournament(request events.APIGatewayProxyRequest) dto.RestResponse {
+	var response dto.RestResponse
+
+	Id := request.QueryStringParameters["id"]
+	if len(Id) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "'id' param is mandatory"
+		return response
+	}
+
+	_, err := tournaments_service.DeleteTournament(Id)
+	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to update tournament in database"
+		response.Message = "Error to delete tournament: " + err.Error()
 		return response
 	}
 
 	response.Status = http.StatusOK
-	response.Message = "Tournament updated"
+	response.Message = "Tournament deleted"
 	return response
 }

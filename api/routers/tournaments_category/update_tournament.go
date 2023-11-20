@@ -41,3 +41,25 @@ func UpdateTournamentCategory(ctx context.Context, request events.APIGatewayProx
 	response.Message = "Tournament category updated"
 	return response
 }
+
+func DeleteTournamentCategory(request events.APIGatewayProxyRequest) dto.RestResponse {
+	var response dto.RestResponse
+
+	Id := request.QueryStringParameters["id"]
+	if len(Id) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "'id' param is mandatory"
+		return response
+	}
+
+	_, err := tournaments_service.DeleteTournamentCategory(Id)
+	if err != nil {
+		response.Status = http.StatusInternalServerError
+		response.Message = "Error to delete tournament category: " + err.Error()
+		return response
+	}
+
+	response.Status = http.StatusOK
+	response.Message = "Tournament category deleted"
+	return response
+}

@@ -114,6 +114,12 @@ func UpdateTournamentCategory(tournament models.TournamentCategory, ID string) (
 	if len(tournament.Status) > 0 {
 		updateDataMap["status"] = tournament.Status
 	}
+	if !tournament.StartDate.IsZero() {
+		updateDataMap["start_date"] = tournament.StartDate
+	}
+	if !tournament.EndDate.IsZero() {
+		updateDataMap["end_date"] = tournament.EndDate
+	}
 
 	return repositories.Update(tournament_category_collection, updateDataMap, ID)
 }
