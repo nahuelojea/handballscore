@@ -134,72 +134,18 @@ func StartMatch(match models.Match, Id string) (bool, error) {
 	return repositories.Update(match_collection, updateDataMap, Id)
 }
 
-/*func MatchGoal(matchGoalRequest dto.MatchGoalRequest, Id string) (bool, error) {
+func StartSecondHalf(Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
-	updateDataMap["players_home"] = startMatchRequest.PlayersHome
-	updateDataMap["players_away"] = startMatchRequest.PlayersAway
-	updateDataMap["coachs_home"] = startMatchRequest.CoachsHome
-	updateDataMap["coachs_away"] = startMatchRequest.CoachsAway
-	updateDataMap["referees"] = startMatchRequest.Referees
-	updateDataMap["scorekeeper"] = startMatchRequest.Scorekeeper
-	updateDataMap["timekeeper"] = startMatchRequest.Timekeeper
-	updateDataMap["status"] = models.FirstHalf
+	updateDataMap["status"] = models.SecondHalf
 
 	return repositories.Update(match_collection, updateDataMap, Id)
-}*/
+}
 
-/*func UpdateMatch(match models.Match, ID string) (bool, error) {
+func EndMatch(Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
-	if len(match.Name) > 0 {
-		updateDataMap["name"] = match.Name
-	}
-	if len(match.Surname) > 0 {
-		updateDataMap["personal_data.surname"] = match.Surname
-	}
-	if len(match.Avatar) > 0 {
-		updateDataMap["personal_data.avatar"] = match.Avatar
-	}
-	if !match.DateOfBirth.IsZero() {
-		updateDataMap["personal_data.date_of_birth"] = match.DateOfBirth
-	}
-	if len(match.Dni) > 0 {
-		updateDataMap["personal_data.dni"] = match.Dni
-	}
-	if len(match.PhoneNumber) > 0 {
-		updateDataMap["personal_data.phone_number"] = match.PhoneNumber
-	}
-	if len(match.AffiliateNumber) > 0 {
-		updateDataMap["affiliate_number"] = match.AffiliateNumber
-	}
-	if len(match.Gender) > 0 {
-		updateDataMap["gender"] = match.Gender
-	}
-	if len(match.TeamId) > 0 {
-		updateDataMap["team_id"] = match.TeamId
-	}
 
-	return repositories.Update(match_collection, updateDataMap, ID)
+	updateDataMap["status"] = models.Ended
+
+	return repositories.Update(match_collection, updateDataMap, Id)
 }
-
-func DisableMatch(ID string) (bool, error) {
-	return repositories.Disable(match_collection, ID)
-}
-
-func GetMatchByDni(dni string) (models.Match, bool, string) {
-	ctx := context.TODO()
-
-	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(match_collection)
-
-	condition := bson.M{"personal_data.dni": dni}
-
-	var result models.Match
-
-	err := collection.FindOne(ctx, condition).Decode(&result)
-	id := result.Id.Hex()
-	if err != nil {
-		return result, false, id
-	}
-	return result, true, id
-}*/

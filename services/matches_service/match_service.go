@@ -97,3 +97,29 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 
 	return matches_repository.StartMatch(match, id)
 }
+
+func StartSecondHalf(id string) (bool, error) {
+	match, _, err := matches_repository.GetMatch(id)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	if match.Status != models.FirstHalf {
+		return false, errors.New("The match must be found in the first half")
+	}
+
+	return matches_repository.StartSecondHalf(id)
+}
+
+func EndMatch(id string) (bool, error) {
+	match, _, err := matches_repository.GetMatch(id)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	if match.Status != models.SecondHalf {
+		return false, errors.New("The match must be found in the second half")
+	}
+
+	return matches_repository.EndMatch(id)
+}

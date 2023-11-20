@@ -25,6 +25,13 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		case "match/start":
 			return matches.StartMatch(ctx, request)
 		}
+	case "PATCH":
+		switch ctx.Value(dto.Key("path")).(string) {
+		case "match/startSecondHalf":
+			return matches.StartSecondHalf(ctx, request)
+		case "match/end":
+			return matches.EndMatch(ctx, request)
+		}
 	}
 
 	response.Message = "Method Invalid"
