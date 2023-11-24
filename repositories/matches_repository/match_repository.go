@@ -122,10 +122,6 @@ func ProgramMatch(Time time.Time, Place string, Id string) (bool, error) {
 func StartMatch(match models.Match, Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
-	updateDataMap["players_home"] = match.PlayersHome
-	updateDataMap["players_away"] = match.PlayersAway
-	updateDataMap["coachs_home"] = match.CoachsHome
-	updateDataMap["coachs_away"] = match.CoachsAway
 	updateDataMap["referees"] = match.Referees
 	updateDataMap["scorekeeper"] = match.Scorekeeper
 	updateDataMap["timekeeper"] = match.Timekeeper

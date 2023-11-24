@@ -107,12 +107,22 @@ func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
 		"association_id": filterOptions.AssociationId,
 	}
 
-	if filterOptions.Name != "" {
-		filter["personal_data.name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
+	orFilters := []bson.M{}
+
+	if filterOptions.Name != "" || filterOptions.Surname != "" {
+		nameFilter := bson.M{}
+		surnameFilter := bson.M{}
+
+		if filterOptions.Name != "" {
+			nameFilter["personal_data.name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
+		}
+		if filterOptions.Surname != "" {
+			surnameFilter["personal_data.surname"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}}
+		}
+
+		orFilters = append(orFilters, nameFilter, surnameFilter)
 	}
-	if filterOptions.Surname != "" {
-		filter["personal_data.surname"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}}
-	}
+
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
 	}
@@ -134,6 +144,11 @@ func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
 			"$lte": time.Date(filterOptions.YearLimitTo, 12, 31, 23, 59, 59, 999, time.UTC),
 		}
 	}
+
+	if len(orFilters) > 0 {
+		filter["$or"] = orFilters
+	}
+
 	return filter
 }
 

@@ -6,6 +6,8 @@ import (
 
 	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories/match_coaches_repository"
+	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 )
 
@@ -57,38 +59,62 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 
 	for _, playerHome := range startMatchRequest.PlayersHome {
 		matchPlayer := models.MatchPlayer{
-			PlayerId:  playerHome.PlayerId,
-			Number:    playerHome.Number,
-			Goals:     models.Goals{FirstHalf: 0, SecondHalf: 0},
-			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+			PlayerId: playerHome.PlayerId,
+			Number:   playerHome.Number,
+			Goals: models.Goals{
+				FirstHalf:  0,
+				SecondHalf: 0},
+			Sanctions: models.Sanctions{
+				Exclusions: 0,
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
 		}
-		match.PlayersHome = append(match.PlayersHome, matchPlayer)
+		match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
 	}
 
 	for _, playerAway := range startMatchRequest.PlayersAway {
 		matchPlayer := models.MatchPlayer{
-			PlayerId:  playerAway.PlayerId,
-			Number:    playerAway.Number,
-			Goals:     models.Goals{FirstHalf: 0, SecondHalf: 0},
-			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+			PlayerId: playerAway.PlayerId,
+			Number:   playerAway.Number,
+			Goals: models.Goals{
+				FirstHalf:  0,
+				SecondHalf: 0},
+			Sanctions: models.Sanctions{
+				Exclusions: 0,
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
 		}
-		match.PlayersAway = append(match.PlayersAway, matchPlayer)
+		match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
 	}
 
 	for _, coachHome := range startMatchRequest.CoachsHome {
 		matchCoach := models.MatchCoach{
-			CoachId:   coachHome,
-			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+			CoachId: coachHome,
+			Sanctions: models.Sanctions{
+				Exclusions: 0,
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
 		}
-		match.CoachsHome = append(match.CoachsHome, matchCoach)
+		match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
 	}
 
 	for _, coachAway := range startMatchRequest.CoachsAway {
 		matchCoach := models.MatchCoach{
-			CoachId:   coachAway,
-			Sanctions: models.Sanctions{Exclusions: 0, YellowCards: 0, RedCard: false, BlueCard: false, Comments: ""},
+			CoachId: coachAway,
+			Sanctions: models.Sanctions{
+				Exclusions: 0,
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
 		}
-		match.CoachsAway = append(match.CoachsAway, matchCoach)
+		match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
 	}
 
 	match.Referees = startMatchRequest.Referees

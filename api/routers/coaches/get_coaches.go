@@ -50,7 +50,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 		pageSize = 20
 	}
 
-	filterOptions := coaches_service.GetCoachsOptions{
+	filterOptions := coaches_service.GetCoachesOptions{
 		Name:          name,
 		Surname:       surname,
 		Dni:           dni,
@@ -63,7 +63,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 		SortOrder:     1,
 	}
 
-	coachesList, totalRecords, err := coaches_service.GetCoachs(filterOptions)
+	coachesList, totalRecords, err := coaches_service.GetCoaches(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get coaches: " + err.Error()

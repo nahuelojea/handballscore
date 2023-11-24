@@ -12,7 +12,7 @@ import (
 
 const AvatarUrl = "avatars/coaches/"
 
-type GetCoachsOptions struct {
+type GetCoachesOptions struct {
 	Name          string
 	Surname       string
 	Dni           string
@@ -43,8 +43,8 @@ func GetCoach(ID string) (models.Coach, bool, error) {
 	return coaches_repository.GetCoach(ID)
 }
 
-func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
-	filters := coaches_repository.GetCoachsOptions{
+func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, error) {
+	filters := coaches_repository.GetCoachesOptions{
 		Name:          filterOptions.Name,
 		Surname:       filterOptions.Surname,
 		Dni:           filterOptions.Dni,
@@ -57,7 +57,7 @@ func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
 		SortOrder:     filterOptions.SortOrder,
 	}
 
-	return coaches_repository.GetCoachs(filters)
+	return coaches_repository.GetCoaches(filters)
 }
 
 func UpdateCoach(coach models.Coach, ID string) (bool, error) {

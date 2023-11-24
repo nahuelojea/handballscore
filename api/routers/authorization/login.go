@@ -10,6 +10,7 @@ import (
 	"github.com/nahuelojea/handballscore/dto"
 	loginDTO "github.com/nahuelojea/handballscore/dto/login"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/services/associations_service"
 	"github.com/nahuelojea/handballscore/services/authorization_service"
 )
 
@@ -41,11 +42,22 @@ func Login(ctx context.Context) dto.RestResponse {
 		return response
 	}
 
+	association, _, err := associations_service.GetAssociation(userData.AssociationId)
+	if err != nil {
+		response.Message = "Error to get association: " + err.Error()
+		return response
+	}
+
 	resp := loginDTO.LoginResponse{
-		Token:         jwtKey,
-		RefreshToken:  refreshJwtKey,
-		Avatar:        userData.Avatar,
-		AssociationId: userData.AssociationId,
+		Token:        jwtKey,
+		RefreshToken: refreshJwtKey,
+		Association: loginDTO.Association{
+			Id:               association.Id.Hex(),
+			Name:             association.Name,
+			DateOfFoundation: association.DateOfFoundation,
+			Email:            association.Email,
+			Avatar:           association.Avatar,
+			PhoneNumber:      association.PhoneNumber},
 	}
 
 	token, err2 := json.Marshal(resp)

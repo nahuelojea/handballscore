@@ -29,7 +29,7 @@ func GetCoach(ID string) (models.Coach, bool, error) {
 	return coach, true, nil
 }
 
-type GetCoachsOptions struct {
+type GetCoachesOptions struct {
 	Name          string
 	Surname       string
 	Dni           string
@@ -42,7 +42,7 @@ type GetCoachsOptions struct {
 	SortOrder     int
 }
 
-func GetCoachs(filterOptions GetCoachsOptions) ([]models.Coach, int64, error) {
+func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(coach_collection)
