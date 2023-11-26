@@ -2,6 +2,7 @@ package coaches_repository
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -52,7 +53,15 @@ func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, error) 
 	}
 
 	if filterOptions.Name != "" {
-		filter["personal_data.name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
+		names := strings.Split(filterOptions.Name, " ")
+		nameSurnameFilter := bson.A{}
+		for _, name := range names {
+			nameSurnameFilter = append(nameSurnameFilter, bson.M{"$or": []bson.M{
+				{"personal_data.name": bson.M{"$regex": primitive.Regex{Pattern: name, Options: "i"}}},
+				{"personal_data.surname": bson.M{"$regex": primitive.Regex{Pattern: name, Options: "i"}}},
+			}})
+		}
+		filter["$or"] = nameSurnameFilter
 	}
 	if filterOptions.Surname != "" {
 		filter["personal_data.surname"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}}
