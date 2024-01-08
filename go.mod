@@ -5,7 +5,7 @@ go 1.20
 require github.com/golang-jwt/jwt/v5 v5.0.0
 
 require (
-	github.com/aws/aws-lambda-go v1.41.0 // indirect
+	github.com/aws/aws-lambda-go v1.44.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.314 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.20.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.11 // indirect
