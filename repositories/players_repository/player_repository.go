@@ -108,19 +108,17 @@ func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
 		"association_id": filterOptions.AssociationId,
 	}
 
-	if filterOptions.Name != "" {
-		names := strings.Split(filterOptions.Name, " ")
-		nameSurnameFilter := bson.A{}
-		for _, name := range names {
-			nameSurnameFilter = append(nameSurnameFilter, bson.M{"$or": []bson.M{
-				{"personal_data.name": bson.M{"$regex": primitive.Regex{Pattern: name, Options: "i"}}},
-				{"personal_data.surname": bson.M{"$regex": primitive.Regex{Pattern: name, Options: "i"}}},
-			}})
+	if filterOptions.Name != "" && filterOptions.Surname != "" {
+		filter["$or"] = []bson.M{
+			{
+				"personal_data.name": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}},
+				"personal_data.surname": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}},
+			},
+			{
+				"personal_data.name": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}},
+				"personal_data.surname": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}},
+			},
 		}
-		filter["$or"] = nameSurnameFilter
-	}
-	if filterOptions.Surname != "" {
-		filter["personal_data.surname"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}}
 	}
 	if filterOptions.Dni != "" {
 		filter["personal_data.dni"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Dni, Options: "i"}}
