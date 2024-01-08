@@ -3,7 +3,6 @@ package players_repository
 import (
 	"context"
 	"math"
-	"strings"
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
@@ -111,11 +110,11 @@ func buildPlayersFilter(filterOptions GetPlayersOptions) primitive.M {
 	if filterOptions.Name != "" && filterOptions.Surname != "" {
 		filter["$or"] = []bson.M{
 			{
-				"personal_data.name": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}},
+				"personal_data.name":    bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}},
 				"personal_data.surname": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}},
 			},
 			{
-				"personal_data.name": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}},
+				"personal_data.name":    bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Surname, Options: "i"}},
 				"personal_data.surname": bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}},
 			},
 		}
