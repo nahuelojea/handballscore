@@ -20,7 +20,7 @@ type TournamentCategory struct {
 	Teams         []string           `bson:"teams" json:"teams"`
 	Champion      string             `bson:"champion" json:"champion"`
 	TournamentId  string             `bson:"tournament_id" json:"tournament_id"`
-	CategoryId    string             `bson:"categoty_id" json:"categoty_id"`
+	CategoryId    string             `bson:"category_id" json:"category_id"`
 	AssociationId string             `bson:"association_id" json:"association_id"`
 	Status_Data   `bson:"status_data" json:"status_data"`
 }

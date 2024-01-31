@@ -32,6 +32,7 @@ func GetTournamentCategory(ID string) (models.TournamentCategory, bool, error) {
 type GetTournamentsCategoryOptions struct {
 	Name          string
 	CategoryId    string
+	TournamentId  string
 	Status        string
 	AssociationId string
 	Page          int
@@ -55,7 +56,10 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	if filterOptions.CategoryId != "" {
 		filter["category_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.CategoryId, Options: "i"}}
 	}
-	if filterOptions.CategoryId != "" {
+	if filterOptions.TournamentId != "" {
+		filter["tournament_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TournamentId, Options: "i"}}
+	}
+	if filterOptions.Status != "" {
 		filter["status"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Status, Options: "i"}}
 	}
 

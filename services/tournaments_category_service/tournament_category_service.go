@@ -22,6 +22,7 @@ import (
 type GetTournamentsCategoryOptions struct {
 	Name          string
 	CategoryId    string
+	TournamentId  string
 	Status        string
 	AssociationId string
 	Page          int
@@ -125,6 +126,7 @@ func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]mode
 	filters := TournamentsRepository.GetTournamentsCategoryOptions{
 		Name:          filterOptions.Name,
 		CategoryId:    filterOptions.CategoryId,
+		TournamentId:  filterOptions.TournamentId,
 		Status:        filterOptions.Status,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
