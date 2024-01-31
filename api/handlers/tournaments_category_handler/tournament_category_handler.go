@@ -22,6 +22,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 			return tournaments.GetTournamentCategory(request)
 		case "tournamentCategory/filter":
 			return tournaments.GetTournamentsCategory(request, claim)
+		case "tournamentCategory/categoriesByTournament":
+			return tournaments.GetCategoriesByTournament(request, claim)
 		}
 	case "PUT":
 		switch ctx.Value(dto.Key("path")).(string) {

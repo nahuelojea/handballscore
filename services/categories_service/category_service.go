@@ -25,6 +25,10 @@ func GetCategory(ID string) (models.Category, bool, error) {
 	return categories_repository.GetCategory(ID)
 }
 
+func GetCategoriesByIds(Ids []string) ([]models.Category, int64, error) {
+	return categories_repository.GetMultipleByIds(Ids)
+}
+
 func GetCategories(filterOptions GetCategoriesOptions) ([]models.Category, int64, error) {
 	filters := categories_repository.GetCategoriesOptions{
 		Name:          filterOptions.Name,

@@ -2,6 +2,7 @@ package categories_repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -27,6 +28,61 @@ func GetCategory(ID string) (models.Category, bool, error) {
 	}
 
 	return category, true, nil
+}
+
+func GetMultipleByIds(ids []string) ([]models.Category, int64, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(category_collection)
+
+	objectIDs := make([]primitive.ObjectID, len(ids))
+	for i, id := range ids {
+		if len(id) != 24 {
+			return nil, 0, fmt.Errorf("invalid id: %s", id)
+		}
+		objID, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, 0, err
+		}
+		objectIDs[i] = objID
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": objectIDs}}
+
+	sortFields := bson.D{
+		{Key: "age_limit_from", Value: 1},
+		{Key: "age_limit_to", Value: 1},
+		{Key: "gender", Value: 1},
+	}
+
+	findOptions := options.Find()
+	findOptions.SetSort(sortFields)
+
+	cur, err := collection.Find(ctx, filter, findOptions)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer cur.Close(ctx)
+
+	var categories []models.Category
+	for cur.Next(ctx) {
+		var category models.Category
+		if err := cur.Decode(&category); err != nil {
+			return nil, 0, err
+		}
+		categories = append(categories, category)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	totalRecords, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return categories, totalRecords, nil
 }
 
 type GetCategoriesOptions struct {
