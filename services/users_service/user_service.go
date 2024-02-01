@@ -3,6 +3,8 @@ package users_service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/users_repository"
@@ -46,7 +48,8 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	var filename string
 	var user models.User
 
-	filename = AvatarUrl + id + ".jpg"
+	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	filename = fmt.Sprintf("%s%d_%s.jpg", AvatarUrl, timestamp, id)
 
 	err := storage.UploadImage(ctx, contentType, body, filename)
 	if err != nil {
