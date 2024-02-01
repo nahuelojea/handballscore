@@ -66,19 +66,21 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
 
-	sortField := filterOptions.SortField
-	if sortField == "" {
-		sortField = "name"
-	}
 	sortOrder := 1
-	if filterOptions.SortOrder == -1 {
-		sortOrder = -1
+	if filterOptions.SortOrder == 1 {
+		sortOrder = 1
+	}
+
+	sortFields := bson.D{
+		{Key: "start_date", Value: sortOrder},
+		{Key: "end_date", Value: sortOrder},
+		{Key: "status", Value: sortOrder},
 	}
 
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+	findOptions.SetSort(sortFields)
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {

@@ -45,8 +45,6 @@ func GetTournamentsCategory(request events.APIGatewayProxyRequest, claim dto.Cla
 		AssociationId: associationId,
 		Page:          page,
 		PageSize:      pageSize,
-		SortField:     "name",
-		SortOrder:     1,
 	}
 
 	tournamentsList, totalRecords, err := tournaments_service.GetTournamentsCategory(filterOptions)

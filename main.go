@@ -22,15 +22,27 @@ func main() {
 func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	var res *events.APIGatewayProxyResponse
 
+	headers := map[string]string{
+		"Access-Control-Allow-Origin":  "*", // Reemplaza con tu dominio permitido o "*"
+		"Access-Control-Allow-Headers": "Content-Type, Authorization",
+		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT, DELETE",
+		"Content-Type":                 "application/json",
+	}
+
+	if request.HTTPMethod == "OPTIONS" {
+		return &events.APIGatewayProxyResponse{
+			StatusCode: http.StatusOK,
+			Headers:    headers,
+		}, nil
+	}
+
 	awsgo.Init()
 
 	if !ValidEnvironmentVariables() {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
 			Body:       "Error to get environment variables. Must include 'SecretName', 'BucketName', 'UrlPrefix'",
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
+			Headers:    headers,
 		}
 		return res, nil
 	}
@@ -41,9 +53,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
 			Body:       "Error to read Secret " + err.Error(),
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
+			Headers:    headers,
 		}
 		return res, nil
 	}
@@ -66,9 +76,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
 			Body:       "Error to connect with database " + err.Error(),
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
+			Headers:    headers,
 		}
 		return res, nil
 	}
@@ -78,9 +86,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: respAPI.Status,
 			Body:       respAPI.Message,
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
+			Headers:    headers,
 		}
 		return res, nil
 	} else {
