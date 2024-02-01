@@ -15,6 +15,10 @@ import (
 	"github.com/nahuelojea/handballscore/dto"
 )
 
+const (
+	APP_DOMAIN = "https://handball.onrender.com"
+)
+
 func main() {
 	lambda.Start(executeLambda)
 }
@@ -23,7 +27,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	var res *events.APIGatewayProxyResponse
 
 	headers := map[string]string{
-		"Access-Control-Allow-Origin":  "*", // Reemplaza con tu dominio permitido o "*"
+		"Access-Control-Allow-Origin":  APP_DOMAIN, // Replace with your allowed domain or "*"
 		"Access-Control-Allow-Headers": "Content-Type, Authorization",
 		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT, DELETE",
 		"Content-Type":                 "application/json",
