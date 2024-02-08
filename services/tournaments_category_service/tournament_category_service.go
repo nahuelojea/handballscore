@@ -39,7 +39,7 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 
 	tournament, _, err := tournaments_service.GetTournament(tournamentRequest.TournamentId)
 	if err != nil {
-		return "", false, err
+		return "", false, errors.New(fmt.Sprintf("Error to get tournament: %s", err.Error()))
 	}
 
 	var tournamentCategory models.TournamentCategory
@@ -47,7 +47,8 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 	tournamentCategory.CategoryId = category.Id.Hex()
 	tournamentCategory.TournamentId = tournament.Id.Hex()
 	tournamentCategory.StartDate = tournamentRequest.StartDate
-	tournamentCategory.Teams = tournamentRequest.Teams
+	tournamentCategory.Teams = assignVariants(tournamentRequest.Teams)
+
 	tournamentCategory.Status = models.Started
 
 	var categoryGender string
@@ -78,7 +79,9 @@ func createTournamentWithLeagueFormat(tournamentRequest TournamentDTO.CreateTour
 		leaguePhase.TournamentCategoryId = tournamentCategoryId
 		leaguePhase.HomeAndAway = tournamentRequest.LeaguePhase.HomeAndAway
 		leaguePhase.ClassifiedNumber = 1
-		leaguePhase.Teams = tournamentRequest.Teams
+
+		leaguePhase.Teams = assignVariants(tournamentRequest.Teams)
+
 		leaguePhase.InitializeTeamScores()
 
 		leaguePhaseIdStr, _, err := league_phases_service.CreateLeaguePhase(associationId, leaguePhase)
@@ -143,4 +146,33 @@ func UpdateTournamentCategory(tournament models.TournamentCategory, ID string) (
 
 func DeleteTournamentCategory(ID string) (bool, error) {
 	return TournamentsRepository.DeleteTournamentCategory(ID)
+}
+
+func assignVariants(teamIds []string) []models.TournamentTeamId {
+	frequencyMap := make(map[string]int)
+	teamCounter := make(map[string]int)
+	var tournamentTeams []models.TournamentTeamId
+
+	for _, id := range teamIds {
+		frequencyMap[id]++
+	}
+
+	for _, id := range teamIds {
+		teamCounter[id]++
+		frequency := frequencyMap[id]
+		counter := teamCounter[id]
+		var variant string
+
+		if frequency > 1 {
+			variant = string('A' - 1 + rune(counter))
+		}
+
+		tournamentTeam := models.TournamentTeamId{
+			TeamId:  id,
+			Variant: variant,
+		}
+		tournamentTeams = append(tournamentTeams, tournamentTeam)
+	}
+
+	return tournamentTeams
 }

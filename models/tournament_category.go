@@ -17,12 +17,17 @@ type TournamentCategory struct {
 	StartDate     time.Time          `bson:"start_date" json:"start_date"`
 	EndDate       time.Time          `bson:"end_date" json:"end_date"`
 	Status        string             `bson:"status" json:"status"`
-	Teams         []string           `bson:"teams" json:"teams"`
+	Teams         []TournamentTeamId `bson:"teams" json:"teams"`
 	Champion      string             `bson:"champion" json:"champion"`
 	TournamentId  string             `bson:"tournament_id" json:"tournament_id"`
 	CategoryId    string             `bson:"category_id" json:"category_id"`
 	AssociationId string             `bson:"association_id" json:"association_id"`
 	Status_Data   `bson:"status_data" json:"status_data"`
+}
+
+type TournamentTeamId struct {
+	TeamId  string `bson:"team_id" json:"team_id"`
+	Variant string `bson:"variant" json:"variant"`
 }
 
 func (tournamentCategory *TournamentCategory) SetCreatedDate() {

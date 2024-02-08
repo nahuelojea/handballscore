@@ -9,7 +9,7 @@ import (
 
 type LeaguePhase struct {
 	Id                   primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Teams                []string           `bson:"teams" json:"teams"`
+	Teams                []TournamentTeamId `bson:"teams" json:"teams"`
 	HomeAndAway          bool               `bson:"home_and_away" json:"home_and_away"`
 	ClassifiedNumber     int                `bson:"classified_number" json:"classified_number"`
 	TeamsRanking         []TeamScore        `bson:"teams_ranking" json:"teams_ranking"`
@@ -19,14 +19,14 @@ type LeaguePhase struct {
 }
 
 type TeamScore struct {
-	TeamId        string `bson:"team" json:"team"`
-	Points        int    `bson:"points" json:"points"`
-	Matches       int    `bson:"matches" json:"matches"`
-	Wins          int    `bson:"wins" json:"wins"`
-	Draws         int    `bson:"draws" json:"draws"`
-	Losses        int    `bson:"losses" json:"losses"`
-	GoalsScored   int    `bson:"goals_scored" json:"goals_scored"`
-	GoalsConceded int    `bson:"goals_conceded" json:"goals_conceded"`
+	TeamId        TournamentTeamId `bson:"team" json:"team"`
+	Points        int              `bson:"points" json:"points"`
+	Matches       int              `bson:"matches" json:"matches"`
+	Wins          int              `bson:"wins" json:"wins"`
+	Draws         int              `bson:"draws" json:"draws"`
+	Losses        int              `bson:"losses" json:"losses"`
+	GoalsScored   int              `bson:"goals_scored" json:"goals_scored"`
+	GoalsConceded int              `bson:"goals_conceded" json:"goals_conceded"`
 }
 
 func (leaguePhase *LeaguePhase) SetAssociationId(associationId string) {
@@ -124,7 +124,7 @@ type MatchRound struct {
 	Away int
 }
 
-func calculateLeagueNumTeamsPair(teams []string) [][]MatchRound {
+func calculateLeagueNumTeamsPair(teams []TournamentTeamId) [][]MatchRound {
 	totalTeams := len(teams)
 	totalRounds := totalTeams - 1
 	totalMatchesByRound := totalTeams / 2
@@ -173,7 +173,7 @@ func calculateLeagueNumTeamsPair(teams []string) [][]MatchRound {
 	return rounds
 }
 
-func calculateLeagueNumTeamsOdd(teams []string) [][]MatchRound {
+func calculateLeagueNumTeamsOdd(teams []TournamentTeamId) [][]MatchRound {
 	totalTeams := len(teams)
 	totalRounds := totalTeams
 	totalMatchesByRound := totalTeams / 2
@@ -214,7 +214,7 @@ func calculateLeagueNumTeamsOdd(teams []string) [][]MatchRound {
 	return rounds
 }
 
-func calculateLeague(teams []string) [][]MatchRound {
+func calculateLeague(teams []TournamentTeamId) [][]MatchRound {
 	if len(teams)%2 == 0 {
 		return calculateLeagueNumTeamsPair(teams)
 	} else {

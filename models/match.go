@@ -18,8 +18,8 @@ const (
 type Match struct {
 	Id                 primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Date               time.Time          `bson:"date" json:"date"`
-	TeamHome           string             `bson:"team_home" json:"team_home"`
-	TeamAway           string             `bson:"team_away" json:"team_away"`
+	TeamHome           TournamentTeamId   `bson:"team_home" json:"team_home"`
+	TeamAway           TournamentTeamId   `bson:"team_away" json:"team_away"`
 	Referees           []string           `bson:"referees" json:"referees"`
 	Place              string             `bson:"place" json:"place"`
 	Scorekeeper        string             `bson:"scorekeeper" json:"scorekeeper"`
@@ -70,7 +70,7 @@ func (match *Match) SetId(id primitive.ObjectID) {
 	match.Id = id
 }
 
-func generateLeagueMatch(leaguePhaseWeekId string, teamA, teamB string) Match {
+func generateLeagueMatch(leaguePhaseWeekId string, teamA, teamB TournamentTeamId) Match {
 	return Match{
 		TeamHome:          teamA,
 		TeamAway:          teamB,
@@ -79,7 +79,7 @@ func generateLeagueMatch(leaguePhaseWeekId string, teamA, teamB string) Match {
 	}
 }
 
-func generatePlayoffMatch(playoffPhaseWeekId string, teamA, teamB string) Match {
+func generatePlayoffMatch(playoffPhaseWeekId string, teamA, teamB TournamentTeamId) Match {
 	return Match{
 		TeamHome:           teamA,
 		TeamAway:           teamB,
