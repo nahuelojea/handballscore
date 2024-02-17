@@ -10,12 +10,16 @@ import (
 type LeaguePhase struct {
 	Id                   primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Teams                []TournamentTeamId `bson:"teams" json:"teams"`
-	HomeAndAway          bool               `bson:"home_and_away" json:"home_and_away"`
-	ClassifiedNumber     int                `bson:"classified_number" json:"classified_number"`
 	TeamsRanking         []TeamScore        `bson:"teams_ranking" json:"teams_ranking"`
+	Config               LeaguePhaseConfig  `bson:"config" json:"config"`
+	TournamentCategoryId string             `bson:"tournament_category_id" json:"tournament_category_id"`
 	Status_Data          `bson:"status_data" json:"status_data"`
-	TournamentCategoryId string `bson:"tournament_category_id" json:"tournament_category_id"`
 	AssociationId        string `bson:"association_id" json:"association_id"`
+}
+
+type LeaguePhaseConfig struct {
+	HomeAndAway      bool `bson:"home_and_away" json:"home_and_away"`
+	ClassifiedNumber int  `bson:"classified_number" json:"classified_number"`
 }
 
 type TeamScore struct {
@@ -68,7 +72,7 @@ func (leaguePhase LeaguePhase) GenerateLeaguePhaseWeeks() ([]LeaguePhaseWeek, []
 
 	var totalWeeks = len(rounds)
 
-	if leaguePhase.HomeAndAway {
+	if leaguePhase.Config.HomeAndAway {
 		totalWeeks = totalWeeks * 2
 	}
 
@@ -101,7 +105,7 @@ func (leaguePhase LeaguePhase) GenerateMatches(rounds [][]MatchRound, leaguePhas
 		fmt.Println()
 	}
 
-	if leaguePhase.HomeAndAway {
+	if leaguePhase.Config.HomeAndAway {
 		for i := 0; i < len(rounds); i++ {
 			leaguePhaseWeek, _ := getLeaguePhaseWeekByNumber(leaguePhaseWeeks, week)
 

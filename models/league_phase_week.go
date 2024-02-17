@@ -9,8 +9,8 @@ import (
 type LeaguePhaseWeek struct {
 	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Number        int                `bson:"number" json:"number"`
+	LeaguePhaseId string             `bson:"league_phase_id" json:"league_phase_id"`
 	Status_Data   `bson:"status_data" json:"status_data"`
-	LeaguePhaseId string `bson:"league_phase_id" json:"league_phase_id"`
 	AssociationId string `bson:"association_id" json:"association_id"`
 }
 

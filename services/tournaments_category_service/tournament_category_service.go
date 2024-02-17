@@ -10,11 +10,9 @@ import (
 	"github.com/nahuelojea/handballscore/models"
 	TournamentsRepository "github.com/nahuelojea/handballscore/repositories/tournaments_category_repository"
 	"github.com/nahuelojea/handballscore/services/categories_service"
-	"github.com/nahuelojea/handballscore/services/league_phase_weeks_service"
 	"github.com/nahuelojea/handballscore/services/league_phases_service"
-	"github.com/nahuelojea/handballscore/services/matches_service"
+	"github.com/nahuelojea/handballscore/services/playoff_phases_service"
 	"github.com/nahuelojea/handballscore/services/tournaments_service"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -66,59 +64,25 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 
 	switch tournamentRequest.Format {
 	case TournamentDTO.League_Format:
-		return createTournamentWithLeagueFormat(tournamentRequest, tournamentCategoryId, associationId)
+		if !reflect.DeepEqual(tournamentRequest.LeaguePhase, TournamentDTO.LeaguePhaseRequest{}) {
+			return league_phases_service.CreateTournamentLeaguePhase(tournamentCategory,
+				tournamentCategoryId,
+				tournamentRequest.LeaguePhase.HomeAndAway)
+		} else {
+			return "", false, errors.New("League data is required")
+		}
+	case TournamentDTO.Playoff_Format:
+		if !reflect.DeepEqual(tournamentRequest.PlayoffPhase, TournamentDTO.PlayoffPhaseRequest{}) {
+			return playoff_phases_service.CreateTournamentPlayoffPhase(tournamentCategory,
+				tournamentCategoryId,
+				tournamentRequest.PlayoffPhase.HomeAndAway,
+				tournamentRequest.PlayoffPhase.RandomOrder)
+		} else {
+			return "", false, errors.New("Playoff data is required")
+		}
 	}
 
 	return tournamentCategory.TournamentId, true, nil
-}
-
-func createTournamentWithLeagueFormat(tournamentRequest TournamentDTO.CreateTournamentCategoryRequest, tournamentCategoryId, associationId string) (string, bool, error) {
-	if !reflect.DeepEqual(tournamentRequest.LeaguePhase, TournamentDTO.LeaguePhaseRequest{}) {
-		var leaguePhase models.LeaguePhase
-
-		leaguePhase.TournamentCategoryId = tournamentCategoryId
-		leaguePhase.HomeAndAway = tournamentRequest.LeaguePhase.HomeAndAway
-		leaguePhase.ClassifiedNumber = 1
-
-		leaguePhase.Teams = assignVariants(tournamentRequest.Teams)
-
-		leaguePhase.InitializeTeamScores()
-
-		leaguePhaseIdStr, _, err := league_phases_service.CreateLeaguePhase(associationId, leaguePhase)
-		if err != nil {
-			return "", false, errors.New(fmt.Sprintf("Error to create league phase: %s", err.Error()))
-		}
-
-		leaguePhaseId, err := primitive.ObjectIDFromHex(leaguePhaseIdStr)
-		if err != nil {
-			return "", false, err
-		}
-
-		leaguePhase.Id = leaguePhaseId
-		leaguePhaseWeeks, rounds := leaguePhase.GenerateLeaguePhaseWeeks()
-
-		_, _, err = league_phase_weeks_service.CreateLeaguePhaseWeeks(associationId, leaguePhaseWeeks)
-		if err != nil {
-			return "", false, errors.New(fmt.Sprintf("Error to create league phase weeks: %s", err.Error()))
-		}
-
-		filterOptions := league_phase_weeks_service.GetLeaguePhaseWeeksOptions{
-			AssociationId: associationId,
-			LeaguePhaseId: leaguePhaseId.Hex(),
-		}
-
-		leaguePhaseWeeks, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
-
-		matches := leaguePhase.GenerateMatches(rounds, leaguePhaseWeeks)
-
-		_, _, err = matches_service.CreateMatches(associationId, matches)
-		if err != nil {
-			return "", false, errors.New(fmt.Sprintf("Error to create league phase matches: %s", err.Error()))
-		}
-	} else {
-		return "", false, errors.New("League data is required")
-	}
-	return "", true, nil
 }
 
 func GetTournamentCategory(ID string) (models.TournamentCategory, bool, error) {

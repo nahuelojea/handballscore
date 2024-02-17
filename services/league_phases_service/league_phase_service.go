@@ -1,8 +1,14 @@
 package league_phases_service
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/league_phases_repository"
+	"github.com/nahuelojea/handballscore/services/league_phase_weeks_service"
+	"github.com/nahuelojea/handballscore/services/matches_service"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type GetLeaguePhasesOptions struct {
@@ -36,4 +42,53 @@ func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase
 
 func DeleteLeaguePhase(ID string) (bool, error) {
 	return league_phases_repository.DeleteLeaguePhase(ID)
+}
+
+func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, tournamentCategoryId string, homeAndAway bool) (string, bool, error) {
+	var leaguePhase models.LeaguePhase
+
+	leaguePhase.TournamentCategoryId = tournamentCategoryId
+	leaguePhase.Config.HomeAndAway = homeAndAway
+	leaguePhase.Config.ClassifiedNumber = 1
+
+	leaguePhase.Teams = tournamentCategory.Teams
+
+	leaguePhase.InitializeTeamScores()
+
+	leaguePhaseIdStr, _, err := CreateLeaguePhase(tournamentCategory.AssociationId, leaguePhase)
+	if err != nil {
+		return "", false, errors.New(fmt.Sprintf("Error to create league phase: %s", err.Error()))
+	}
+
+	leaguePhaseId, err := primitive.ObjectIDFromHex(leaguePhaseIdStr)
+	if err != nil {
+		return "", false, err
+	}
+
+	leaguePhase.Id = leaguePhaseId
+	leaguePhaseWeeks, rounds := leaguePhase.GenerateLeaguePhaseWeeks()
+
+	_, _, err = league_phase_weeks_service.CreateLeaguePhaseWeeks(tournamentCategory.AssociationId, leaguePhaseWeeks)
+	if err != nil {
+		return "", false, errors.New(fmt.Sprintf("Error to create league phase weeks: %s", err.Error()))
+	}
+
+	filterOptions := league_phase_weeks_service.GetLeaguePhaseWeeksOptions{
+		AssociationId: tournamentCategory.AssociationId,
+		LeaguePhaseId: leaguePhaseId.Hex(),
+	}
+
+	leaguePhaseWeeks, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
+	if err != nil {
+		return "", false, errors.New(fmt.Sprintf("Error to get league phase weeks: %s", err.Error()))
+	}
+
+	matches := leaguePhase.GenerateMatches(rounds, leaguePhaseWeeks)
+
+	_, _, err = matches_service.CreateMatches(tournamentCategory.AssociationId, matches)
+	if err != nil {
+		return "", false, errors.New(fmt.Sprintf("Error to create league phase matches: %s", err.Error()))
+	}
+
+	return "", true, nil
 }
