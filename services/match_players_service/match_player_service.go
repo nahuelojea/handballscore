@@ -39,7 +39,7 @@ type GetMatchPlayerOptions struct {
 	SortOrder     int
 }
 
-func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer, int64, error) {
+func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer, int64, int, error) {
 	filters := match_players_repository.GetMatchPlayerOptions{
 		MatchId:       filterOptions.MatchId,
 		TeamId:        filterOptions.TeamId,

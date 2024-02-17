@@ -2,6 +2,7 @@ package tournaments_repository
 
 import (
 	"context"
+	"math"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -41,7 +42,7 @@ type GetTournamentsCategoryOptions struct {
 	SortOrder     int
 }
 
-func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, error) {
+func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(tournament_category_collection)
@@ -84,7 +85,7 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -92,21 +93,23 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	for cur.Next(ctx) {
 		var tournament models.TournamentCategory
 		if err := cur.Decode(&tournament); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		tournaments = append(tournaments, tournament)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return tournaments, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return tournaments, totalRecords, totalPages, nil
 }
 
 func UpdateTournamentCategory(tournament models.TournamentCategory, ID string) (bool, error) {

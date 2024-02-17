@@ -17,7 +17,7 @@ func GetAssociation(ID string) (models.Association, bool, error) {
 	return associations_repository.GetAssociation(ID)
 }
 
-func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association, int64, error) {
+func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association, int64, int, error) {
 
 	filters := associations_repository.GetAssociationsOptions{
 		Name:      filterOptions.Name,

@@ -32,7 +32,7 @@ func GetMatch(ID string) (models.Match, bool, error) {
 	return matches_repository.GetMatch(ID)
 }
 
-func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) {
+func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		PhaseWeekId:   filterOptions.PhaseWeekId,
 		AssociationId: filterOptions.AssociationId,

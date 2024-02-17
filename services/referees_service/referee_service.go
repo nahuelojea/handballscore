@@ -42,7 +42,7 @@ func GetReferee(ID string) (models.Referee, error) {
 	return referees_repository.GetReferee(ID)
 }
 
-func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, error) {
+func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, int, error) {
 	filters := referees_repository.GetRefereesOptions{
 		Name:          filterOptions.Name,
 		Surname:       filterOptions.Surname,

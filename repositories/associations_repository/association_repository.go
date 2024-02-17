@@ -2,6 +2,7 @@ package associations_repository
 
 import (
 	"context"
+	"math"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -42,7 +43,7 @@ type GetAssociationsOptions struct {
 	SortOrder int
 }
 
-func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association, int64, error) {
+func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(association_collection)
@@ -72,7 +73,7 @@ func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -80,19 +81,21 @@ func GetAssociations(filterOptions GetAssociationsOptions) ([]models.Association
 	for cur.Next(ctx) {
 		var association models.Association
 		if err := cur.Decode(&association); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		associations = append(associations, association)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return associations, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return associations, totalRecords, totalPages, nil
 }

@@ -30,7 +30,7 @@ func GetTeam(ID string) (models.Team, bool, error) {
 	return teams_repository.GetTeam(ID)
 }
 
-func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
+func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, int, error) {
 	filters := teams_repository.GetTeamsOptions{
 		Name:          filterOptions.Name,
 		AssociationId: filterOptions.AssociationId,

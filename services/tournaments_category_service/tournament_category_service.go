@@ -89,7 +89,7 @@ func GetTournamentCategory(ID string) (models.TournamentCategory, bool, error) {
 	return TournamentsRepository.GetTournamentCategory(ID)
 }
 
-func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, error) {
+func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, int, error) {
 	filters := TournamentsRepository.GetTournamentsCategoryOptions{
 		Name:          filterOptions.Name,
 		CategoryId:    filterOptions.CategoryId,
