@@ -43,7 +43,7 @@ func GetTeams(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestRe
 		SortOrder:     1,
 	}
 
-	teamsList, totalRecords, err := teams_service.GetTeams(filterOptions)
+	teamsList, totalRecords, totalPages, err := teams_service.GetTeams(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get teams: " + err.Error()
@@ -52,7 +52,7 @@ func GetTeams(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestRe
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        teamsList,

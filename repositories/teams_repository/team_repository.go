@@ -2,6 +2,7 @@ package teams_repository
 
 import (
 	"context"
+	"math"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -38,7 +39,7 @@ func GetTeam(ID string) (models.Team, bool, error) {
 	return team, true, nil
 }
 
-func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
+func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(team_collection)
@@ -70,7 +71,7 @@ func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -78,21 +79,23 @@ func GetTeams(filterOptions GetTeamsOptions) ([]models.Team, int64, error) {
 	for cur.Next(ctx) {
 		var team models.Team
 		if err := cur.Decode(&team); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		teams = append(teams, team)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return teams, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return teams, totalRecords, totalPages, nil
 }
 
 func UpdateTeam(team models.Team, ID string) (bool, error) {
