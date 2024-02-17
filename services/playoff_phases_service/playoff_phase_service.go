@@ -44,7 +44,7 @@ func CreateTournamentPlayoffPhase(tournamentCategory models.TournamentCategory, 
 		LeaguePhaseId: leaguePhaseId.Hex(),
 	}
 
-	leaguePhaseWeeks, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
+	leaguePhaseWeeks, _, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
 	if err != nil {
 		return "", false, errors.New(fmt.Sprintf("Error to get league phase weeks: %s", err.Error()))
 	}
