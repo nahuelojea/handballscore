@@ -56,7 +56,7 @@ func GetTournaments(request events.APIGatewayProxyRequest, claim dto.Claim) dto.
 		SortOrder:     1,
 	}
 
-	tournamentsList, totalRecords, err := tournaments_service.GetTournaments(filterOptions)
+	tournamentsList, totalRecords, totalPages, err := tournaments_service.GetTournaments(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get tournaments: " + err.Error()
@@ -65,7 +65,7 @@ func GetTournaments(request events.APIGatewayProxyRequest, claim dto.Claim) dto.
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        tournamentsList,

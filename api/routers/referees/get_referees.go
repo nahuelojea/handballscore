@@ -61,7 +61,7 @@ func GetReferees(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Res
 		SortOrder:     1,
 	}
 
-	refereesList, totalRecords, err := referees_service.GetReferees(filterOptions)
+	refereesList, totalRecords, totalPages, err := referees_service.GetReferees(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get referees: " + err.Error()
@@ -70,7 +70,7 @@ func GetReferees(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Res
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        refereesList,

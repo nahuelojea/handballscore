@@ -47,7 +47,7 @@ func GetTournamentsCategory(request events.APIGatewayProxyRequest, claim dto.Cla
 		PageSize:      pageSize,
 	}
 
-	tournamentsList, totalRecords, err := tournaments_service.GetTournamentsCategory(filterOptions)
+	tournamentsList, totalRecords, totalPages, err := tournaments_service.GetTournamentsCategory(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get tournaments category: " + err.Error()
@@ -56,7 +56,7 @@ func GetTournamentsCategory(request events.APIGatewayProxyRequest, claim dto.Cla
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        tournamentsList,

@@ -29,7 +29,7 @@ func GetCategoriesByIds(Ids []string) ([]models.Category, int64, error) {
 	return categories_repository.GetMultipleByIds(Ids)
 }
 
-func GetCategories(filterOptions GetCategoriesOptions) ([]models.Category, int64, error) {
+func GetCategories(filterOptions GetCategoriesOptions) ([]models.Category, int64, int, error) {
 	filters := categories_repository.GetCategoriesOptions{
 		Name:          filterOptions.Name,
 		Gender:        filterOptions.Gender,

@@ -23,7 +23,7 @@ func GetLeaguePhaseWeek(id string) (models.LeaguePhaseWeek, bool, error) {
 	return league_phase_weeks_repository.GetLeaguePhaseWeek(id)
 }
 
-func GetLeaguePhaseWeeks(filterOptions GetLeaguePhaseWeeksOptions) ([]models.LeaguePhaseWeek, int64, error) {
+func GetLeaguePhaseWeeks(filterOptions GetLeaguePhaseWeeksOptions) ([]models.LeaguePhaseWeek, int64, int, error) {
 	filters := league_phase_weeks_repository.GetLeaguePhaseWeeksOptions{
 		LeaguePhaseId: filterOptions.LeaguePhaseId,
 		Number:        filterOptions.Number,

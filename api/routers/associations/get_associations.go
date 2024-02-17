@@ -35,7 +35,7 @@ func GetAssociations(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 		SortOrder: 1,
 	}
 
-	associationsList, totalRecords, err := associations_service.GetAssociations(filterOptions)
+	associationsList, totalRecords, totalPages, err := associations_service.GetAssociations(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get associations: " + err.Error()
@@ -44,7 +44,7 @@ func GetAssociations(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        associationsList,

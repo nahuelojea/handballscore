@@ -43,7 +43,7 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		SortOrder:     1,
 	}
 
-	matchesList, totalRecords, err := matches_service.GetMatches(filterOptions)
+	matchesList, totalRecords, totalPages, err := matches_service.GetMatches(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get matches: " + err.Error()
@@ -52,7 +52,7 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        matchesList,

@@ -50,7 +50,7 @@ func GetCategoriesByTournament(request events.APIGatewayProxyRequest, claim dto.
 		SortOrder:     1,
 	}
 
-	tournamentsList, _, err := tournaments_service.GetTournamentsCategory(filterOptions)
+	tournamentsList, _, _, err := tournaments_service.GetTournamentsCategory(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get tournaments category: " + err.Error()

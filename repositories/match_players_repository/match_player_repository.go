@@ -2,6 +2,7 @@ package match_players_repository
 
 import (
 	"context"
+	"math"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -48,7 +49,7 @@ type GetMatchPlayerOptions struct {
 	SortOrder     int
 }
 
-func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer, int64, error) {
+func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(match_player_collection)
@@ -90,7 +91,7 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer,
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -98,21 +99,23 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer,
 	for cur.Next(ctx) {
 		var matchPlayer models.MatchPlayer
 		if err := cur.Decode(&matchPlayer); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		matchPlayers = append(matchPlayers, matchPlayer)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return matchPlayers, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return matchPlayers, totalRecords, totalPages, nil
 }
 
 func UpdateMatchPlayer(matchPlayer models.MatchPlayer, id string) (bool, error) {

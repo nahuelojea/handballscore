@@ -2,6 +2,7 @@ package match_coaches_repository
 
 import (
 	"context"
+	"math"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -47,7 +48,7 @@ type GetMatchCoachOptions struct {
 	SortOrder     int
 }
 
-func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, int64, error) {
+func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(match_coach_collection)
@@ -85,7 +86,7 @@ func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, i
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -93,21 +94,23 @@ func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, i
 	for cur.Next(ctx) {
 		var matchCoach models.MatchCoach
 		if err := cur.Decode(&matchCoach); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		matchCoaches = append(matchCoaches, matchCoach)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return matchCoaches, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return matchCoaches, totalRecords, totalPages, nil
 }
 
 func UpdateExclusions(matchCoach models.MatchCoach) (bool, error) {

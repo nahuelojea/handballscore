@@ -2,6 +2,7 @@ package matches_repository
 
 import (
 	"context"
+	"math"
 	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
@@ -49,7 +50,7 @@ type GetMatchesOptions struct {
 	SortOrder     int
 }
 
-func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) {
+func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(match_collection)
@@ -81,7 +82,7 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) 
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -89,21 +90,23 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, error) 
 	for cur.Next(ctx) {
 		var match models.Match
 		if err := cur.Decode(&match); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		matches = append(matches, match)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return matches, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return matches, totalRecords, totalPages, nil
 }
 
 func ProgramMatch(Time time.Time, Place string, Id string) (bool, error) {

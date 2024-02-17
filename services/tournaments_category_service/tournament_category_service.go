@@ -107,7 +107,7 @@ func createTournamentWithLeagueFormat(tournamentRequest TournamentDTO.CreateTour
 			LeaguePhaseId: leaguePhaseId.Hex(),
 		}
 
-		leaguePhaseWeeks, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
+		leaguePhaseWeeks, _, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
 
 		matches := leaguePhase.GenerateMatches(rounds, leaguePhaseWeeks)
 
@@ -125,7 +125,7 @@ func GetTournamentCategory(ID string) (models.TournamentCategory, bool, error) {
 	return TournamentsRepository.GetTournamentCategory(ID)
 }
 
-func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, error) {
+func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, int, error) {
 	filters := TournamentsRepository.GetTournamentsCategoryOptions{
 		Name:          filterOptions.Name,
 		CategoryId:    filterOptions.CategoryId,

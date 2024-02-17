@@ -2,6 +2,7 @@ package league_phase_weeks_repository
 
 import (
 	"context"
+	"math"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -44,7 +45,7 @@ func GetLeaguePhaseWeek(ID string) (models.LeaguePhaseWeek, bool, error) {
 	return leaguePhaseWeek, true, nil
 }
 
-func GetLeaguePhaseWeeks(filterOptions GetLeaguePhaseWeeksOptions) ([]models.LeaguePhaseWeek, int64, error) {
+func GetLeaguePhaseWeeks(filterOptions GetLeaguePhaseWeeksOptions) ([]models.LeaguePhaseWeek, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(league_phase_weeks_collection)
@@ -80,7 +81,7 @@ func GetLeaguePhaseWeeks(filterOptions GetLeaguePhaseWeeksOptions) ([]models.Lea
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -88,19 +89,21 @@ func GetLeaguePhaseWeeks(filterOptions GetLeaguePhaseWeeksOptions) ([]models.Lea
 	for cur.Next(ctx) {
 		var leaguePhaseWeek models.LeaguePhaseWeek
 		if err := cur.Decode(&leaguePhaseWeek); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		leaguePhaseWeeks = append(leaguePhaseWeeks, leaguePhaseWeek)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return leaguePhaseWeeks, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return leaguePhaseWeeks, totalRecords, totalPages, nil
 }

@@ -22,7 +22,7 @@ func GetLeaguePhase(ID string) (models.LeaguePhase, bool, error) {
 	return league_phases_repository.GetLeaguePhase(ID)
 }
 
-func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase, int64, error) {
+func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase, int64, int, error) {
 	filters := league_phases_repository.GetLeaguePhasesOptions{
 		TournamentId:  filterOptions.TournamentId,
 		AssociationId: filterOptions.AssociationId,

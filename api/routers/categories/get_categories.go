@@ -45,7 +45,7 @@ func GetCategories(request events.APIGatewayProxyRequest, claim dto.Claim) dto.R
 		SortOrder:     1,
 	}
 
-	categoriesList, totalRecords, err := categories_service.GetCategories(filterOptions)
+	categoriesList, totalRecords, totalPages, err := categories_service.GetCategories(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get categories: " + err.Error()
@@ -54,7 +54,7 @@ func GetCategories(request events.APIGatewayProxyRequest, claim dto.Claim) dto.R
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        categoriesList,

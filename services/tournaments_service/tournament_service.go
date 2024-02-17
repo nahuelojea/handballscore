@@ -23,7 +23,7 @@ func GetTournament(ID string) (models.Tournament, bool, error) {
 	return tournaments_repository.GetTournament(ID)
 }
 
-func GetTournaments(filterOptions GetTournamentsOptions) ([]models.Tournament, int64, error) {
+func GetTournaments(filterOptions GetTournamentsOptions) ([]models.Tournament, int64, int, error) {
 	filters := tournaments_repository.GetTournamentsOptions{
 		Name:          filterOptions.Name,
 		OnlyEnabled:   filterOptions.OnlyEnabled,

@@ -2,6 +2,7 @@ package coaches_repository
 
 import (
 	"context"
+	"math"
 	"strings"
 
 	"github.com/nahuelojea/handballscore/config/db"
@@ -43,7 +44,7 @@ type GetCoachesOptions struct {
 	SortOrder     int
 }
 
-func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, error) {
+func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(coach_collection)
@@ -100,7 +101,7 @@ func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, error) 
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -108,21 +109,23 @@ func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, error) 
 	for cur.Next(ctx) {
 		var coach models.Coach
 		if err := cur.Decode(&coach); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		coaches = append(coaches, coach)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return coaches, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return coaches, totalRecords, totalPages, nil
 }
 
 func UpdateCoach(coach models.Coach, ID string) (bool, error) {

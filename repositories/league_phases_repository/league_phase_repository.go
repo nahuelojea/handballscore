@@ -2,6 +2,7 @@ package league_phases_repository
 
 import (
 	"context"
+	"math"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -39,7 +40,7 @@ func GetLeaguePhase(ID string) (models.LeaguePhase, bool, error) {
 	return leaguePhase, true, nil
 }
 
-func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase, int64, error) {
+func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(league_phase_collection)
@@ -71,7 +72,7 @@ func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -79,21 +80,23 @@ func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase
 	for cur.Next(ctx) {
 		var leaguePhase models.LeaguePhase
 		if err := cur.Decode(&leaguePhase); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		leaguePhases = append(leaguePhases, leaguePhase)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return leaguePhases, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return leaguePhases, totalRecords, totalPages, nil
 }
 
 func DeleteLeaguePhase(ID string) (bool, error) {

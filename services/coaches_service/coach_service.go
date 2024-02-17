@@ -45,7 +45,7 @@ func GetCoach(ID string) (models.Coach, bool, error) {
 	return coaches_repository.GetCoach(ID)
 }
 
-func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, error) {
+func GetCoaches(filterOptions GetCoachesOptions) ([]models.Coach, int64, int, error) {
 	filters := coaches_repository.GetCoachesOptions{
 		Name:          filterOptions.Name,
 		Surname:       filterOptions.Surname,

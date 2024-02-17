@@ -2,6 +2,7 @@ package referees_repository
 
 import (
 	"context"
+	"math"
 	"strings"
 
 	"github.com/nahuelojea/handballscore/config/db"
@@ -42,7 +43,7 @@ type GetRefereesOptions struct {
 	SortOrder     int
 }
 
-func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, error) {
+func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(referee_collection)
@@ -96,7 +97,7 @@ func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, err
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
@@ -104,21 +105,23 @@ func GetReferees(filterOptions GetRefereesOptions) ([]models.Referee, int64, err
 	for cur.Next(ctx) {
 		var referee models.Referee
 		if err := cur.Decode(&referee); err != nil {
-			return nil, 0, err
+			return nil, 0, 0, err
 		}
 		referees = append(referees, referee)
 	}
 
 	if err := cur.Err(); err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
 	totalRecords, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return referees, totalRecords, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return referees, totalRecords, totalPages, nil
 }
 
 func UpdateReferee(referee models.Referee, ID string) (bool, error) {

@@ -63,7 +63,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 		SortOrder:     1,
 	}
 
-	coachesList, totalRecords, err := coaches_service.GetCoaches(filterOptions)
+	coachesList, totalRecords, totalPages, err := coaches_service.GetCoaches(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get coaches: " + err.Error()
@@ -72,7 +72,7 @@ func GetCoachs(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestR
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: totalRecords,
-		TotalPages:   int(totalRecords / int64(pageSize)),
+		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
 		Items:        coachesList,
