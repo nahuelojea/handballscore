@@ -12,12 +12,12 @@ import (
 )
 
 type GetLeaguePhasesOptions struct {
-	TournamentId  string
-	AssociationId string
-	Page          int
-	PageSize      int
-	SortField     string
-	SortOrder     int
+	TournamentCategoryId string
+	AssociationId        string
+	Page                 int
+	PageSize             int
+	SortField            string
+	SortOrder            int
 }
 
 func CreateLeaguePhase(association_id string, leaguePhase models.LeaguePhase) (string, bool, error) {
@@ -30,12 +30,12 @@ func GetLeaguePhase(ID string) (models.LeaguePhase, bool, error) {
 
 func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase, int64, int, error) {
 	filters := league_phases_repository.GetLeaguePhasesOptions{
-		TournamentId:  filterOptions.TournamentId,
-		AssociationId: filterOptions.AssociationId,
-		Page:          filterOptions.Page,
-		PageSize:      filterOptions.PageSize,
-		SortField:     filterOptions.SortField,
-		SortOrder:     filterOptions.SortOrder,
+		TournamentCategoryId: filterOptions.TournamentCategoryId,
+		AssociationId:        filterOptions.AssociationId,
+		Page:                 filterOptions.Page,
+		PageSize:             filterOptions.PageSize,
+		SortField:            filterOptions.SortField,
+		SortOrder:            filterOptions.SortOrder,
 	}
 	return league_phases_repository.GetLeaguePhases(filters)
 }
@@ -90,5 +90,5 @@ func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, t
 		return "", false, errors.New(fmt.Sprintf("Error to create league phase matches: %s", err.Error()))
 	}
 
-	return "", true, nil
+	return leaguePhaseIdStr, true, nil
 }

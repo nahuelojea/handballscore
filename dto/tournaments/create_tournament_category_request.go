@@ -24,6 +24,7 @@ type LeaguePhaseRequest struct {
 }
 
 type PlayoffPhaseRequest struct {
-	HomeAndAway bool `json:"home_and_away"`
-	RandomOrder bool `json:"random_order"`
+	HomeAndAway      bool `json:"home_and_away"`
+	RandomOrder      bool `json:"random_order"`
+	SingleMatchFinal bool `json:"single_match_final"`
 }

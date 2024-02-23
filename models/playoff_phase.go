@@ -1,6 +1,10 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type PlayoffPhase struct {
 	Id                   primitive.ObjectID `bson:"_id,omitempty" json:"id"`
@@ -15,4 +19,20 @@ type PlayoffPhaseConfig struct {
 	HomeAndAway      bool `bson:"home_and_away" json:"home_and_away"`
 	SingleMatchFinal bool `bson:"single_match_final" json:"single_match_final"`
 	RandomOrder      bool `bson:"random_order" json:"random_order"`
+}
+
+func (playoffPhase *PlayoffPhase) SetAssociationId(associationId string) {
+	playoffPhase.AssociationId = associationId
+}
+
+func (playoffPhase *PlayoffPhase) SetCreatedDate() {
+	playoffPhase.CreatedDate = time.Now()
+}
+
+func (playoffPhase *PlayoffPhase) SetModifiedDate() {
+	playoffPhase.ModifiedDate = time.Now()
+}
+
+func (playoffPhase *PlayoffPhase) SetId(id primitive.ObjectID) {
+	playoffPhase.Id = id
 }

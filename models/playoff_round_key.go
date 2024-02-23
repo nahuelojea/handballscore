@@ -1,6 +1,10 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type PlayoffRoundKey struct {
 	Id             primitive.ObjectID  `bson:"_id,omitempty" json:"id"`
@@ -10,4 +14,20 @@ type PlayoffRoundKey struct {
 	PlayoffRoundId string              `bson:"playoff_round_id" json:"playoff_round_id"`
 	Status_Data    `bson:"status_data" json:"status_data"`
 	AssociationId  string `bson:"association_id" json:"association_id"`
+}
+
+func (playoffRoundKey *PlayoffRoundKey) SetAssociationId(associationId string) {
+	playoffRoundKey.AssociationId = associationId
+}
+
+func (playoffRoundKey *PlayoffRoundKey) SetCreatedDate() {
+	playoffRoundKey.CreatedDate = time.Now()
+}
+
+func (playoffRoundKey *PlayoffRoundKey) SetModifiedDate() {
+	playoffRoundKey.ModifiedDate = time.Now()
+}
+
+func (playoffRoundKey *PlayoffRoundKey) SetId(id primitive.ObjectID) {
+	playoffRoundKey.Id = id
 }

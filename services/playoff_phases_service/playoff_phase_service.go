@@ -5,56 +5,43 @@ import (
 	"fmt"
 
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/services/league_phase_weeks_service"
-	"github.com/nahuelojea/handballscore/services/matches_service"
+	"github.com/nahuelojea/handballscore/repositories/playoff_phases_repository"
+	"github.com/nahuelojea/handballscore/services/playoff_rounds_service"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func CreateTournamentPlayoffPhase(tournamentCategory models.TournamentCategory, tournamentCategoryId string, homeAndAway bool, randomOrder bool) (string, bool, error) {
+func CreatePlayoffPhase(association_id string, playoffPhase models.PlayoffPhase) (string, bool, error) {
+	return playoff_phases_repository.CreatePlayoffPhase(association_id, playoffPhase)
+}
+
+func CreateTournamentPlayoffPhase(tournamentCategory models.TournamentCategory,
+	tournamentCategoryId string,
+	homeAndAway bool,
+	randomOrder bool,
+	singleMatchFinal bool) (string, bool, error) {
+
 	var playoffPhase models.PlayoffPhase
 
 	playoffPhase.TournamentCategoryId = tournamentCategoryId
 	playoffPhase.Config.HomeAndAway = homeAndAway
 	playoffPhase.Config.RandomOrder = randomOrder
+	playoffPhase.Config.SingleMatchFinal = singleMatchFinal
 
 	playoffPhase.Teams = tournamentCategory.Teams
 
-	playoffPhase.InitializeTeamScores()
-
-	leaguePhaseIdStr, _, err := CreateLeaguePhase(tournamentCategory.AssociationId, playoffPhase)
+	playoffPhaseIdStr, _, err := CreatePlayoffPhase(tournamentCategory.AssociationId, playoffPhase)
 	if err != nil {
 		return "", false, errors.New(fmt.Sprintf("Error to create playoff phase: %s", err.Error()))
 	}
 
-	leaguePhaseId, err := primitive.ObjectIDFromHex(leaguePhaseIdStr)
+	playoffPhaseId, err := primitive.ObjectIDFromHex(playoffPhaseIdStr)
 	if err != nil {
 		return "", false, err
 	}
 
-	playoffPhase.Id = leaguePhaseId
-	leaguePhaseWeeks, rounds := playoffPhase.GenerateLeaguePhaseWeeks()
+	playoffPhase.Id = playoffPhaseId
 
-	_, _, err = league_phase_weeks_service.CreateLeaguePhaseWeeks(tournamentCategory.AssociationId, leaguePhaseWeeks)
-	if err != nil {
-		return "", false, errors.New(fmt.Sprintf("Error to create league phase weeks: %s", err.Error()))
-	}
+	playoff_rounds_service.CreateTournamentPlayoffRounds(tournamentCategory.AssociationId, playoffPhase)
 
-	filterOptions := league_phase_weeks_service.GetLeaguePhaseWeeksOptions{
-		AssociationId: tournamentCategory.AssociationId,
-		LeaguePhaseId: leaguePhaseId.Hex(),
-	}
-
-	leaguePhaseWeeks, _, _, err = league_phase_weeks_service.GetLeaguePhaseWeeks(filterOptions)
-	if err != nil {
-		return "", false, errors.New(fmt.Sprintf("Error to get league phase weeks: %s", err.Error()))
-	}
-
-	matches := playoffPhase.GenerateMatches(rounds, leaguePhaseWeeks)
-
-	_, _, err = matches_service.CreateMatches(tournamentCategory.AssociationId, matches)
-	if err != nil {
-		return "", false, errors.New(fmt.Sprintf("Error to create league phase matches: %s", err.Error()))
-	}
-
-	return "", true, nil
+	return playoffPhaseIdStr, true, nil
 }

@@ -44,6 +44,7 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 
 	tournamentCategory.CategoryId = category.Id.Hex()
 	tournamentCategory.TournamentId = tournament.Id.Hex()
+	tournamentCategory.AssociationId = associationId
 	tournamentCategory.StartDate = tournamentRequest.StartDate
 	tournamentCategory.Teams = assignVariants(tournamentRequest.Teams)
 
@@ -76,7 +77,8 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 			return playoff_phases_service.CreateTournamentPlayoffPhase(tournamentCategory,
 				tournamentCategoryId,
 				tournamentRequest.PlayoffPhase.HomeAndAway,
-				tournamentRequest.PlayoffPhase.RandomOrder)
+				tournamentRequest.PlayoffPhase.RandomOrder,
+				tournamentRequest.PlayoffPhase.SingleMatchFinal)
 		} else {
 			return "", false, errors.New("Playoff data is required")
 		}

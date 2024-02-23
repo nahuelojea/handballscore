@@ -2,7 +2,7 @@ package league_phase_weeks_service
 
 import (
 	"github.com/nahuelojea/handballscore/models"
-	"github.com/nahuelojea/handballscore/repositories/league_phase_weeks_repository"
+	league_phase_weeks_repository "github.com/nahuelojea/handballscore/repositories/league_phases_weeks_repository"
 )
 
 type GetLeaguePhaseWeeksOptions struct {

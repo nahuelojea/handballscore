@@ -1,4 +1,4 @@
-package league_phases_repository
+package playoff_phases_repository
 
 import (
 	"context"
@@ -13,10 +13,10 @@ import (
 )
 
 const (
-	league_phase_collection = "league_phases"
+	playoff_phase_collection = "playoff_phases"
 )
 
-type GetLeaguePhasesOptions struct {
+type GetPlayoffPhasesOptions struct {
 	TournamentCategoryId string
 	AssociationId        string
 	Page                 int
@@ -25,25 +25,24 @@ type GetLeaguePhasesOptions struct {
 	SortOrder            int
 }
 
-func CreateLeaguePhase(association_id string, leaguePhase models.LeaguePhase) (string, bool, error) {
-	leaguePhase.InitializeTeamScores()
-	return repositories.Create(league_phase_collection, association_id, &leaguePhase)
+func CreatePlayoffPhase(association_id string, playoffPhase models.PlayoffPhase) (string, bool, error) {
+	return repositories.Create(playoff_phase_collection, association_id, &playoffPhase)
 }
 
-func GetLeaguePhase(ID string) (models.LeaguePhase, bool, error) {
-	var leaguePhase models.LeaguePhase
-	_, err := repositories.GetById(league_phase_collection, ID, &leaguePhase)
+func GetPlayoffPhase(ID string) (models.PlayoffPhase, bool, error) {
+	var playoffPhase models.PlayoffPhase
+	_, err := repositories.GetById(playoff_phase_collection, ID, &playoffPhase)
 	if err != nil {
-		return models.LeaguePhase{}, false, err
+		return models.PlayoffPhase{}, false, err
 	}
 
-	return leaguePhase, true, nil
+	return playoffPhase, true, nil
 }
 
-func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase, int64, int, error) {
+func GetPlayoffPhases(filterOptions GetPlayoffPhasesOptions) ([]models.PlayoffPhase, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(league_phase_collection)
+	collection := db.Collection(playoff_phase_collection)
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
@@ -76,13 +75,13 @@ func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase
 	}
 	defer cur.Close(ctx)
 
-	var leaguePhases []models.LeaguePhase
+	var playoffPhases []models.PlayoffPhase
 	for cur.Next(ctx) {
-		var leaguePhase models.LeaguePhase
-		if err := cur.Decode(&leaguePhase); err != nil {
+		var playoffPhase models.PlayoffPhase
+		if err := cur.Decode(&playoffPhase); err != nil {
 			return nil, 0, 0, err
 		}
-		leaguePhases = append(leaguePhases, leaguePhase)
+		playoffPhases = append(playoffPhases, playoffPhase)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -96,9 +95,9 @@ func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase
 
 	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
 
-	return leaguePhases, totalRecords, totalPages, nil
+	return playoffPhases, totalRecords, totalPages, nil
 }
 
-func DeleteLeaguePhase(ID string) (bool, error) {
-	return repositories.Delete(league_phase_collection, ID)
+func DeletePlayoffPhase(ID string) (bool, error) {
+	return repositories.Delete(playoff_phase_collection, ID)
 }
