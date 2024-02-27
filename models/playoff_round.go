@@ -1,7 +1,6 @@
 package models
 
 import (
-	"strconv"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -39,41 +38,6 @@ func (playoffRound *PlayoffRound) SetModifiedDate() {
 
 func (playoffRound *PlayoffRound) SetId(id primitive.ObjectID) {
 	playoffRound.Id = id
-}
-
-func CreatePlayoffRounds(playoffPhase PlayoffPhase) ([]PlayoffRound, []PlayoffRoundKey) {
-	rounds, keys := createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, nil, nil)
-	return rounds, keys
-}
-
-func createPlayoffRoundsRecursive(playoffPhase PlayoffPhase, teams []TournamentTeamId, rounds []PlayoffRound, keys []PlayoffRoundKey) ([]PlayoffRound, []PlayoffRoundKey) {
-	if len(teams) <= 1 {
-		return rounds, keys
-	}
-
-	round := PlayoffRound{
-		Id:             primitive.NewObjectID(),
-		Round:          GetRoundFromTeamsCount(len(teams)),
-		TeamsQuantity:  len(teams),
-		PlayoffPhaseId: playoffPhase.Id.Hex(),
-	}
-
-	roundKeys := make([]PlayoffRoundKey, len(teams)/2)
-	for i := 0; i < len(teams)/2; i++ {
-		keyNumber := i + 1
-		key := PlayoffRoundKey{
-			Id:             primitive.NewObjectID(),
-			KeyNumber:      strconv.Itoa(keyNumber),
-			PlayoffRoundId: round.Id.Hex(),
-		}
-		roundKeys[i] = key
-	}
-	keys = append(keys, roundKeys...)
-
-	rounds = append(rounds, round)
-
-	halfTeamsCount := len(teams) / 2
-	return createPlayoffRoundsRecursive(playoffPhase, teams[:halfTeamsCount], rounds, keys)
 }
 
 func GetRoundFromTeamsCount(teamsCount int) string {
