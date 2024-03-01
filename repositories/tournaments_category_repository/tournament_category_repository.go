@@ -35,6 +35,7 @@ type GetTournamentsCategoryOptions struct {
 	CategoryId    string
 	TournamentId  string
 	Status        string
+	ChampionId    string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -62,6 +63,9 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	}
 	if filterOptions.Status != "" {
 		filter["status"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Status, Options: "i"}}
+	}
+	if filterOptions.ChampionId != "" {
+		filter["champion_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.ChampionId, Options: "i"}}
 	}
 
 	page := filterOptions.Page
@@ -117,8 +121,8 @@ func UpdateTournamentCategory(tournament models.TournamentCategory, ID string) (
 	if len(tournament.Name) > 0 {
 		updateDataMap["name"] = tournament.Name
 	}
-	if len(tournament.Champion) > 0 {
-		updateDataMap["champion"] = tournament.Champion
+	if len(tournament.ChampionId) > 0 {
+		updateDataMap["champion_id"] = tournament.ChampionId
 	}
 	if len(tournament.Status) > 0 {
 		updateDataMap["status"] = tournament.Status

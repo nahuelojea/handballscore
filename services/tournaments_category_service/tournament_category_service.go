@@ -22,6 +22,7 @@ type GetTournamentsCategoryOptions struct {
 	CategoryId    string
 	TournamentId  string
 	Status        string
+	ChampionId    string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -97,6 +98,7 @@ func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]mode
 		CategoryId:    filterOptions.CategoryId,
 		TournamentId:  filterOptions.TournamentId,
 		Status:        filterOptions.Status,
+		ChampionId:    filterOptions.ChampionId,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
 		PageSize:      filterOptions.PageSize,
