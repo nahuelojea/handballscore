@@ -14,20 +14,16 @@ func CreatePlayoffPhase(association_id string, playoffPhase models.PlayoffPhase)
 	return playoff_phases_repository.CreatePlayoffPhase(association_id, playoffPhase)
 }
 
-func CreateTournamentPlayoffPhase(tournamentCategory models.TournamentCategory,
-	tournamentCategoryId string,
-	homeAndAway bool,
-	randomOrder bool,
-	singleMatchFinal bool) (string, bool, error) {
+func CreateTournamentPlayoffPhase(tournamentCategory models.TournamentCategory, playoffPhaseConfig models.PlayoffPhaseConfig) (string, bool, error) {
 
 	var playoffPhase models.PlayoffPhase
 
-	playoffPhase.TournamentCategoryId = tournamentCategoryId
-	playoffPhase.Config.HomeAndAway = homeAndAway
-	playoffPhase.Config.RandomOrder = randomOrder
-	playoffPhase.Config.SingleMatchFinal = singleMatchFinal
+	playoffPhase.TournamentCategoryId = tournamentCategory.Id.Hex()
+	playoffPhase.Config = playoffPhaseConfig
 
-	playoffPhase.Teams = tournamentCategory.Teams
+	if playoffPhaseConfig.ClassifiedNumber == 0 {
+		playoffPhase.Teams = tournamentCategory.Teams
+	}
 
 	playoffPhaseIdStr, _, err := CreatePlayoffPhase(tournamentCategory.AssociationId, playoffPhase)
 	if err != nil {
@@ -43,5 +39,5 @@ func CreateTournamentPlayoffPhase(tournamentCategory models.TournamentCategory,
 
 	playoff_rounds_service.CreateTournamentPlayoffRounds(tournamentCategory.AssociationId, playoffPhase)
 
-	return playoffPhaseIdStr, true, nil
+	return tournamentCategory.Id.Hex(), true, nil
 }

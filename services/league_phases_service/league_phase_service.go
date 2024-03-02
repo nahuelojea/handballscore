@@ -44,12 +44,11 @@ func DeleteLeaguePhase(ID string) (bool, error) {
 	return league_phases_repository.DeleteLeaguePhase(ID)
 }
 
-func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, tournamentCategoryId string, homeAndAway bool) (string, bool, error) {
+func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, leaguePhaseConfig models.LeaguePhaseConfig) (string, bool, error) {
 	var leaguePhase models.LeaguePhase
 
-	leaguePhase.TournamentCategoryId = tournamentCategoryId
-	leaguePhase.Config.HomeAndAway = homeAndAway
-	leaguePhase.Config.ClassifiedNumber = 1
+	leaguePhase.TournamentCategoryId = tournamentCategory.Id.Hex()
+	leaguePhase.Config = leaguePhaseConfig
 
 	leaguePhase.Teams = tournamentCategory.Teams
 
@@ -90,5 +89,5 @@ func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, t
 		return "", false, errors.New(fmt.Sprintf("Error to create league phase matches: %s", err.Error()))
 	}
 
-	return leaguePhaseIdStr, true, nil
+	return tournamentCategory.Id.Hex(), true, nil
 }

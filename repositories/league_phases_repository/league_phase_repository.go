@@ -26,7 +26,6 @@ type GetLeaguePhasesOptions struct {
 }
 
 func CreateLeaguePhase(association_id string, leaguePhase models.LeaguePhase) (string, bool, error) {
-	leaguePhase.InitializeTeamScores()
 	return repositories.Create(league_phase_collection, association_id, &leaguePhase)
 }
 

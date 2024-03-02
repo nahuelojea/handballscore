@@ -11,8 +11,10 @@ import (
 	TournamentsRepository "github.com/nahuelojea/handballscore/repositories/tournaments_category_repository"
 	"github.com/nahuelojea/handballscore/services/categories_service"
 	"github.com/nahuelojea/handballscore/services/league_phases_service"
+	"github.com/nahuelojea/handballscore/services/league_playoff_phases_service"
 	"github.com/nahuelojea/handballscore/services/playoff_phases_service"
 	"github.com/nahuelojea/handballscore/services/tournaments_service"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -64,25 +66,49 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 		return "", false, errors.New(fmt.Sprintf("Error to create tournament category: %s", err.Error()))
 	}
 
+	tournamentCategory.Id, _ = primitive.ObjectIDFromHex(tournamentCategoryId)
+
 	switch tournamentRequest.Format {
 	case TournamentDTO.League_Format:
-		if !reflect.DeepEqual(tournamentRequest.LeaguePhase, TournamentDTO.LeaguePhaseRequest{}) {
-			return league_phases_service.CreateTournamentLeaguePhase(tournamentCategory,
-				tournamentCategoryId,
-				tournamentRequest.LeaguePhase.HomeAndAway)
-		} else {
+		if reflect.DeepEqual(tournamentRequest.LeaguePhase, TournamentDTO.LeaguePhaseRequest{}) {
 			return "", false, errors.New("League data is required")
 		}
+
+		var leaguePhaseConfig models.LeaguePhaseConfig
+		leaguePhaseConfig.HomeAndAway = tournamentRequest.LeaguePhase.HomeAndAway
+		leaguePhaseConfig.ClassifiedNumber = 0
+
+		return league_phases_service.CreateTournamentLeaguePhase(tournamentCategory, leaguePhaseConfig)
+
 	case TournamentDTO.Playoff_Format:
-		if !reflect.DeepEqual(tournamentRequest.PlayoffPhase, TournamentDTO.PlayoffPhaseRequest{}) {
-			return playoff_phases_service.CreateTournamentPlayoffPhase(tournamentCategory,
-				tournamentCategoryId,
-				tournamentRequest.PlayoffPhase.HomeAndAway,
-				tournamentRequest.PlayoffPhase.RandomOrder,
-				tournamentRequest.PlayoffPhase.SingleMatchFinal)
-		} else {
+		if reflect.DeepEqual(tournamentRequest.PlayoffPhase, TournamentDTO.PlayoffPhaseRequest{}) {
 			return "", false, errors.New("Playoff data is required")
 		}
+
+		var playoffPhaseConfig models.PlayoffPhaseConfig
+		playoffPhaseConfig.HomeAndAway = tournamentRequest.PlayoffPhase.HomeAndAway
+		playoffPhaseConfig.RandomOrder = tournamentRequest.PlayoffPhase.RandomOrder
+		playoffPhaseConfig.SingleMatchFinal = tournamentRequest.PlayoffPhase.SingleMatchFinal
+		playoffPhaseConfig.ClassifiedNumber = 0
+
+		return playoff_phases_service.CreateTournamentPlayoffPhase(tournamentCategory, playoffPhaseConfig)
+
+	case TournamentDTO.League_And_Playoff_Format:
+		if reflect.DeepEqual(tournamentRequest.LeagueAndPlayoff, TournamentDTO.LeagueAndPlayoffRequest{}) {
+			return "", false, errors.New("League Playoff data is required")
+		}
+
+		var leaguePhaseConfig models.LeaguePhaseConfig
+		leaguePhaseConfig.HomeAndAway = tournamentRequest.LeaguePhase.HomeAndAway
+		leaguePhaseConfig.ClassifiedNumber = tournamentRequest.LeagueAndPlayoff.LeaguePhase.ClassifiedNumber
+
+		var playoffPhaseConfig models.PlayoffPhaseConfig
+		playoffPhaseConfig.HomeAndAway = tournamentRequest.PlayoffPhase.HomeAndAway
+		playoffPhaseConfig.RandomOrder = tournamentRequest.PlayoffPhase.RandomOrder
+		playoffPhaseConfig.SingleMatchFinal = tournamentRequest.PlayoffPhase.SingleMatchFinal
+		playoffPhaseConfig.ClassifiedNumber = leaguePhaseConfig.ClassifiedNumber
+
+		return league_playoff_phases_service.CreateTournamentLeagueAndPlayoffPhases(tournamentCategory, leaguePhaseConfig, playoffPhaseConfig)
 	}
 
 	return tournamentCategory.TournamentId, true, nil

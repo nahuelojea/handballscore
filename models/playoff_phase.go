@@ -19,6 +19,7 @@ type PlayoffPhaseConfig struct {
 	HomeAndAway      bool `bson:"home_and_away" json:"home_and_away"`
 	SingleMatchFinal bool `bson:"single_match_final" json:"single_match_final"`
 	RandomOrder      bool `bson:"random_order" json:"random_order"`
+	ClassifiedNumber int  `bson:"classified_number" json:"classified_number"`
 }
 
 func (playoffPhase *PlayoffPhase) SetAssociationId(associationId string) {

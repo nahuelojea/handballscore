@@ -9,13 +9,14 @@ const (
 )
 
 type CreateTournamentCategoryRequest struct {
-	CategoryId   string              `json:"category_id"`
-	TournamentId string              `json:"tournament_id"`
-	StartDate    time.Time           `json:"start_date"`
-	Format       string              `json:"format"`
-	LeaguePhase  LeaguePhaseRequest  `json:"league_phase"`
-	PlayoffPhase PlayoffPhaseRequest `json:"playoff_phase"`
-	Teams        []string            `json:"teams"`
+	CategoryId       string                  `json:"category_id"`
+	TournamentId     string                  `json:"tournament_id"`
+	StartDate        time.Time               `json:"start_date"`
+	Format           string                  `json:"format"`
+	LeaguePhase      LeaguePhaseRequest      `json:"league_phase"`
+	PlayoffPhase     PlayoffPhaseRequest     `json:"playoff_phase"`
+	LeagueAndPlayoff LeagueAndPlayoffRequest `json:"league_and_playoff"`
+	Teams            []string                `json:"teams"`
 }
 
 type LeaguePhaseRequest struct {
@@ -27,4 +28,9 @@ type PlayoffPhaseRequest struct {
 	HomeAndAway      bool `json:"home_and_away"`
 	RandomOrder      bool `json:"random_order"`
 	SingleMatchFinal bool `json:"single_match_final"`
+}
+
+type LeagueAndPlayoffRequest struct {
+	LeaguePhase  LeaguePhaseRequest  `json:"league_phase"`
+	PlayoffPhase PlayoffPhaseRequest `json:"playoff_phase"`
 }

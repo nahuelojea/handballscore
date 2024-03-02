@@ -45,28 +45,34 @@ func CreateTournamentPlayoffRounds(association_id string, playoffPhase models.Pl
 }
 
 func createRounds(playoffPhase models.PlayoffPhase) ([]models.PlayoffRound, []models.PlayoffRoundKey, []models.Match) {
-	rounds, keys, matches := createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, nil, nil, nil)
-	return rounds, keys, matches
+	if playoffPhase.Config.ClassifiedNumber == 0 {
+		rounds, keys, matches := createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, len(playoffPhase.Teams), nil, nil, nil)
+		return rounds, keys, matches
+	} else {
+		rounds, keys, matches := createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, playoffPhase.Config.ClassifiedNumber, nil, nil, nil)
+		return rounds, keys, matches
+	}
 }
 
 func createPlayoffRoundsRecursive(playoffPhase models.PlayoffPhase,
 	teams []models.TournamentTeamId,
+	teamsQuantity int,
 	rounds []models.PlayoffRound,
 	keys []models.PlayoffRoundKey,
 	matches []models.Match) ([]models.PlayoffRound, []models.PlayoffRoundKey, []models.Match) {
-	if len(teams) <= 1 {
+	if teamsQuantity <= 1 {
 		return rounds, keys, matches
 	}
 
 	round := models.PlayoffRound{
 		Id:             primitive.NewObjectID(),
-		Round:          models.GetRoundFromTeamsCount(len(teams)),
-		TeamsQuantity:  len(teams),
+		Round:          models.GetRoundFromTeamsCount(teamsQuantity),
+		TeamsQuantity:  teamsQuantity,
 		PlayoffPhaseId: playoffPhase.Id.Hex(),
 	}
 
-	roundKeys := make([]models.PlayoffRoundKey, len(teams)/2)
-	for i := 0; i < len(teams)/2; i++ {
+	roundKeys := make([]models.PlayoffRoundKey, teamsQuantity/2)
+	for i := 0; i < teamsQuantity/2; i++ {
 		keyNumber := i + 1
 		key := models.PlayoffRoundKey{
 			Id:             primitive.NewObjectID(),
@@ -76,29 +82,36 @@ func createPlayoffRoundsRecursive(playoffPhase models.PlayoffPhase,
 		roundKeys[i] = key
 	}
 
-	if playoffPhase.Config.RandomOrder {
-		source := rand.NewSource(time.Now().UnixNano())
-		random := rand.New(source)
-		random.Shuffle(len(teams), func(i, j int) { teams[i], teams[j] = teams[j], teams[i] })
-	}
-
-	if len(rounds) == 0 {
-		for i := 0; i < len(roundKeys); i++ {
-			roundKeys[i].Teams[0] = teams[i]
-			roundKeys[i].Teams[1] = teams[len(teams)-1-i]
-			roundKeys[i].TeamsRanking[0].TeamId = teams[i]
-			roundKeys[i].TeamsRanking[1].TeamId = teams[len(teams)-1-i]
+	if playoffPhase.Config.ClassifiedNumber == 0 { // Solo se crean los partidos si no hay clasificados. Esto quiere decir que es una segunda fase
+		if playoffPhase.Config.RandomOrder {
+			source := rand.NewSource(time.Now().UnixNano())
+			random := rand.New(source)
+			random.Shuffle(teamsQuantity, func(i, j int) { teams[i], teams[j] = teams[j], teams[i] })
 		}
-		firstRoundMatches := createFirstRoundMatches(playoffPhase, roundKeys)
-		matches = append(matches, firstRoundMatches...)
+
+		if len(rounds) == 0 {
+			for i := 0; i < len(roundKeys); i++ {
+				roundKeys[i].Teams[0] = teams[i]
+				roundKeys[i].Teams[1] = teams[teamsQuantity-1-i]
+				roundKeys[i].TeamsRanking[0].TeamId = teams[i]
+				roundKeys[i].TeamsRanking[1].TeamId = teams[teamsQuantity-1-i]
+			}
+			firstRoundMatches := createFirstRoundMatches(playoffPhase, roundKeys)
+			matches = append(matches, firstRoundMatches...)
+		}
 	}
 
 	keys = append(keys, roundKeys...)
 
 	rounds = append(rounds, round)
 
-	halfTeamsCount := len(teams) / 2
-	return createPlayoffRoundsRecursive(playoffPhase, teams[:halfTeamsCount], rounds, keys, matches)
+	halfTeamsCount := teamsQuantity / 2
+
+	if playoffPhase.Config.ClassifiedNumber == 0 {
+		return createPlayoffRoundsRecursive(playoffPhase, teams[:halfTeamsCount], halfTeamsCount, rounds, keys, matches)
+	} else {
+		return createPlayoffRoundsRecursive(playoffPhase, teams, halfTeamsCount, rounds, keys, matches)
+	}
 }
 
 func createFirstRoundMatches(playoffPhase models.PlayoffPhase, roundKeys []models.PlayoffRoundKey) []models.Match {
