@@ -40,6 +40,25 @@ func (playoffRound *PlayoffRound) SetId(id primitive.ObjectID) {
 	playoffRound.Id = id
 }
 
+func (playoffRound *PlayoffRound) PlayoffRoundNameTraduction() string {
+	switch playoffRound.Round {
+	case ThirtyTwoFinals:
+		return "Treintaidosavos de Final"
+	case SixteenFinals:
+		return "Dieciseisavos de Final"
+	case EightFinals:
+		return "Octavos de Final"
+	case QuarterFinals:
+		return "Cuartos de Final"
+	case SemiFinal:
+		return "Semifinal"
+	case Final:
+		return "Final"
+	default:
+		return "Fase Desconocida"
+	}
+}
+
 func GetRoundFromTeamsCount(teamsCount int) string {
 	switch {
 	case teamsCount <= 2:

@@ -11,15 +11,17 @@ import (
 	categories_dto "github.com/nahuelojea/handballscore/dto/tournament_categories"
 	"github.com/nahuelojea/handballscore/services/league_phase_weeks_service"
 	"github.com/nahuelojea/handballscore/services/league_phases_service"
+	"github.com/nahuelojea/handballscore/services/playoff_phases_service"
+	"github.com/nahuelojea/handballscore/services/playoff_rounds_service"
 )
 
 func GetWeeksAndRounds(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
 	var weeksAndRoundsResponse []categories_dto.WeeksAndRoundsResponse
 
+	id := request.QueryStringParameters["id"]
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
-	tournamentCategoryId := request.QueryStringParameters["tournamentCategoryId"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
@@ -28,10 +30,10 @@ func GetWeeksAndRounds(request events.APIGatewayProxyRequest, claim dto.Claim) d
 			Message: "'associationId' is mandatory",
 		}
 	}
-	if len(tournamentCategoryId) < 1 {
+	if len(id) < 1 {
 		return dto.RestResponse{
 			Status:  http.StatusBadRequest,
-			Message: "'tournamentCategoryId' param is mandatory",
+			Message: "'id' param is mandatory",
 		}
 	}
 
@@ -46,7 +48,7 @@ func GetWeeksAndRounds(request events.APIGatewayProxyRequest, claim dto.Claim) d
 	}
 
 	filterLeaguePhase := league_phases_service.GetLeaguePhasesOptions{
-		TournamentCategoryId: tournamentCategoryId,
+		TournamentCategoryId: id,
 		AssociationId:        associationId,
 		Page:                 page,
 		PageSize:             pageSize,
@@ -80,8 +82,8 @@ func GetWeeksAndRounds(request events.APIGatewayProxyRequest, claim dto.Claim) d
 		}
 	}
 
-	/*filterPlayoffPhase := playoff_phases_service.GetPlayoffPhasesOptions{
-		TournamentCategoryId: tournamentCategoryId,
+	filterPlayoffPhase := playoff_phases_service.GetPlayoffPhasesOptions{
+		TournamentCategoryId: id,
 		AssociationId:        associationId,
 		Page:                 page,
 		PageSize:             pageSize,
@@ -98,8 +100,23 @@ func GetWeeksAndRounds(request events.APIGatewayProxyRequest, claim dto.Claim) d
 	if len(playoffPhases) > 0 {
 		playoffPhase := playoffPhases[0]
 
+		filterPlayoffRound := playoff_rounds_service.GetPlayoffRoundsOptions{
+			PlayoffPhaseId: playoffPhase.Id.Hex(),
+			AssociationId:  associationId,
+			Page:           page,
+			PageSize:       pageSize,
+		}
 
-	}*/
+		playoffRounds, _, _, _ := playoff_rounds_service.GetPlayoffRounds(filterPlayoffRound)
+
+		for _, round := range playoffRounds {
+			weeksAndRounds := categories_dto.WeeksAndRoundsResponse{
+				Description:       round.PlayoffRoundNameTraduction(),
+				LeaguePhaseWeekId: round.Id.Hex(),
+			}
+			weeksAndRoundsResponse = append(weeksAndRoundsResponse, weeksAndRounds)
+		}
+	}
 
 	paginatedResponse := dto.PaginatedResponse{
 		TotalRecords: int64(len(weeksAndRoundsResponse)),

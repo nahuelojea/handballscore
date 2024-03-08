@@ -14,6 +14,27 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type GetPlayoffRoundsOptions struct {
+	PlayoffPhaseId string
+	AssociationId  string
+	Page           int
+	PageSize       int
+	SortField      string
+	SortOrder      int
+}
+
+func GetPlayoffRounds(filterOptions GetPlayoffRoundsOptions) ([]models.PlayoffRound, int64, int, error) {
+	filters := playoff_rounds_repository.GetPlayoffRoundsOptions{
+		PlayoffPhaseId: filterOptions.PlayoffPhaseId,
+		AssociationId:  filterOptions.AssociationId,
+		Page:           filterOptions.Page,
+		PageSize:       filterOptions.PageSize,
+		SortField:      filterOptions.SortField,
+		SortOrder:      filterOptions.SortOrder,
+	}
+	return playoff_rounds_repository.GetPlayoffRounds(filters)
+}
+
 func CreatePlayoffRound(association_id string, playoffRound models.PlayoffRound) (string, bool, error) {
 	return playoff_rounds_repository.CreatePlayoffRound(association_id, playoffRound)
 }
