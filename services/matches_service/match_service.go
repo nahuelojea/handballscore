@@ -12,12 +12,13 @@ import (
 )
 
 type GetMatchesOptions struct {
-	PhaseWeekId   string
-	AssociationId string
-	Page          int
-	PageSize      int
-	SortField     string
-	SortOrder     int
+	LeaguePhaseWeekId string
+	PlayoffRoundKeyId string
+	AssociationId     string
+	Page              int
+	PageSize          int
+	SortField         string
+	SortOrder         int
 }
 
 func CreateMatches(associationID string, matches []models.Match) ([]string, bool, error) {
@@ -34,12 +35,12 @@ func GetMatch(ID string) (models.Match, bool, error) {
 
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
-		PhaseWeekId:   filterOptions.PhaseWeekId,
-		AssociationId: filterOptions.AssociationId,
-		Page:          filterOptions.Page,
-		PageSize:      filterOptions.PageSize,
-		SortField:     filterOptions.SortField,
-		SortOrder:     filterOptions.SortOrder,
+		LeaguePhaseWeekId: filterOptions.LeaguePhaseWeekId,
+		AssociationId:     filterOptions.AssociationId,
+		Page:              filterOptions.Page,
+		PageSize:          filterOptions.PageSize,
+		SortField:         filterOptions.SortField,
+		SortOrder:         filterOptions.SortOrder,
 	}
 	return matches_repository.GetMatches(filters)
 }
@@ -61,11 +62,12 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		matchPlayer := models.MatchPlayer{
 			PlayerId: playerHome.PlayerId,
 			Number:   playerHome.Number,
+			TeamId:   match.TeamHome,
 			Goals: models.Goals{
 				FirstHalf:  0,
 				SecondHalf: 0},
 			Sanctions: models.Sanctions{
-				Exclusions: 0,
+				Exclusions: []models.Exclusions{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,
@@ -82,7 +84,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 				FirstHalf:  0,
 				SecondHalf: 0},
 			Sanctions: models.Sanctions{
-				Exclusions: 0,
+				Exclusions: []models.Exclusions{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,
@@ -95,7 +97,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		matchCoach := models.MatchCoach{
 			CoachId: coachHome,
 			Sanctions: models.Sanctions{
-				Exclusions: 0,
+				Exclusions: []models.Exclusions{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,
@@ -108,7 +110,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		matchCoach := models.MatchCoach{
 			CoachId: coachAway,
 			Sanctions: models.Sanctions{
-				Exclusions: 0,
+				Exclusions: []models.Exclusions{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,

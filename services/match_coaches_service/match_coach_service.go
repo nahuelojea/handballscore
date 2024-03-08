@@ -16,7 +16,7 @@ func DeleteMatchCoach(id string) (bool, error) {
 	return match_coaches_repository.DeleteMatchCoach(id)
 }
 
-func GetMatchCoach(associationId, id string) (models.MatchCoach, bool, error) {
+func GetMatchCoach(id string) (models.MatchCoach, bool, error) {
 	return match_coaches_repository.GetMatchCoach(id)
 }
 
@@ -30,7 +30,7 @@ type GetMatchCoachOptions struct {
 	SortOrder     int
 }
 
-func GetMatchCoachs(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, int64, int, error) {
+func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, int64, int, error) {
 	filters := match_coaches_repository.GetMatchCoachOptions{
 		MatchId:       filterOptions.MatchId,
 		TeamId:        filterOptions.TeamId,
@@ -44,29 +44,27 @@ func GetMatchCoachs(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, in
 	return match_coaches_repository.GetMatchCoaches(filters)
 }
 
-func UpdateExclusions(matchCoachId string, addExclusion bool) (bool, error) {
-	matchCoach, _, err := getMatchCoachAvailableToAction(matchCoachId)
+func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
+	matchCoach, _, err := getMatchCoachAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
 
 	if addExclusion {
-		if matchCoach.Exclusions == 2 {
+		if len(matchCoach.Exclusions) == 2 {
 			return false, errors.New("The coach has two exclusions")
-		} else {
-			matchCoach.Exclusions++
 		}
+		matchCoach.Exclusions = append(matchCoach.Exclusions, models.Exclusions{Time: time})
 	} else {
-		if matchCoach.Exclusions != 0 {
-			matchCoach.Exclusions--
+		if len(matchCoach.Exclusions) > 0 {
+			matchCoach.Exclusions = matchCoach.Exclusions[:len(matchCoach.Exclusions)-1]
 		}
 	}
-
 	return match_coaches_repository.UpdateExclusions(matchCoach)
 }
 
-func UpdateYellowCard(matchCoachId string, addYellowCard bool) (bool, error) {
-	matchCoach, _, err := getMatchCoachAvailableToAction(matchCoachId)
+func UpdateYellowCard(id string, addYellowCard bool) (bool, error) {
+	matchCoach, _, err := getMatchCoachAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -76,8 +74,8 @@ func UpdateYellowCard(matchCoachId string, addYellowCard bool) (bool, error) {
 	return match_coaches_repository.UpdateYellowCard(matchCoach)
 }
 
-func UpdateRedCard(matchCoachId string, addRedCard bool) (bool, error) {
-	matchCoach, _, err := getMatchCoachAvailableToAction(matchCoachId)
+func UpdateRedCard(id string, addRedCard bool) (bool, error) {
+	matchCoach, _, err := getMatchCoachAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -87,8 +85,8 @@ func UpdateRedCard(matchCoachId string, addRedCard bool) (bool, error) {
 	return match_coaches_repository.UpdateRedCard(matchCoach)
 }
 
-func UpdateBlueCard(matchCoachId, report string, addBlueCard bool) (bool, error) {
-	matchCoach, _, err := getMatchCoachAvailableToAction(matchCoachId)
+func UpdateBlueCard(id, report string, addBlueCard bool) (bool, error) {
+	matchCoach, _, err := getMatchCoachAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -103,8 +101,8 @@ func UpdateBlueCard(matchCoachId, report string, addBlueCard bool) (bool, error)
 	return match_coaches_repository.UpdateBlueCard(matchCoach)
 }
 
-func getMatchCoachAvailableToAction(matchCoachId string) (models.MatchCoach, models.Match, error) {
-	matchCoach, _, err := match_coaches_repository.GetMatchCoach(matchCoachId)
+func getMatchCoachAvailableToAction(id string) (models.MatchCoach, models.Match, error) {
+	matchCoach, _, err := match_coaches_repository.GetMatchCoach(id)
 	if err != nil {
 		return models.MatchCoach{}, models.Match{}, errors.New("Error to get match coach: " + err.Error())
 	}

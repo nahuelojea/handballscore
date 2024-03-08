@@ -47,11 +47,15 @@ type MatchGoals struct {
 }
 
 type Sanctions struct {
-	Exclusions int    `bson:"exclusions" json:"exclusions"`
-	YellowCard bool   `bson:"yellow_card" json:"yellow_card"`
-	RedCard    bool   `bson:"red_card" json:"red_card"`
-	BlueCard   bool   `bson:"blue_card" json:"blue_card"`
-	Report     string `bson:"report" json:"report"`
+	Exclusions []Exclusions `bson:"exclusions" json:"exclusions"`
+	YellowCard bool         `bson:"yellow_card" json:"yellow_card"`
+	RedCard    bool         `bson:"red_card" json:"red_card"`
+	BlueCard   bool         `bson:"blue_card" json:"blue_card"`
+	Report     string       `bson:"report" json:"report"`
+}
+
+type Exclusions struct {
+	Time string `bson:"time" json:"time"`
 }
 
 func (match *Match) SetCreatedDate() {

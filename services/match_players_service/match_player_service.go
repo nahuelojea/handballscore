@@ -24,7 +24,7 @@ func DeleteMatchPlayer(id string) (bool, error) {
 	return match_players_repository.DeleteMatchPlayer(id)
 }
 
-func GetMatchPlayer(associationId, id string) (models.MatchPlayer, bool, error) {
+func GetMatchPlayer(id string) (models.MatchPlayer, bool, error) {
 	return match_players_repository.GetMatchPlayer(id)
 }
 
@@ -54,8 +54,8 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer,
 	return match_players_repository.GetMatchPlayers(filters)
 }
 
-func UpdateGoal(matchPlayerId string, addGoal bool) (bool, error) {
-	matchPlayer, match, err := getMatchPlayerAvailableToAction(matchPlayerId)
+func UpdateGoal(id string, addGoal bool) (bool, error) {
+	matchPlayer, match, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -81,29 +81,27 @@ func UpdateGoal(matchPlayerId string, addGoal bool) (bool, error) {
 	return match_players_repository.UpdateGoals(matchPlayer, match.Status)
 }
 
-func UpdateExclusions(matchPlayerId string, addExclusion bool) (bool, error) {
-	matchPlayer, _, err := getMatchPlayerAvailableToAction(matchPlayerId)
+func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
+	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
 
 	if addExclusion {
-		if matchPlayer.Exclusions == 2 {
+		if len(matchPlayer.Sanctions.Exclusions) == 2 {
 			return false, errors.New("The player has two exclusions")
-		} else {
-			matchPlayer.Exclusions++
 		}
+		matchPlayer.Exclusions = append(matchPlayer.Exclusions, models.Exclusions{Time: time})
 	} else {
-		if matchPlayer.Exclusions != 0 {
-			matchPlayer.Exclusions--
+		if len(matchPlayer.Exclusions) > 0 {
+			matchPlayer.Exclusions = matchPlayer.Exclusions[:len(matchPlayer.Exclusions)-1]
 		}
 	}
-
 	return match_players_repository.UpdateExclusions(matchPlayer)
 }
 
-func UpdateYellowCard(matchPlayerId string, addYellowCard bool) (bool, error) {
-	matchPlayer, _, err := getMatchPlayerAvailableToAction(matchPlayerId)
+func UpdateYellowCard(id string, addYellowCard bool) (bool, error) {
+	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -113,8 +111,8 @@ func UpdateYellowCard(matchPlayerId string, addYellowCard bool) (bool, error) {
 	return match_players_repository.UpdateYellowCard(matchPlayer)
 }
 
-func UpdateRedCard(matchPlayerId string, addRedCard bool) (bool, error) {
-	matchPlayer, _, err := getMatchPlayerAvailableToAction(matchPlayerId)
+func UpdateRedCard(id string, addRedCard bool) (bool, error) {
+	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -124,8 +122,8 @@ func UpdateRedCard(matchPlayerId string, addRedCard bool) (bool, error) {
 	return match_players_repository.UpdateRedCard(matchPlayer)
 }
 
-func UpdateBlueCard(matchPlayerId, report string, addBlueCard bool) (bool, error) {
-	matchPlayer, _, err := getMatchPlayerAvailableToAction(matchPlayerId)
+func UpdateBlueCard(id, report string, addBlueCard bool) (bool, error) {
+	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -140,8 +138,8 @@ func UpdateBlueCard(matchPlayerId, report string, addBlueCard bool) (bool, error
 	return match_players_repository.UpdateBlueCard(matchPlayer)
 }
 
-func getMatchPlayerAvailableToAction(matchPlayerId string) (models.MatchPlayer, models.Match, error) {
-	matchPlayer, _, err := match_players_repository.GetMatchPlayer(matchPlayerId)
+func getMatchPlayerAvailableToAction(id string) (models.MatchPlayer, models.Match, error) {
+	matchPlayer, _, err := match_players_repository.GetMatchPlayer(id)
 	if err != nil {
 		return models.MatchPlayer{}, models.Match{}, errors.New("Error to get match player: " + err.Error())
 	}

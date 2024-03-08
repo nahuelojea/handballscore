@@ -1,4 +1,4 @@
-package matches
+package match_players
 
 import (
 	"encoding/json"
@@ -7,17 +7,18 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/services/matches_service"
+	"github.com/nahuelojea/handballscore/services/match_players_service"
 )
 
-func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
+func GetMatchPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
 	var err error
 
+	matchId := request.QueryStringParameters["matchId"]
+	teamId := request.QueryStringParameters["teamId"]
+	playerId := request.QueryStringParameters["playerId"]
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
-	leaguePhaseWeekId := request.QueryStringParameters["leaguePhaseWeekId"]
-	playoffRoundKeyId := request.QueryStringParameters["playoffRoundKeyId"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
@@ -36,19 +37,20 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		pageSize = 20
 	}
 
-	filterOptions := matches_service.GetMatchesOptions{
-		LeaguePhaseWeekId: leaguePhaseWeekId,
-		PlayoffRoundKeyId: playoffRoundKeyId,
-		AssociationId:     associationId,
-		Page:              page,
-		PageSize:          pageSize,
-		SortOrder:         1,
+	filterOptions := match_players_service.GetMatchPlayerOptions{
+		MatchId:       matchId,
+		TeamId:        teamId,
+		PlayerId:      playerId,
+		AssociationId: associationId,
+		Page:          page,
+		PageSize:      pageSize,
+		SortOrder:     1,
 	}
 
-	matchesList, totalRecords, totalPages, err := matches_service.GetMatches(filterOptions)
+	matchPlayersList, totalRecords, totalPages, err := match_players_service.GetMatchPlayers(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to get matches: " + err.Error()
+		response.Message = "Error to get match players: " + err.Error()
 		return response
 	}
 
@@ -57,7 +59,7 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		TotalPages:   totalPages,
 		CurrentPage:  page,
 		PageSize:     pageSize,
-		Items:        matchesList,
+		Items:        matchPlayersList,
 	}
 
 	jsonResponse, err := json.Marshal(paginatedResponse)

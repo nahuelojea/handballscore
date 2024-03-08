@@ -16,10 +16,10 @@ func GetTournamentsCategory(request events.APIGatewayProxyRequest, claim dto.Cla
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	name := request.QueryStringParameters["name"]
-	categoryId := request.QueryStringParameters["category_id"]
-	tournamentId := request.QueryStringParameters["tournament_id"]
+	categoryId := request.QueryStringParameters["categoryId"]
+	tournamentId := request.QueryStringParameters["tournamentId"]
 	status := request.QueryStringParameters["status"]
-	championId := request.QueryStringParameters["champion_id"]
+	championId := request.QueryStringParameters["championId"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {

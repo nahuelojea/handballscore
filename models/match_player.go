@@ -9,7 +9,7 @@ import (
 type MatchPlayer struct {
 	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	MatchId       string             `bson:"match_id" json:"match_id"`
-	TeamId        string             `bson:"team_id" json:"team_id"`
+	TeamId        TournamentTeamId   `bson:"team_id" json:"team_id"`
 	PlayerId      string             `bson:"player_id" json:"player_id"`
 	Number        string             `bson:"number" json:"number"`
 	Goals         `bson:"goals" json:"goals"`
