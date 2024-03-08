@@ -111,8 +111,8 @@ func GetWeeksAndRounds(request events.APIGatewayProxyRequest, claim dto.Claim) d
 
 		for _, round := range playoffRounds {
 			weeksAndRounds := categories_dto.WeeksAndRoundsResponse{
-				Description:       round.PlayoffRoundNameTraduction(),
-				LeaguePhaseWeekId: round.Id.Hex(),
+				Description:    round.PlayoffRoundNameTraduction(),
+				PlayoffRoundId: round.Id.Hex(),
 			}
 			weeksAndRoundsResponse = append(weeksAndRoundsResponse, weeksAndRounds)
 		}
