@@ -4,15 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
+	"strconv"
 
+	TournamentCategoryDTO "github.com/nahuelojea/handballscore/dto/tournament_categories"
 	TournamentDTO "github.com/nahuelojea/handballscore/dto/tournaments"
 	"github.com/nahuelojea/handballscore/models"
 	TournamentsRepository "github.com/nahuelojea/handballscore/repositories/tournaments_category_repository"
 	"github.com/nahuelojea/handballscore/services/categories_service"
+	"github.com/nahuelojea/handballscore/services/league_phase_weeks_service"
 	"github.com/nahuelojea/handballscore/services/league_phases_service"
 	"github.com/nahuelojea/handballscore/services/league_playoff_phases_service"
 	"github.com/nahuelojea/handballscore/services/playoff_phases_service"
+	"github.com/nahuelojea/handballscore/services/playoff_rounds_service"
 	"github.com/nahuelojea/handballscore/services/tournaments_service"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/text/cases"
@@ -169,4 +174,79 @@ func assignVariants(teamIds []string) []models.TournamentTeamId {
 	}
 
 	return tournamentTeams
+}
+
+func GetWeeksAndRounds(id string, associationId string, page int, pageSize int) ([]TournamentCategoryDTO.WeeksAndRoundsResponse, int64, int, error) {
+	var weeksAndRoundsResponse []TournamentCategoryDTO.WeeksAndRoundsResponse
+
+	filterLeaguePhase := league_phases_service.GetLeaguePhasesOptions{
+		TournamentCategoryId: id,
+		AssociationId:        associationId,
+		Page:                 page,
+		PageSize:             pageSize,
+	}
+
+	leaguePhases, _, _, err := league_phases_service.GetLeaguePhases(filterLeaguePhase)
+	if err != nil {
+		return nil, 0, 0, errors.New("Error to get league phase: " + err.Error())
+	}
+
+	if len(leaguePhases) > 0 {
+		leaguePhase := leaguePhases[0]
+		filterLeaguePhaseWeek := league_phase_weeks_service.GetLeaguePhaseWeeksOptions{
+			LeaguePhaseId: leaguePhase.Id.Hex(),
+			AssociationId: associationId,
+			Page:          page,
+			PageSize:      pageSize,
+		}
+
+		leaguePhaseWeeks, _, _, _ := league_phase_weeks_service.GetLeaguePhaseWeeks(filterLeaguePhaseWeek)
+
+		for _, week := range leaguePhaseWeeks {
+			weeksAndRounds := TournamentCategoryDTO.WeeksAndRoundsResponse{
+				Description:       "Jornada " + strconv.Itoa(week.Number),
+				LeaguePhaseWeekId: week.Id.Hex(),
+			}
+			weeksAndRoundsResponse = append(weeksAndRoundsResponse, weeksAndRounds)
+		}
+	}
+
+	filterPlayoffPhase := playoff_phases_service.GetPlayoffPhasesOptions{
+		TournamentCategoryId: id,
+		AssociationId:        associationId,
+		Page:                 page,
+		PageSize:             pageSize,
+	}
+
+	playoffPhases, _, _, err := playoff_phases_service.GetPlayoffPhases(filterPlayoffPhase)
+	if err != nil {
+		return nil, 0, 0, errors.New("Error to get playoff phase: " + err.Error())
+	}
+
+	if len(playoffPhases) > 0 {
+		playoffPhase := playoffPhases[0]
+
+		filterPlayoffRound := playoff_rounds_service.GetPlayoffRoundsOptions{
+			PlayoffPhaseId: playoffPhase.Id.Hex(),
+			AssociationId:  associationId,
+			Page:           page,
+			PageSize:       pageSize,
+		}
+
+		playoffRounds, _, _, _ := playoff_rounds_service.GetPlayoffRounds(filterPlayoffRound)
+
+		for _, round := range playoffRounds {
+			weeksAndRounds := TournamentCategoryDTO.WeeksAndRoundsResponse{
+				Description:    round.PlayoffRoundNameTraduction(),
+				PlayoffRoundId: round.Id.Hex(),
+			}
+			weeksAndRoundsResponse = append(weeksAndRoundsResponse, weeksAndRounds)
+		}
+	}
+
+	totalRecords := int64(len(weeksAndRoundsResponse))
+
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return weeksAndRoundsResponse, totalRecords, totalPages, nil
 }
