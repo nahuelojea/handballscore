@@ -176,3 +176,11 @@ func UpdateBlueCard(matchPlayer models.MatchPlayer) (bool, error) {
 func DeleteMatchPlayer(id string) (bool, error) {
 	return repositories.Delete(match_player_collection, id)
 }
+
+type TopScorer struct {
+	PlayerId   string `bson:"_id"`
+	PlayerName string `bson:"player_name"`
+	Avatar     string `bson:"avatar"`
+	TeamName   string `bson:"team_name"`
+	Goals      int    `bson:"total_goals"`
+}
