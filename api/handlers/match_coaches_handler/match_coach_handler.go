@@ -1,4 +1,4 @@
-package matches_handler
+package match_coaches_handler
 
 import (
 	"context"

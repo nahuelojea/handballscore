@@ -1,4 +1,4 @@
-package matches_handler
+package match_players_handler
 
 import (
 	"context"
