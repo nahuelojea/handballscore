@@ -22,16 +22,16 @@ func GetTopScorers(associationID string, limit int) ([]models.TopScorer, error) 
 	teamCollection := db.Collection(team_collection)
 
 	pipeline := bson.A{
-		bson.D{{"$match", bson.M{"association_id": associationID}}},
-		bson.D{{"$group", bson.M{
+		bson.D{{Key: "$match", Value: bson.M{"association_id": associationID}}},
+		bson.D{{Key: "$group", Value: bson.M{
 			"_id":         "$player_id",
 			"player_name": bson.M{"$first": "$player_name"},
 			"avatar":      bson.M{"$first": "$avatar"},
 			"team_id":     bson.M{"$first": "$team_id"},
 			"total_goals": bson.M{"$sum": bson.M{"$add": []string{"$goals.first_half", "$goals.second_half"}}},
 		}}},
-		bson.D{{"$sort", bson.M{"total_goals": -1}}},
-		bson.D{{"$limit", limit}},
+		bson.D{{Key: "$sort", Value: bson.M{"total_goals": -1}}},
+		bson.D{{Key: "$limit", Value: limit}},
 	}
 
 	cur, err := matchPlayerCollection.Aggregate(ctx, pipeline)

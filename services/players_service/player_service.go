@@ -9,6 +9,7 @@ import (
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/players_repository"
 	"github.com/nahuelojea/handballscore/repositories/teams_repository"
+	"github.com/nahuelojea/handballscore/services/categories_service"
 	"github.com/nahuelojea/handballscore/storage"
 )
 
@@ -23,8 +24,7 @@ type GetPlayersOptions struct {
 	TeamId                  string
 	AssociationId           string
 	ExcludeExpiredInsurance bool
-	YearLimitFrom           int
-	YearLimitTo             int
+	CategoryId              string
 	Page                    int
 	PageSize                int
 	SortField               string
@@ -49,16 +49,28 @@ func GetPlayer(ID string) (models.Player, bool, error) {
 }
 
 func GetPlayers(filterOptions GetPlayersOptions) ([]models.Player, int64, int, error) {
+	var gender = filterOptions.Gender
+
+	var yearLimitFrom, yearLimitTo int
+	var err error
+
+	if len(filterOptions.CategoryId) > 1 {
+		yearLimitFrom, yearLimitTo, gender, err = categories_service.GetLimitYearsByCategory(filterOptions.CategoryId)
+		if err != nil {
+			return nil, 0, 0, errors.New("Error to get category: " + err.Error())
+		}
+	}
+
 	filters := players_repository.GetPlayersOptions{
 		Name:                    filterOptions.Name,
 		Surname:                 filterOptions.Surname,
 		Dni:                     filterOptions.Dni,
-		Gender:                  filterOptions.Gender,
+		Gender:                  gender,
 		OnlyEnabled:             filterOptions.OnlyEnabled,
 		TeamId:                  filterOptions.TeamId,
 		ExcludeExpiredInsurance: filterOptions.ExcludeExpiredInsurance,
-		YearLimitFrom:           filterOptions.YearLimitFrom,
-		YearLimitTo:             filterOptions.YearLimitTo,
+		YearLimitFrom:           yearLimitFrom,
+		YearLimitTo:             yearLimitTo,
 		AssociationId:           filterOptions.AssociationId,
 		Page:                    filterOptions.Page,
 		PageSize:                filterOptions.PageSize,

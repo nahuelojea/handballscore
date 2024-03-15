@@ -7,7 +7,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
-	"github.com/nahuelojea/handballscore/services/categories_service"
 	"github.com/nahuelojea/handballscore/services/players_service"
 )
 
@@ -53,16 +52,6 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		return response
 	}
 
-	var yearLimitFrom, yearLimitTo int
-	if len(categoryId) > 1 {
-		yearLimitFrom, yearLimitTo, gender, err = categories_service.GetLimitYearsByCategory(categoryId)
-		if err != nil {
-			response.Status = http.StatusNotFound
-			response.Message = "Error to get category: " + err.Error()
-			return response
-		}
-	}
-
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
 		page = 1
@@ -81,8 +70,7 @@ func GetPlayers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		OnlyEnabled:             onlyEnabled,
 		TeamId:                  teamId,
 		ExcludeExpiredInsurance: excludeExpiredInsurance,
-		YearLimitFrom:           yearLimitFrom,
-		YearLimitTo:             yearLimitTo,
+		CategoryId:              categoryId,
 		AssociationId:           associationId,
 		Page:                    page,
 		PageSize:                pageSize,
