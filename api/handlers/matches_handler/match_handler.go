@@ -29,6 +29,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		}
 	case "PATCH":
 		switch ctx.Value(dto.Key("path")).(string) {
+		case "match/timeout":
+			return matches.UpdateTimeouts(ctx, request)
 		case "match/startSecondHalf":
 			return matches.StartSecondHalf(ctx, request)
 		case "match/end":

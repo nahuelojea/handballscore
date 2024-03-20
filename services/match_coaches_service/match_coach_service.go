@@ -54,7 +54,7 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 		if len(matchCoach.Exclusions) == 2 {
 			return false, errors.New("The coach has two exclusions")
 		}
-		matchCoach.Exclusions = append(matchCoach.Exclusions, models.Exclusions{Time: time})
+		matchCoach.Exclusions = append(matchCoach.Exclusions, models.Exclusion{Time: time})
 	} else {
 		if len(matchCoach.Exclusions) > 0 {
 			matchCoach.Exclusions = matchCoach.Exclusions[:len(matchCoach.Exclusions)-1]

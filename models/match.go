@@ -28,15 +28,15 @@ type Match struct {
 	Status            string             `bson:"status" json:"status"`
 	GoalsHome         MatchGoals         `bson:"goals_home" json:"goals_home"`
 	GoalsAway         MatchGoals         `bson:"goals_away" json:"goals_away"`
-	TimeoutsHome      []TimeOuts         `bson:"timeouts_home" json:"timeouts_home"`
-	TimeoutsAway      []TimeOuts         `bson:"timeouts_away" json:"timeouts_away"`
+	TimeoutsHome      []Timeout          `bson:"timeouts_home" json:"timeouts_home"`
+	TimeoutsAway      []Timeout          `bson:"timeouts_away" json:"timeouts_away"`
 	LeaguePhaseWeekId string             `bson:"league_phase_week_id" json:"league_phase_week_id"`
 	PlayoffRoundKeyId string             `bson:"playoff_round_key_id" json:"playoff_round_key_id"`
 	AssociationId     string             `bson:"association_id" json:"association_id"`
 	Status_Data       `bson:"status_data" json:"status_data"`
 }
 
-type TimeOuts struct {
+type Timeout struct {
 	Half string `bson:"half" json:"half"`
 	Time string `bson:"time" json:"time"`
 }
@@ -47,14 +47,14 @@ type MatchGoals struct {
 }
 
 type Sanctions struct {
-	Exclusions []Exclusions `bson:"exclusions" json:"exclusions"`
-	YellowCard bool         `bson:"yellow_card" json:"yellow_card"`
-	RedCard    bool         `bson:"red_card" json:"red_card"`
-	BlueCard   bool         `bson:"blue_card" json:"blue_card"`
-	Report     string       `bson:"report" json:"report"`
+	Exclusions []Exclusion `bson:"exclusions" json:"exclusions"`
+	YellowCard bool        `bson:"yellow_card" json:"yellow_card"`
+	RedCard    bool        `bson:"red_card" json:"red_card"`
+	BlueCard   bool        `bson:"blue_card" json:"blue_card"`
+	Report     string      `bson:"report" json:"report"`
 }
 
-type Exclusions struct {
+type Exclusion struct {
 	Time string `bson:"time" json:"time"`
 }
 

@@ -153,3 +153,12 @@ func EndMatch(Id string) (bool, error) {
 
 	return repositories.Update(match_collection, updateDataMap, Id)
 }
+
+func UpdateTimeouts(match models.Match, Id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["timeouts_home"] = match.TimeoutsHome
+	updateDataMap["timeouts_away"] = match.TimeoutsAway
+
+	return repositories.Update(match_collection, updateDataMap, Id)
+}

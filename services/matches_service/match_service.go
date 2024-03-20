@@ -130,7 +130,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 				FirstHalf:  0,
 				SecondHalf: 0},
 			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusions{},
+				Exclusions: []models.Exclusion{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,
@@ -147,7 +147,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 				FirstHalf:  0,
 				SecondHalf: 0},
 			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusions{},
+				Exclusions: []models.Exclusion{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,
@@ -160,7 +160,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		matchCoach := models.MatchCoach{
 			CoachId: coachHome,
 			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusions{},
+				Exclusions: []models.Exclusion{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,
@@ -173,7 +173,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		matchCoach := models.MatchCoach{
 			CoachId: coachAway,
 			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusions{},
+				Exclusions: []models.Exclusion{},
 				YellowCard: false,
 				RedCard:    false,
 				BlueCard:   false,
@@ -213,4 +213,45 @@ func EndMatch(id string) (bool, error) {
 	}
 
 	return matches_repository.EndMatch(id)
+}
+
+func UpdateTimeouts(id string, tournamentTeamId models.TournamentTeamId, add bool, time string) (bool, error) {
+	match, _, err := matches_repository.GetMatch(id)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	if match.Status != models.FirstHalf && match.Status != models.SecondHalf {
+		return false, errors.New("The match must be in play")
+	}
+
+	if match.TeamHome == tournamentTeamId || match.TeamAway == tournamentTeamId {
+		if match.TeamHome == tournamentTeamId {
+			if add {
+				if len(match.TimeoutsHome) == 3 {
+					return false, errors.New("The team has three timeouts")
+				}
+				match.TimeoutsHome = append(match.TimeoutsHome, models.Timeout{Half: match.Status, Time: time})
+			} else {
+				if len(match.TimeoutsHome) > 0 {
+					match.TimeoutsHome = match.TimeoutsHome[:len(match.TimeoutsHome)-1]
+				}
+			}
+		} else {
+			if add {
+				if len(match.TimeoutsAway) == 3 {
+					return false, errors.New("The team has three timeouts")
+				}
+				match.TimeoutsAway = append(match.TimeoutsAway, models.Timeout{Half: match.Status, Time: time})
+			} else {
+				if len(match.TimeoutsAway) > 0 {
+					match.TimeoutsAway = match.TimeoutsAway[:len(match.TimeoutsAway)-1]
+				}
+			}
+		}
+	} else {
+		return false, errors.New("The team id does not match any of the two in the match")
+	}
+
+	return matches_repository.UpdateTimeouts(match, id)
 }
