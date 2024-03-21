@@ -1,12 +1,7 @@
 package top_scorers_repository
 
 import (
-	"context"
-	"log"
-
-	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 const (
@@ -15,57 +10,132 @@ const (
 	team_collection         = "teams"
 )
 
-func GetTopScorers(associationID string, limit int) ([]models.TopScorer, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-	matchPlayerCollection := db.Collection(match_player_collection)
-	teamCollection := db.Collection(team_collection)
+type GetTopScorersOptions struct {
+	TournamentCategoryId string
+	AssociationId        string
+	Page                 int
+	PageSize             int
+	SortField            string
+	SortOrder            int
+}
 
-	pipeline := bson.A{
-		bson.D{{Key: "$match", Value: bson.M{"association_id": associationID}}},
-		bson.D{{Key: "$group", Value: bson.M{
-			"_id":         "$player_id",
-			"player_name": bson.M{"$first": "$player_name"},
-			"avatar":      bson.M{"$first": "$avatar"},
-			"team_id":     bson.M{"$first": "$team_id"},
-			"total_goals": bson.M{"$sum": bson.M{"$add": []string{"$goals.first_half", "$goals.second_half"}}},
-		}}},
-		bson.D{{Key: "$sort", Value: bson.M{"total_goals": -1}}},
-		bson.D{{Key: "$limit", Value: limit}},
+func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int64, int, error) {
+	/*ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(tournament_category_collection)
+
+	filter := bson.M{
+		"association_id": filterOptions.AssociationId,
 	}
 
-	cur, err := matchPlayerCollection.Aggregate(ctx, pipeline)
+	if filterOptions.Name != "" {
+		filter["name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
+	}
+	if filterOptions.CategoryId != "" {
+		filter["category_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.CategoryId, Options: "i"}}
+	}
+	if filterOptions.TournamentId != "" {
+		filter["tournament_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TournamentId, Options: "i"}}
+	}
+	if filterOptions.Status != "" {
+		filter["status"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Status, Options: "i"}}
+	}
+	if filterOptions.ChampionId != "" {
+		filter["champion_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.ChampionId, Options: "i"}}
+	}
+
+	page := filterOptions.Page
+	pageSize := filterOptions.PageSize
+
+	sortOrder := 1
+	if filterOptions.SortOrder == 1 {
+		sortOrder = 1
+	}
+
+	sortFields := bson.D{
+		{Key: "start_date", Value: sortOrder},
+		{Key: "end_date", Value: sortOrder},
+		{Key: "status", Value: sortOrder},
+	}
+
+	findOptions := options.Find()
+	findOptions.SetLimit(int64(pageSize))
+	findOptions.SetSkip(int64((page - 1) * pageSize))
+	findOptions.SetSort(sortFields)
+
+	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
-	var topScorers []models.TopScorer
+	var tournaments []models.TournamentCategory
 	for cur.Next(ctx) {
-		var ts models.TopScorer
-		err := cur.Decode(&ts)
-		if err != nil {
-			log.Println(err)
-			return nil, err
+		var tournament models.TournamentCategory
+		if err := cur.Decode(&tournament); err != nil {
+			return nil, 0, 0, err
 		}
-
-		// Get player's team name
-		var team models.Team
-		err = teamCollection.FindOne(ctx, bson.M{"_id": ts.TeamId}).Decode(&team)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-		ts.TeamName = team.Name
-
-		topScorers = append(topScorers, ts)
+		tournaments = append(tournaments, tournament)
 	}
 
 	if err := cur.Err(); err != nil {
-		log.Println(err)
-		return nil, err
+		return nil, 0, 0, err
 	}
 
-	return topScorers, nil
+	totalRecords, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return tournaments, totalRecords, totalPages, nil*/
+
+	// Create sample top scorers for testing
+	topScorers := []models.TopScorer{
+		{PlayerName: "John Doe",
+			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
+			TeamName:     "Handball Norte",
+			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
+			Goals:        40,
+			Matches:      5,
+			Average:      8},
+		{PlayerName: "Jane Smith",
+			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
+			TeamName:     "Handball Sur",
+			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
+			Goals:        35,
+			Matches:      6,
+			Average:      5},
+		{PlayerName: "Mike Johnson",
+			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
+			TeamName:     "Handball Este",
+			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
+			Goals:        30,
+			Matches:      4,
+			Average:      7},
+		{PlayerName: "Sarah Davis",
+			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
+			TeamName:     "Handball Oeste",
+			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
+			Goals:        25,
+			Matches:      3,
+			Average:      8},
+		{PlayerName: "David Wilson",
+			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
+			TeamName:     "Handball Centro",
+			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
+			Goals:        20,
+			Matches:      2,
+			Average:      10},
+		{PlayerName: "Emily Thompson",
+			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
+			TeamName:     "Handball Sur",
+			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
+			Goals:        15,
+			Matches:      1,
+			Average:      15},
+	}
+
+	return topScorers, 6, 1, nil
 }

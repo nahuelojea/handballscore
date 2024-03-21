@@ -20,10 +20,12 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "tournamentCategory":
 			return tournaments.GetTournamentCategory(request)
-		case "tournamentCategory/filter":
-			return tournaments.GetTournamentsCategory(request, claim)
 		case "tournamentCategory/categoriesByTournament":
 			return tournaments.GetCategoriesByTournament(request, claim)
+		case "tournamentCategory/filter":
+			return tournaments.GetTournamentsCategory(request, claim)
+		case "tournamentCategory/topScorers":
+			return tournaments.GetTopScorers(request, claim)
 		case "tournamentCategory/weeksAndRounds":
 			return tournaments.GetWeeksAndRounds(request, claim)
 		}
