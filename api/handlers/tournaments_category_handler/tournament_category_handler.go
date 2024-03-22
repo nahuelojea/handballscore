@@ -24,6 +24,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 			return tournaments.GetCategoriesByTournament(request, claim)
 		case "tournamentCategory/filter":
 			return tournaments.GetTournamentsCategory(request, claim)
+		case "tournamentCategory/info":
+			return tournaments.GetInfo(request)
 		case "tournamentCategory/topScorers":
 			return tournaments.GetTopScorers(request, claim)
 		case "tournamentCategory/weeksAndRounds":

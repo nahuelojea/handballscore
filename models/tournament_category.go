@@ -25,6 +25,17 @@ type TournamentCategory struct {
 	Status_Data   `bson:"status_data" json:"status_data"`
 }
 
+type TeamScore struct {
+	TeamId        TournamentTeamId `bson:"team" json:"team"`
+	Points        int              `bson:"points" json:"points"`
+	Matches       int              `bson:"matches" json:"matches"`
+	Wins          int              `bson:"wins" json:"wins"`
+	Draws         int              `bson:"draws" json:"draws"`
+	Losses        int              `bson:"losses" json:"losses"`
+	GoalsScored   int              `bson:"goals_scored" json:"goals_scored"`
+	GoalsConceded int              `bson:"goals_conceded" json:"goals_conceded"`
+}
+
 type TournamentTeamId struct {
 	TeamId  string `bson:"team_id" json:"team_id"`
 	Variant string `bson:"variant" json:"variant"`

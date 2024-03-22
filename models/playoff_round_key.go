@@ -1,6 +1,7 @@
 package models
 
 import (
+	"sort"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,6 +15,23 @@ type PlayoffRoundKey struct {
 	PlayoffRoundId string              `bson:"playoff_round_id" json:"playoff_round_id"`
 	Status_Data    `bson:"status_data" json:"status_data"`
 	AssociationId  string `bson:"association_id" json:"association_id"`
+}
+
+func (playoffRoundKey *PlayoffRoundKey) SortTeamsRanking() {
+	sort.SliceStable(playoffRoundKey.TeamsRanking[:], func(i, j int) bool {
+		if playoffRoundKey.TeamsRanking[i].Points != playoffRoundKey.TeamsRanking[j].Points {
+			return playoffRoundKey.TeamsRanking[i].Points > playoffRoundKey.TeamsRanking[j].Points
+		}
+		goalDifferenceA := playoffRoundKey.TeamsRanking[i].GoalsScored - playoffRoundKey.TeamsRanking[i].GoalsConceded
+		goalDifferenceB := playoffRoundKey.TeamsRanking[j].GoalsScored - playoffRoundKey.TeamsRanking[j].GoalsConceded
+		if goalDifferenceA != goalDifferenceB {
+			return goalDifferenceA > goalDifferenceB
+		}
+		if playoffRoundKey.TeamsRanking[i].GoalsScored != playoffRoundKey.TeamsRanking[j].GoalsScored {
+			return playoffRoundKey.TeamsRanking[i].GoalsScored > playoffRoundKey.TeamsRanking[j].GoalsScored
+		}
+		return playoffRoundKey.TeamsRanking[i].GoalsConceded < playoffRoundKey.TeamsRanking[j].GoalsConceded
+	})
 }
 
 func (playoffRoundKey *PlayoffRoundKey) SetAssociationId(associationId string) {
