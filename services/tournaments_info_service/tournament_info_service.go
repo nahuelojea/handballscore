@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	TournamentCategoryDTO "github.com/nahuelojea/handballscore/dto/tournament_categories"
+	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/services/league_phases_service"
 	"github.com/nahuelojea/handballscore/services/playoff_phases_service"
 	"github.com/nahuelojea/handballscore/services/playoff_round_keys_service"
@@ -35,7 +36,7 @@ func GetInfo(id string) (TournamentCategoryDTO.TournamentInfoResponse, error) {
 	return tournamentInfoResponse, nil
 }
 
-func getLeaguePhaseInfo(tournamentCategory TournamentCategoryDTO.TournamentCategory) (TournamentCategoryDTO.LeaguePhaseInfoResponse, error) {
+func getLeaguePhaseInfo(tournamentCategory models.TournamentCategory) (TournamentCategoryDTO.LeaguePhaseInfoResponse, error) {
 	var leaguePhaseInfo TournamentCategoryDTO.LeaguePhaseInfoResponse
 
 	filterLeaguePhase := league_phases_service.GetLeaguePhasesOptions{
@@ -97,7 +98,7 @@ func getLeaguePhaseInfo(tournamentCategory TournamentCategoryDTO.TournamentCateg
 	return leaguePhaseInfo, nil
 }
 
-func getPlayoffPhaseInfo(tournamentCategory TournamentCategoryDTO.TournamentCategory) (TournamentCategoryDTO.PlayoffPhaseInfoResponse, error) {
+func getPlayoffPhaseInfo(tournamentCategory models.TournamentCategory) (TournamentCategoryDTO.PlayoffPhaseInfoResponse, error) {
 	var playoffPhaseInfo TournamentCategoryDTO.PlayoffPhaseInfoResponse
 
 	filterPlayoffPhase := playoff_phases_service.GetPlayoffPhasesOptions{
@@ -122,7 +123,7 @@ func getPlayoffPhaseInfo(tournamentCategory TournamentCategoryDTO.TournamentCate
 	return playoffPhaseInfo, nil
 }
 
-func getPlayoffRoundsInfo(playoffPhase TournamentCategoryDTO.PlayoffPhase) ([]TournamentCategoryDTO.PlayoffRoundInfoResponse, error) {
+func getPlayoffRoundsInfo(playoffPhase models.PlayoffPhase) ([]TournamentCategoryDTO.PlayoffRoundInfoResponse, error) {
 	var playoffRoundsInfo []TournamentCategoryDTO.PlayoffRoundInfoResponse
 
 	filterPlayoffRound := playoff_rounds_service.GetPlayoffRoundsOptions{
@@ -149,7 +150,7 @@ func getPlayoffRoundsInfo(playoffPhase TournamentCategoryDTO.PlayoffPhase) ([]To
 	return playoffRoundsInfo, nil
 }
 
-func getPlayoffRoundKeysInfo(playoffRound TournamentCategoryDTO.PlayoffRound) ([]TournamentCategoryDTO.PlayoffRoundKeyInfoResponse, error) {
+func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCategoryDTO.PlayoffRoundKeyInfoResponse, error) {
 	var playoffRoundKeysInfo []TournamentCategoryDTO.PlayoffRoundKeyInfoResponse
 
 	filterPlayoffRoundKey := playoff_round_keys_service.GetPlayoffRoundKeysOptions{
