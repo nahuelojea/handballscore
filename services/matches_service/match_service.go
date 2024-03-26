@@ -14,13 +14,13 @@ import (
 )
 
 type GetMatchesOptions struct {
-	LeaguePhaseWeekId string
-	PlayoffRoundKeyId string
-	AssociationId     string
-	Page              int
-	PageSize          int
-	SortField         string
-	SortOrder         int
+	LeaguePhaseWeekId  string
+	PlayoffRoundKeyIds []string
+	AssociationId      string
+	Page               int
+	PageSize           int
+	SortField          string
+	SortOrder          int
 }
 
 func CreateMatches(associationID string, matches []models.Match) ([]string, bool, error) {
@@ -37,26 +37,26 @@ func GetMatch(ID string) (models.Match, bool, error) {
 
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
-		LeaguePhaseWeekId: filterOptions.LeaguePhaseWeekId,
-		PlayoffRoundKeyId: filterOptions.PlayoffRoundKeyId,
-		AssociationId:     filterOptions.AssociationId,
-		Page:              filterOptions.Page,
-		PageSize:          filterOptions.PageSize,
-		SortField:         filterOptions.SortField,
-		SortOrder:         filterOptions.SortOrder,
+		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
+		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
+		AssociationId:      filterOptions.AssociationId,
+		Page:               filterOptions.Page,
+		PageSize:           filterOptions.PageSize,
+		SortField:          filterOptions.SortField,
+		SortOrder:          filterOptions.SortOrder,
 	}
 	return matches_repository.GetMatches(filters)
 }
 
 func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchJourneyResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
-		LeaguePhaseWeekId: filterOptions.LeaguePhaseWeekId,
-		PlayoffRoundKeyId: filterOptions.PlayoffRoundKeyId,
-		AssociationId:     filterOptions.AssociationId,
-		Page:              filterOptions.Page,
-		PageSize:          filterOptions.PageSize,
-		SortField:         filterOptions.SortField,
-		SortOrder:         filterOptions.SortOrder,
+		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
+		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
+		AssociationId:      filterOptions.AssociationId,
+		Page:               filterOptions.Page,
+		PageSize:           filterOptions.PageSize,
+		SortField:          filterOptions.SortField,
+		SortOrder:          filterOptions.SortOrder,
 	}
 
 	matches, _, _, err := matches_repository.GetMatches(filters)
@@ -95,8 +95,8 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchJourneyRes
 			TeamAway:  awayMatchTeam,
 			Place:     match.Place,
 			Status:    match.Status,
-			GoalsHome: match.GoalsHome.FirstHalf + match.GoalsHome.SecondHalf,
-			GoalsAway: match.GoalsAway.FirstHalf + match.GoalsAway.SecondHalf,
+			GoalsHome: match.GoalsHome.Total,
+			GoalsAway: match.GoalsAway.Total,
 		}
 		matchesJourney = append(matchesJourney, matchJourney)
 	}

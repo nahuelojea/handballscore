@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/services/matches_service"
+	"github.com/nahuelojea/handballscore/services/playoff_round_keys_service"
 )
 
 func GetMatchesByJourney(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
@@ -17,7 +18,7 @@ func GetMatchesByJourney(request events.APIGatewayProxyRequest, claim dto.Claim)
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	leaguePhaseWeekId := request.QueryStringParameters["leaguePhaseWeekId"]
-	playoffRoundKeyId := request.QueryStringParameters["playoffRoundKeyId"]
+	playoffRoundId := request.QueryStringParameters["playoffRoundId"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
@@ -36,16 +37,28 @@ func GetMatchesByJourney(request events.APIGatewayProxyRequest, claim dto.Claim)
 		pageSize = 20
 	}
 
-	filterOptions := matches_service.GetMatchesOptions{
-		LeaguePhaseWeekId: leaguePhaseWeekId,
-		PlayoffRoundKeyId: playoffRoundKeyId,
-		AssociationId:     associationId,
-		Page:              page,
-		PageSize:          pageSize,
-		SortOrder:         1,
+	filterPlayoffRoundKeys := playoff_round_keys_service.GetPlayoffRoundKeysOptions{
+		PlayoffRoundId: playoffRoundId,
+		AssociationId:  associationId,
+	}
+	playoffRoundKeys, _, _, _ := playoff_round_keys_service.GetPlayoffRoundKeys(filterPlayoffRoundKeys)
+	var playoffRoundKeyIds []string
+	if len(playoffRoundKeys) > 1 {
+		for _, playoffRoundKey := range playoffRoundKeys {
+			playoffRoundKeyIds = append(playoffRoundKeyIds, playoffRoundKey.Id.Hex())
+		}
 	}
 
-	matchesList, totalRecords, totalPages, err := matches_service.GetMatchesByJourney(filterOptions)
+	filterMatches := matches_service.GetMatchesOptions{
+		LeaguePhaseWeekId:  leaguePhaseWeekId,
+		PlayoffRoundKeyIds: playoffRoundKeyIds,
+		AssociationId:      associationId,
+		Page:               page,
+		PageSize:           pageSize,
+		SortOrder:          1,
+	}
+
+	matchesList, totalRecords, totalPages, err := matches_service.GetMatchesByJourney(filterMatches)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get matches: " + err.Error()

@@ -21,6 +21,7 @@ type MatchPlayer struct {
 type Goals struct {
 	FirstHalf  int `bson:"first_half" json:"first_half"`
 	SecondHalf int `bson:"second_half" json:"second_half"`
+	Total      int `bson:"total" json:"total"`
 }
 
 func (matchPlayer *MatchPlayer) SetCreatedDate() {

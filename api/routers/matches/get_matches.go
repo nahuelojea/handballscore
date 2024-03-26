@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
@@ -17,7 +18,7 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	leaguePhaseWeekId := request.QueryStringParameters["leaguePhaseWeekId"]
-	playoffRoundKeyId := request.QueryStringParameters["playoffRoundKeyId"]
+	playoffRoundKeyIdStr := request.QueryStringParameters["playoffRoundKeyIds"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
@@ -36,13 +37,18 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		pageSize = 20
 	}
 
+	var playoffRoundKeyIds []string
+	if playoffRoundKeyIdStr != "" {
+		playoffRoundKeyIds = strings.Split(playoffRoundKeyIdStr, ",")
+	}
+
 	filterOptions := matches_service.GetMatchesOptions{
-		LeaguePhaseWeekId: leaguePhaseWeekId,
-		PlayoffRoundKeyId: playoffRoundKeyId,
-		AssociationId:     associationId,
-		Page:              page,
-		PageSize:          pageSize,
-		SortOrder:         1,
+		LeaguePhaseWeekId:  leaguePhaseWeekId,
+		PlayoffRoundKeyIds: playoffRoundKeyIds,
+		AssociationId:      associationId,
+		Page:               page,
+		PageSize:           pageSize,
+		SortOrder:          1,
 	}
 
 	matchesList, totalRecords, totalPages, err := matches_service.GetMatches(filterOptions)

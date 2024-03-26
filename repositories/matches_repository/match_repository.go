@@ -42,13 +42,13 @@ func GetMatch(ID string) (models.Match, bool, error) {
 }
 
 type GetMatchesOptions struct {
-	LeaguePhaseWeekId string
-	PlayoffRoundKeyId string
-	AssociationId     string
-	Page              int
-	PageSize          int
-	SortField         string
-	SortOrder         int
+	LeaguePhaseWeekId  string
+	PlayoffRoundKeyIds []string
+	AssociationId      string
+	Page               int
+	PageSize           int
+	SortField          string
+	SortOrder          int
 }
 
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
@@ -64,8 +64,8 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, er
 		filter["league_phase_week_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.LeaguePhaseWeekId, Options: "i"}}
 	}
 
-	if filterOptions.PlayoffRoundKeyId != "" {
-		filter["playoff_round_key_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.PlayoffRoundKeyId, Options: "i"}}
+	if len(filterOptions.PlayoffRoundKeyIds) > 0 {
+		filter["playoff_round_key_id"] = bson.M{"$in": filterOptions.PlayoffRoundKeyIds}
 	}
 
 	page := filterOptions.Page

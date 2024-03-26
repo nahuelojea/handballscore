@@ -136,6 +136,7 @@ func UpdateGoals(matchPlayer models.MatchPlayer, status string) (bool, error) {
 	} else {
 		updateDataMap["goals.second_half"] = matchPlayer.Goals.SecondHalf
 	}
+	updateDataMap["goals.total"] = matchPlayer.Goals.Total
 
 	return repositories.Update(match_player_collection, updateDataMap, matchPlayer.Id.Hex())
 }

@@ -78,6 +78,8 @@ func UpdateGoal(id string, addGoal bool) (bool, error) {
 		}
 	}
 
+	matchPlayer.Goals.Total = matchPlayer.Goals.FirstHalf + matchPlayer.Goals.SecondHalf
+
 	return match_players_repository.UpdateGoals(matchPlayer, match.Status)
 }
 
