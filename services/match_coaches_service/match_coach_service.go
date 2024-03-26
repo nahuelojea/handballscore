@@ -3,10 +3,39 @@ package match_coaches_service
 import (
 	"errors"
 
+	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/match_coaches_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 )
+
+func CreateMatchCoaches(startMatchRequest dto.StartMatchRequest, match models.Match) {
+	for _, coachHome := range startMatchRequest.CoachsHome {
+		matchCoach := models.MatchCoach{
+			CoachId: coachHome,
+			Sanctions: models.Sanctions{
+				Exclusions: []models.Exclusion{},
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
+		}
+		match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
+	}
+
+	for _, coachAway := range startMatchRequest.CoachsAway {
+		matchCoach := models.MatchCoach{
+			CoachId: coachAway,
+			Sanctions: models.Sanctions{
+				Exclusions: []models.Exclusion{},
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
+		}
+		match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
+	}
+}
 
 func CreateMatchCoach(association_id string, matchCoach models.MatchCoach) (string, bool, error) {
 	return match_coaches_repository.CreateMatchCoach(association_id, matchCoach)

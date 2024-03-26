@@ -125,6 +125,7 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		matchPlayer := models.MatchPlayer{
 			PlayerId: playerHome.PlayerId,
 			Number:   playerHome.Number,
+			MatchId:  match.Id.Hex(),
 			TeamId:   match.TeamHome,
 			Goals: models.Goals{
 				FirstHalf:  0,
@@ -143,6 +144,8 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		matchPlayer := models.MatchPlayer{
 			PlayerId: playerAway.PlayerId,
 			Number:   playerAway.Number,
+			MatchId:  match.Id.Hex(),
+			TeamId:   match.TeamAway,
 			Goals: models.Goals{
 				FirstHalf:  0,
 				SecondHalf: 0},
@@ -159,6 +162,8 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 	for _, coachHome := range startMatchRequest.CoachsHome {
 		matchCoach := models.MatchCoach{
 			CoachId: coachHome,
+			MatchId: match.Id.Hex(),
+			TeamId:  match.TeamHome,
 			Sanctions: models.Sanctions{
 				Exclusions: []models.Exclusion{},
 				YellowCard: false,
@@ -172,6 +177,8 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 	for _, coachAway := range startMatchRequest.CoachsAway {
 		matchCoach := models.MatchCoach{
 			CoachId: coachAway,
+			MatchId: match.Id.Hex(),
+			TeamId:  match.TeamAway,
 			Sanctions: models.Sanctions{
 				Exclusions: []models.Exclusion{},
 				YellowCard: false,

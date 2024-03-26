@@ -3,14 +3,48 @@ package match_players_service
 import (
 	"errors"
 
+	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
-func CreateMatchPlayers(association_id string, matchPlayers []models.MatchPlayer) ([]string, bool, error) {
-	return match_players_repository.CreateMatchPlayers(association_id, matchPlayers)
+func CreateMatchPlayers(startMatchRequest dto.StartMatchRequest, match models.Match) {
+	for _, playerHome := range startMatchRequest.PlayersHome {
+		matchPlayer := models.MatchPlayer{
+			PlayerId: playerHome.PlayerId,
+			Number:   playerHome.Number,
+			TeamId:   match.TeamHome,
+			Goals: models.Goals{
+				FirstHalf:  0,
+				SecondHalf: 0},
+			Sanctions: models.Sanctions{
+				Exclusions: []models.Exclusion{},
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
+		}
+		match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
+	}
+
+	for _, playerAway := range startMatchRequest.PlayersAway {
+		matchPlayer := models.MatchPlayer{
+			PlayerId: playerAway.PlayerId,
+			Number:   playerAway.Number,
+			Goals: models.Goals{
+				FirstHalf:  0,
+				SecondHalf: 0},
+			Sanctions: models.Sanctions{
+				Exclusions: []models.Exclusion{},
+				YellowCard: false,
+				RedCard:    false,
+				BlueCard:   false,
+				Report:     ""},
+		}
+		match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
+	}
 }
 
 func CreateMatchPlayer(association_id string, matchPlayer models.MatchPlayer) (string, bool, error) {

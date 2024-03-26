@@ -11,6 +11,6 @@ type StartMatchRequest struct {
 }
 
 type MatchPlayerRequest struct {
-	PlayerId string `bson:"player_id" json:"player_id"`
+	PlayerId string `bson:"id" json:"id"`
 	Number   string `bson:"number" json:"number"`
 }
