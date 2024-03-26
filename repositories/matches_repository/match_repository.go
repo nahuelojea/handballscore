@@ -154,6 +154,15 @@ func EndMatch(Id string) (bool, error) {
 	return repositories.Update(match_collection, updateDataMap, Id)
 }
 
+func UpdateGoals(match models.Match, Id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["goals_home"] = match.GoalsHome
+	updateDataMap["goals_away"] = match.GoalsAway
+
+	return repositories.Update(match_collection, updateDataMap, Id)
+}
+
 func UpdateTimeouts(match models.Match, Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 

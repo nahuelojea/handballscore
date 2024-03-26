@@ -215,6 +215,56 @@ func EndMatch(id string) (bool, error) {
 	return matches_repository.EndMatch(id)
 }
 
+func UpdateGoals(match models.Match, tournamentTeamId models.TournamentTeamId, add bool) (bool, error) {
+
+	if match.TeamHome == tournamentTeamId || match.TeamAway == tournamentTeamId {
+		if match.TeamHome == tournamentTeamId {
+			if add {
+				if match.Status == models.FirstHalf {
+					match.GoalsHome.FirstHalf++
+				} else {
+					match.GoalsHome.SecondHalf++
+				}
+			} else {
+				if match.Status == models.FirstHalf {
+					if match.GoalsHome.FirstHalf > 0 {
+						match.GoalsHome.FirstHalf--
+					}
+				} else {
+					if match.GoalsHome.SecondHalf > 0 {
+						match.GoalsHome.SecondHalf--
+					}
+				}
+			}
+		} else {
+			if add {
+				if match.Status == models.FirstHalf {
+					match.GoalsAway.FirstHalf++
+				} else {
+					match.GoalsAway.SecondHalf++
+				}
+			} else {
+				if match.Status == models.FirstHalf {
+					if match.GoalsAway.FirstHalf > 0 {
+						match.GoalsAway.FirstHalf--
+					}
+				} else {
+					if match.GoalsAway.SecondHalf > 0 {
+						match.GoalsAway.SecondHalf--
+					}
+				}
+			}
+		}
+	} else {
+		return false, errors.New("The team id does not match any of the two in the match")
+	}
+
+	match.GoalsHome.Total = match.GoalsHome.FirstHalf + match.GoalsHome.SecondHalf
+	match.GoalsAway.Total = match.GoalsAway.FirstHalf + match.GoalsAway.SecondHalf
+
+	return matches_repository.UpdateGoals(match, match.Id.Hex())
+}
+
 func UpdateTimeouts(id string, tournamentTeamId models.TournamentTeamId, add bool, time string) (bool, error) {
 	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {

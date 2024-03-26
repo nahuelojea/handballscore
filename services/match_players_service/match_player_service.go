@@ -6,6 +6,7 @@ import (
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
+	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
 func CreateMatchPlayers(association_id string, matchPlayers []models.MatchPlayer) ([]string, bool, error) {
@@ -59,6 +60,8 @@ func UpdateGoal(id string, addGoal bool) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
+	matches_service.UpdateGoals(match, matchPlayer.TeamId, addGoal)
 
 	if match.Status == models.FirstHalf {
 		if addGoal {
