@@ -2,6 +2,7 @@ package matches_service
 
 import (
 	"errors"
+	"math"
 	"strings"
 	"time"
 
@@ -103,7 +104,7 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchJourneyRes
 
 	totalRecords := int64(len(matchesJourney))
 
-	totalPages := totalRecords / int64(filters.PageSize)
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(filterOptions.PageSize)))
 
 	return matchesJourney, totalRecords, int(totalPages), nil
 }

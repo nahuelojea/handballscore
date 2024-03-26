@@ -2,6 +2,7 @@ package matches
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -48,6 +49,8 @@ func GetMatchesByJourney(request events.APIGatewayProxyRequest, claim dto.Claim)
 			playoffRoundKeyIds = append(playoffRoundKeyIds, playoffRoundKey.Id.Hex())
 		}
 	}
+
+	fmt.Println("playoffRoundKeyIds: ", playoffRoundKeyIds)
 
 	filterMatches := matches_service.GetMatchesOptions{
 		LeaguePhaseWeekId:  leaguePhaseWeekId,

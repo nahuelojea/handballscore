@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 
@@ -245,7 +246,7 @@ func GetWeeksAndRounds(id string, associationId string, page int, pageSize int) 
 
 	totalRecords := int64(len(weeksAndRoundsResponse))
 
-	totalPages := totalRecords / int64(pageSize)
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
 
 	return weeksAndRoundsResponse, totalRecords, int(totalPages), nil
 }
