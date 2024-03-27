@@ -2,7 +2,6 @@ package matches
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,19 +37,19 @@ func GetMatchesByJourney(request events.APIGatewayProxyRequest, claim dto.Claim)
 		pageSize = 20
 	}
 
-	filterPlayoffRoundKeys := playoff_round_keys_service.GetPlayoffRoundKeysOptions{
-		PlayoffRoundId: playoffRoundId,
-		AssociationId:  associationId,
-	}
-	playoffRoundKeys, _, _, _ := playoff_round_keys_service.GetPlayoffRoundKeys(filterPlayoffRoundKeys)
 	var playoffRoundKeyIds []string
-	if len(playoffRoundKeys) > 1 {
-		for _, playoffRoundKey := range playoffRoundKeys {
-			playoffRoundKeyIds = append(playoffRoundKeyIds, playoffRoundKey.Id.Hex())
+	if len(playoffRoundId) > 0 {
+		filterPlayoffRoundKeys := playoff_round_keys_service.GetPlayoffRoundKeysOptions{
+			PlayoffRoundId: playoffRoundId,
+			AssociationId:  associationId,
+		}
+		playoffRoundKeys, _, _, _ := playoff_round_keys_service.GetPlayoffRoundKeys(filterPlayoffRoundKeys)
+		if len(playoffRoundKeys) > 1 {
+			for _, playoffRoundKey := range playoffRoundKeys {
+				playoffRoundKeyIds = append(playoffRoundKeyIds, playoffRoundKey.Id.Hex())
+			}
 		}
 	}
-
-	fmt.Println("playoffRoundKeyIds: ", playoffRoundKeyIds)
 
 	filterMatches := matches_service.GetMatchesOptions{
 		LeaguePhaseWeekId:  leaguePhaseWeekId,

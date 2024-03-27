@@ -15,7 +15,7 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		case "matchPlayer":
 			return match_players.GetMatchPlayer(request)
 		case "matchPlayer/filter":
-			return match_players.GetMatchPlayers(request, claim)
+			return match_players.GetMatchPlayers(ctx, request, claim)
 		}
 	case "PATCH":
 		switch ctx.Value(dto.Key("path")).(string) {

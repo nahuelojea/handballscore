@@ -51,7 +51,7 @@ func GetMatchCoach(id string) (models.MatchCoach, bool, error) {
 
 type GetMatchCoachOptions struct {
 	MatchId       string
-	TeamId        string
+	Team          models.TournamentTeamId
 	CoachId       string
 	AssociationId string
 	Page          int
@@ -62,7 +62,7 @@ type GetMatchCoachOptions struct {
 func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, int64, int, error) {
 	filters := match_coaches_repository.GetMatchCoachOptions{
 		MatchId:       filterOptions.MatchId,
-		TeamId:        filterOptions.TeamId,
+		Team:          filterOptions.Team,
 		CoachId:       filterOptions.CoachId,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,

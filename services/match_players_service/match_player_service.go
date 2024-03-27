@@ -65,7 +65,7 @@ func GetMatchPlayer(id string) (models.MatchPlayer, bool, error) {
 
 type GetMatchPlayerOptions struct {
 	MatchId       string
-	TeamId        string
+	Team          models.TournamentTeamId
 	PlayerId      string
 	Number        string
 	AssociationId string
@@ -77,7 +77,7 @@ type GetMatchPlayerOptions struct {
 func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer, int64, int, error) {
 	filters := match_players_repository.GetMatchPlayerOptions{
 		MatchId:       filterOptions.MatchId,
-		TeamId:        filterOptions.TeamId,
+		Team:          filterOptions.Team,
 		PlayerId:      filterOptions.PlayerId,
 		Number:        filterOptions.Number,
 		AssociationId: filterOptions.AssociationId,

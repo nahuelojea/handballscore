@@ -1,22 +1,23 @@
 package match_coaches
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
+	matches_dto "github.com/nahuelojea/handballscore/dto/matches"
+	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/services/match_coaches_service"
 )
 
-func GetMatchCoaches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
+func GetMatchCoaches(ctx context.Context, request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
+	var getMatchCoachesRequest matches_dto.GetMatchCoachesRequest
 	var response dto.RestResponse
 	var err error
 
-	matchId := request.QueryStringParameters["matchId"]
-	teamId := request.QueryStringParameters["teamId"]
-	coachId := request.QueryStringParameters["coachId"]
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	associationId := claim.AssociationId
@@ -37,10 +38,22 @@ func GetMatchCoaches(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 		pageSize = 20
 	}
 
+	body := ctx.Value(dto.Key("body")).(string)
+	err = json.Unmarshal([]byte(body), &getMatchCoachesRequest)
+	if err != nil {
+		response.Message = err.Error()
+		return response
+	}
+
+	var tournamentTeamId models.TournamentTeamId = models.TournamentTeamId{
+		TeamId:  getMatchCoachesRequest.TournamentTeamId.TeamId,
+		Variant: getMatchCoachesRequest.TournamentTeamId.Variant,
+	}
+
 	filterOptions := match_coaches_service.GetMatchCoachOptions{
-		MatchId:       matchId,
-		TeamId:        teamId,
-		CoachId:       coachId,
+		MatchId:       getMatchCoachesRequest.MatchId,
+		Team:          tournamentTeamId,
+		CoachId:       getMatchCoachesRequest.CoachId,
 		AssociationId: associationId,
 		Page:          page,
 		PageSize:      pageSize,

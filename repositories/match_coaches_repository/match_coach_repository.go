@@ -40,7 +40,7 @@ func GetMatchCoach(id string) (models.MatchCoach, bool, error) {
 
 type GetMatchCoachOptions struct {
 	MatchId       string
-	TeamId        string
+	Team          models.TournamentTeamId
 	CoachId       string
 	AssociationId string
 	Page          int
@@ -60,8 +60,11 @@ func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, i
 	if filterOptions.MatchId != "" {
 		filter["match_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.MatchId, Options: "i"}}
 	}
-	if filterOptions.TeamId != "" {
-		filter["team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TeamId, Options: "i"}}
+	if filterOptions.Team.TeamId != "" {
+		filter["team.team_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Team.TeamId, Options: "i"}}
+	}
+	if filterOptions.Team.Variant != "" {
+		filter["team.variant"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Team.Variant, Options: "i"}}
 	}
 	if filterOptions.CoachId != "" {
 		filter["coach_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.CoachId, Options: "i"}}
