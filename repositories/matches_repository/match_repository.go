@@ -146,12 +146,13 @@ func StartSecondHalf(Id string) (bool, error) {
 	return repositories.Update(match_collection, updateDataMap, Id)
 }
 
-func EndMatch(Id string) (bool, error) {
+func EndMatch(id, comments string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
 	updateDataMap["status"] = models.Ended
+	updateDataMap["comments"] = comments
 
-	return repositories.Update(match_collection, updateDataMap, Id)
+	return repositories.Update(match_collection, updateDataMap, id)
 }
 
 func UpdateGoals(match models.Match, Id string) (bool, error) {

@@ -210,7 +210,7 @@ func StartSecondHalf(id string) (bool, error) {
 	return matches_repository.StartSecondHalf(id)
 }
 
-func EndMatch(id string) (bool, error) {
+func EndMatch(id, comments string) (bool, error) {
 	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {
 		return false, errors.New("Error to get match: " + err.Error())
@@ -220,7 +220,7 @@ func EndMatch(id string) (bool, error) {
 		return false, errors.New("The match must be found in the second half")
 	}
 
-	return matches_repository.EndMatch(id)
+	return matches_repository.EndMatch(id, comments)
 }
 
 func UpdateGoals(match models.Match, tournamentTeamId models.TournamentTeamId, add bool) (bool, error) {
