@@ -14,6 +14,7 @@ import (
 
 const (
 	match_player_collection = "match_players"
+	match_player_view       = "match_players_view"
 )
 
 func CreateMatchPlayer(association_id string, matchPlayer models.MatchPlayer) (string, bool, error) {
@@ -49,10 +50,10 @@ type GetMatchPlayerOptions struct {
 	SortOrder     int
 }
 
-func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer, int64, int, error) {
+func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayerView, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(match_player_collection)
+	collection := db.Collection(match_player_view)
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
@@ -98,13 +99,13 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer,
 	}
 	defer cur.Close(ctx)
 
-	var matchPlayers []models.MatchPlayer
+	var matchPlayersView []models.MatchPlayerView
 	for cur.Next(ctx) {
-		var matchPlayer models.MatchPlayer
-		if err := cur.Decode(&matchPlayer); err != nil {
+		var matchPlayerView models.MatchPlayerView
+		if err := cur.Decode(&matchPlayerView); err != nil {
 			return nil, 0, 0, err
 		}
-		matchPlayers = append(matchPlayers, matchPlayer)
+		matchPlayersView = append(matchPlayersView, matchPlayerView)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -118,7 +119,7 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayer,
 
 	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
 
-	return matchPlayers, totalRecords, totalPages, nil
+	return matchPlayersView, totalRecords, totalPages, nil
 }
 
 func UpdateMatchPlayer(matchPlayer models.MatchPlayer, id string) (bool, error) {

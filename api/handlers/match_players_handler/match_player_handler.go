@@ -14,6 +14,9 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "matchPlayer":
 			return match_players.GetMatchPlayer(request)
+		}
+	case "POST":
+		switch ctx.Value(dto.Key("path")).(string) {
 		case "matchPlayer/filter":
 			return match_players.GetMatchPlayers(ctx, request, claim)
 		}

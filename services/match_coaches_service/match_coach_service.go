@@ -59,7 +59,7 @@ type GetMatchCoachOptions struct {
 	SortOrder     int
 }
 
-func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, int64, int, error) {
+func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoachView, int64, int, error) {
 	filters := match_coaches_repository.GetMatchCoachOptions{
 		MatchId:       filterOptions.MatchId,
 		Team:          filterOptions.Team,

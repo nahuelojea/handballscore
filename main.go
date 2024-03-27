@@ -29,7 +29,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	headers := map[string]string{
 		"Access-Control-Allow-Origin":  APP_DOMAIN, // Replace with your allowed domain or "*"
 		"Access-Control-Allow-Headers": "Content-Type, Authorization",
-		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT, DELETE",
+		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT, PATCH, DELETE",
 		"Content-Type":                 "application/json",
 	}
 

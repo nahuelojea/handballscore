@@ -14,6 +14,7 @@ import (
 
 const (
 	match_coach_collection = "match_coaches"
+	match_coach_view       = "match_coaches_view"
 )
 
 func CreateMatchCoach(association_id string, matchCoach models.MatchCoach) (string, bool, error) {
@@ -48,10 +49,10 @@ type GetMatchCoachOptions struct {
 	SortOrder     int
 }
 
-func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, int64, int, error) {
+func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoachView, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(match_coach_collection)
+	collection := db.Collection(match_coach_view)
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
@@ -93,13 +94,13 @@ func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, i
 	}
 	defer cur.Close(ctx)
 
-	var matchCoaches []models.MatchCoach
+	var matchCoachesView []models.MatchCoachView
 	for cur.Next(ctx) {
-		var matchCoach models.MatchCoach
-		if err := cur.Decode(&matchCoach); err != nil {
+		var matchCoachView models.MatchCoachView
+		if err := cur.Decode(&matchCoachView); err != nil {
 			return nil, 0, 0, err
 		}
-		matchCoaches = append(matchCoaches, matchCoach)
+		matchCoachesView = append(matchCoachesView, matchCoachView)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -113,7 +114,7 @@ func GetMatchCoaches(filterOptions GetMatchCoachOptions) ([]models.MatchCoach, i
 
 	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
 
-	return matchCoaches, totalRecords, totalPages, nil
+	return matchCoachesView, totalRecords, totalPages, nil
 }
 
 func UpdateExclusions(matchCoach models.MatchCoach) (bool, error) {
