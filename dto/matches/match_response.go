@@ -2,7 +2,7 @@ package dto
 
 import "time"
 
-type MatchJourneyResponse struct {
+type MatchResponse struct {
 	MatchId   string            `bson:"match_id,omitempty" json:"match_id"`
 	Date      time.Time         `bson:"date" json:"date"`
 	TeamHome  MatchTeamResponse `bson:"team_home" json:"team_home"`

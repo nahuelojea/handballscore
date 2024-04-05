@@ -15,6 +15,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		switch ctx.Value(dto.Key("path")).(string) {
 		case "match":
 			return matches.GetMatch(request)
+		case "match/header":
+			return matches.GetMatchHeader(request)
 		case "match/filter":
 			return matches.GetMatches(request, claim)
 		case "match/journey":

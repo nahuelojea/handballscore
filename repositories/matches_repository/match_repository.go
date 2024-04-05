@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	match_collection = "matches"
+	match_collection  = "matches"
+	match_header_view = "match_headers_view"
 )
 
 func CreateMatches(associationID string, matches []models.Match) ([]string, bool, error) {
@@ -41,9 +42,20 @@ func GetMatch(ID string) (models.Match, bool, error) {
 	return match, true, nil
 }
 
+func GetMatchHeaderView(ID string) (models.MatchHeaderView, bool, error) {
+	var matchHeader models.MatchHeaderView
+	_, err := repositories.GetById(match_header_view, ID, &matchHeader)
+	if err != nil {
+		return models.MatchHeaderView{}, false, err
+	}
+
+	return matchHeader, true, nil
+}
+
 type GetMatchesOptions struct {
 	LeaguePhaseWeekId  string
 	PlayoffRoundKeyIds []string
+	Date               time.Time
 	AssociationId      string
 	Page               int
 	PageSize           int
@@ -66,6 +78,12 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, er
 
 	if len(filterOptions.PlayoffRoundKeyIds) > 0 {
 		filter["playoff_round_key_id"] = bson.M{"$in": filterOptions.PlayoffRoundKeyIds}
+	}
+
+	if !filterOptions.Date.IsZero() {
+		startDate := time.Date(filterOptions.Date.Year(), filterOptions.Date.Month(), filterOptions.Date.Day(), 0, 0, 0, 0, filterOptions.Date.Location())
+		endDate := startDate.AddDate(0, 0, 1)
+		filter["date"] = bson.M{"$gte": startDate, "$lt": endDate}
 	}
 
 	page := filterOptions.Page

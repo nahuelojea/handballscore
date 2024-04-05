@@ -19,6 +19,7 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	leaguePhaseWeekId := request.QueryStringParameters["leaguePhaseWeekId"]
 	playoffRoundKeyIdStr := request.QueryStringParameters["playoffRoundKeyIds"]
+	//dateStr := request.QueryStringParameters["date"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {

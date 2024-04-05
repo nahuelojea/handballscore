@@ -17,6 +17,7 @@ import (
 type GetMatchesOptions struct {
 	LeaguePhaseWeekId  string
 	PlayoffRoundKeyIds []string
+	Date               time.Time
 	AssociationId      string
 	Page               int
 	PageSize           int
@@ -36,10 +37,15 @@ func GetMatch(ID string) (models.Match, bool, error) {
 	return matches_repository.GetMatch(ID)
 }
 
+func GetMatchHeader(ID string) (models.MatchHeaderView, bool, error) {
+	return matches_repository.GetMatchHeaderView(ID)
+}
+
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
 		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
+		Date:               filterOptions.Date,
 		AssociationId:      filterOptions.AssociationId,
 		Page:               filterOptions.Page,
 		PageSize:           filterOptions.PageSize,
@@ -49,7 +55,7 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, er
 	return matches_repository.GetMatches(filters)
 }
 
-func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchJourneyResponse, int64, int, error) {
+func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
 		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
@@ -65,7 +71,7 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchJourneyRes
 		return nil, 0, 0, errors.New("Error to get matches: " + err.Error())
 	}
 
-	var matchesJourney []dto.MatchJourneyResponse
+	var matchesJourney []dto.MatchResponse
 	for _, match := range matches {
 		teamHome, _, err := teams_service.GetTeam(match.TeamHome.TeamId)
 		if err != nil {
@@ -89,7 +95,7 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchJourneyRes
 			Avatar: teamAway.Avatar,
 		}
 
-		matchJourney := dto.MatchJourneyResponse{
+		matchJourney := dto.MatchResponse{
 			MatchId:   match.Id.Hex(),
 			Date:      match.Date,
 			TeamHome:  homeMatchTeam,
