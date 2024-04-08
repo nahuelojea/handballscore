@@ -95,6 +95,14 @@ func UpdateGoal(id string, addGoal bool) (bool, error) {
 		return false, err
 	}
 
+	if matchPlayer.RedCard {
+		return false, errors.New("The player has red card")
+	}
+
+	if matchPlayer.BlueCard {
+		return false, errors.New("The player has blue card")
+	}
+
 	matches_service.UpdateGoals(match, matchPlayer.TeamId, addGoal)
 
 	if match.Status == models.FirstHalf {
@@ -126,6 +134,14 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 		return false, err
 	}
 
+	if matchPlayer.RedCard {
+		return false, errors.New("The player has red card")
+	}
+
+	if matchPlayer.BlueCard {
+		return false, errors.New("The player has blue card")
+	}
+
 	if addExclusion {
 		if len(matchPlayer.Sanctions.Exclusions) == 2 {
 			return false, errors.New("The player has two exclusions")
@@ -143,6 +159,14 @@ func UpdateYellowCard(id string, addYellowCard bool) (bool, error) {
 	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
+	}
+
+	if matchPlayer.RedCard {
+		return false, errors.New("The player has red card")
+	}
+
+	if matchPlayer.BlueCard {
+		return false, errors.New("The player has blue card")
 	}
 
 	matchPlayer.YellowCard = addYellowCard
@@ -190,14 +214,6 @@ func getMatchPlayerAvailableToAction(id string) (models.MatchPlayer, models.Matc
 
 	if match.Status != models.FirstHalf && match.Status != models.SecondHalf {
 		return models.MatchPlayer{}, models.Match{}, errors.New("The match must be in progress")
-	}
-
-	if matchPlayer.RedCard {
-		return models.MatchPlayer{}, models.Match{}, errors.New("The player has red card")
-	}
-
-	if matchPlayer.BlueCard {
-		return models.MatchPlayer{}, models.Match{}, errors.New("The player has blue card")
 	}
 
 	return matchPlayer, match, nil
