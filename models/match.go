@@ -17,24 +17,25 @@ const (
 )
 
 type Match struct {
-	Id                primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Date              time.Time          `bson:"date" json:"date"`
-	TeamHome          TournamentTeamId   `bson:"team_home" json:"team_home"`
-	TeamAway          TournamentTeamId   `bson:"team_away" json:"team_away"`
-	Referees          []string           `bson:"referees" json:"referees"`
-	Place             string             `bson:"place" json:"place"`
-	Scorekeeper       string             `bson:"scorekeeper" json:"scorekeeper"`
-	Timekeeper        string             `bson:"timekeeper" json:"timekeeper"`
-	Comments          string             `bson:"comments" json:"comments"`
-	Status            string             `bson:"status" json:"status"`
-	GoalsHome         MatchGoals         `bson:"goals_home" json:"goals_home"`
-	GoalsAway         MatchGoals         `bson:"goals_away" json:"goals_away"`
-	TimeoutsHome      []Timeout          `bson:"timeouts_home" json:"timeouts_home"`
-	TimeoutsAway      []Timeout          `bson:"timeouts_away" json:"timeouts_away"`
-	LeaguePhaseWeekId string             `bson:"league_phase_week_id" json:"league_phase_week_id"`
-	PlayoffRoundKeyId string             `bson:"playoff_round_key_id" json:"playoff_round_key_id"`
-	AssociationId     string             `bson:"association_id" json:"association_id"`
-	Status_Data       `bson:"status_data" json:"status_data"`
+	Id                   primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Date                 time.Time          `bson:"date" json:"date"`
+	TeamHome             TournamentTeamId   `bson:"team_home" json:"team_home"`
+	TeamAway             TournamentTeamId   `bson:"team_away" json:"team_away"`
+	Referees             []string           `bson:"referees" json:"referees"`
+	Place                string             `bson:"place" json:"place"`
+	Scorekeeper          string             `bson:"scorekeeper" json:"scorekeeper"`
+	Timekeeper           string             `bson:"timekeeper" json:"timekeeper"`
+	Comments             string             `bson:"comments" json:"comments"`
+	Status               string             `bson:"status" json:"status"`
+	GoalsHome            MatchGoals         `bson:"goals_home" json:"goals_home"`
+	GoalsAway            MatchGoals         `bson:"goals_away" json:"goals_away"`
+	TimeoutsHome         []Timeout          `bson:"timeouts_home" json:"timeouts_home"`
+	TimeoutsAway         []Timeout          `bson:"timeouts_away" json:"timeouts_away"`
+	LeaguePhaseWeekId    string             `bson:"league_phase_week_id" json:"league_phase_week_id"`
+	PlayoffRoundKeyId    string             `bson:"playoff_round_key_id" json:"playoff_round_key_id"`
+	TournamentCategoryId string             `bson:"tournament_category_id" json:"tournament_category_id"`
+	AssociationId        string             `bson:"association_id" json:"association_id"`
+	Status_Data          `bson:"status_data" json:"status_data"`
 }
 
 type Timeout struct {
@@ -76,20 +77,22 @@ func (match *Match) SetId(id primitive.ObjectID) {
 	match.Id = id
 }
 
-func generateLeagueMatch(leaguePhaseWeekId string, teamA, teamB TournamentTeamId) Match {
+func generateLeagueMatch(tournamentCategoryId, leaguePhaseWeekId string, teamA, teamB TournamentTeamId) Match {
 	return Match{
-		TeamHome:          teamA,
-		TeamAway:          teamB,
-		Status:            Created,
-		LeaguePhaseWeekId: leaguePhaseWeekId,
+		TeamHome:             teamA,
+		TeamAway:             teamB,
+		Status:               Created,
+		LeaguePhaseWeekId:    leaguePhaseWeekId,
+		TournamentCategoryId: tournamentCategoryId,
 	}
 }
 
-func GeneratePlayoffMatch(playoffRoundKeyId string, teamA, teamB TournamentTeamId) Match {
+func GeneratePlayoffMatch(tournamentCategoryId, playoffRoundKeyId string, teamA, teamB TournamentTeamId) Match {
 	return Match{
-		TeamHome:          teamA,
-		TeamAway:          teamB,
-		Status:            Created,
-		PlayoffRoundKeyId: playoffRoundKeyId,
+		TeamHome:             teamA,
+		TeamAway:             teamB,
+		Status:               Created,
+		PlayoffRoundKeyId:    playoffRoundKeyId,
+		TournamentCategoryId: tournamentCategoryId,
 	}
 }

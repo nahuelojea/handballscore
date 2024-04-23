@@ -55,6 +55,18 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, er
 	return matches_repository.GetMatches(filters)
 }
 
+func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView, int64, int, error) {
+	filters := matches_repository.GetMatchesOptions{
+		Date:          filterOptions.Date,
+		AssociationId: filterOptions.AssociationId,
+		Page:          filterOptions.Page,
+		PageSize:      filterOptions.PageSize,
+		SortField:     filterOptions.SortField,
+		SortOrder:     filterOptions.SortOrder,
+	}
+	return matches_repository.GetMatchHeaders(filters)
+}
+
 func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,

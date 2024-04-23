@@ -132,6 +132,67 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, er
 	return matches, totalRecords, totalPages, nil
 }
 
+func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView, int64, int, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(match_header_view)
+
+	filter := bson.M{
+		"association_id": filterOptions.AssociationId,
+	}
+
+	if !filterOptions.Date.IsZero() {
+		startDate := time.Date(filterOptions.Date.Year(), filterOptions.Date.Month(), filterOptions.Date.Day(), 0, 0, 0, 0, filterOptions.Date.Location())
+		endDate := startDate.AddDate(0, 0, 1)
+		filter["date"] = bson.M{"$gte": startDate, "$lt": endDate}
+	}
+
+	page := filterOptions.Page
+	pageSize := filterOptions.PageSize
+
+	sortField := filterOptions.SortField
+	if sortField == "" {
+		sortField = "date"
+	}
+	sortOrder := 1
+	if filterOptions.SortOrder == -1 {
+		sortOrder = -1
+	}
+
+	findOptions := options.Find()
+	findOptions.SetLimit(int64(pageSize))
+	findOptions.SetSkip(int64((page - 1) * pageSize))
+	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+
+	cur, err := collection.Find(ctx, filter, findOptions)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+	defer cur.Close(ctx)
+
+	var matchViews []models.MatchHeaderView
+	for cur.Next(ctx) {
+		var matchView models.MatchHeaderView
+		if err := cur.Decode(&matchView); err != nil {
+			return nil, 0, 0, err
+		}
+		matchViews = append(matchViews, matchView)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, 0, 0, err
+	}
+
+	totalRecords, err := collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+
+	return matchViews, totalRecords, totalPages, nil
+}
+
 func ProgramMatch(Time time.Time, Place string, Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if !Time.IsZero() {

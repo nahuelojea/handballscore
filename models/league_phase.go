@@ -94,7 +94,7 @@ func (leaguePhase LeaguePhase) GenerateLeaguePhaseWeeks() ([]LeaguePhaseWeek, []
 	return leaguePhaseWeeks, rounds
 }
 
-func (leaguePhase LeaguePhase) GenerateMatches(rounds [][]MatchRound, leaguePhaseWeeks []LeaguePhaseWeek) []Match {
+func (leaguePhase LeaguePhase) GenerateMatches(tournamentCategoryId string, rounds [][]MatchRound, leaguePhaseWeeks []LeaguePhaseWeek) []Match {
 	var matches []Match
 	var week = 1
 
@@ -103,7 +103,7 @@ func (leaguePhase LeaguePhase) GenerateMatches(rounds [][]MatchRound, leaguePhas
 
 		for j := 0; j < len(rounds[i]); j++ {
 			fmt.Printf("   %d-%d", 1+rounds[i][j].Home, 1+rounds[i][j].Away)
-			matches = append(matches, generateLeagueMatch(leaguePhaseWeek.Id.Hex(),
+			matches = append(matches, generateLeagueMatch(tournamentCategoryId, leaguePhaseWeek.Id.Hex(),
 				leaguePhase.Teams[rounds[i][j].Home],
 				leaguePhase.Teams[rounds[i][j].Away]))
 		}
@@ -118,7 +118,7 @@ func (leaguePhase LeaguePhase) GenerateMatches(rounds [][]MatchRound, leaguePhas
 
 			for j := 0; j < len(rounds[i]); j++ {
 				fmt.Printf("   %d-%d", 1+rounds[i][j].Away, 1+rounds[i][j].Home)
-				matches = append(matches, generateLeagueMatch(leaguePhaseWeek.Id.Hex(),
+				matches = append(matches, generateLeagueMatch(tournamentCategoryId, leaguePhaseWeek.Id.Hex(),
 					leaguePhase.Teams[rounds[i][j].Away],
 					leaguePhase.Teams[rounds[i][j].Home]))
 			}

@@ -142,11 +142,11 @@ func createFirstRoundMatches(playoffPhase models.PlayoffPhase, roundKeys []model
 		teamA := roundKeys[i].Teams[0]
 		teamB := roundKeys[i].Teams[1]
 
-		match := models.GeneratePlayoffMatch(roundKeys[i].Id.Hex(), teamA, teamB)
+		match := models.GeneratePlayoffMatch(playoffPhase.TournamentCategoryId, roundKeys[i].Id.Hex(), teamA, teamB)
 		matches = append(matches, match)
 
 		if playoffPhase.Config.HomeAndAway {
-			matchReturn := models.GeneratePlayoffMatch(roundKeys[i].Id.Hex(), teamB, teamA)
+			matchReturn := models.GeneratePlayoffMatch(playoffPhase.TournamentCategoryId, roundKeys[i].Id.Hex(), teamB, teamA)
 			matches = append(matches, matchReturn)
 		}
 	}

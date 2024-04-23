@@ -82,7 +82,7 @@ func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, l
 		return "", false, errors.New(fmt.Sprintf("Error to get league phase weeks: %s", err.Error()))
 	}
 
-	matches := leaguePhase.GenerateMatches(rounds, leaguePhaseWeeks)
+	matches := leaguePhase.GenerateMatches(tournamentCategory.Id.Hex(), rounds, leaguePhaseWeeks)
 
 	_, _, err = matches_service.CreateMatches(tournamentCategory.AssociationId, matches)
 	if err != nil {

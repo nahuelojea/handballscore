@@ -4,26 +4,38 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
 	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
-func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
+func GetMatchesToday(request events.APIGatewayProxyRequest, claim dto.Claim) dto.RestResponse {
 	var response dto.RestResponse
 	var err error
 
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
-	leaguePhaseWeekId := request.QueryStringParameters["leaguePhaseWeekId"]
-	playoffRoundKeyIdStr := request.QueryStringParameters["playoffRoundKeyIds"]
+	dateStr := request.QueryStringParameters["date"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
 		response.Status = http.StatusBadRequest
 		response.Message = "'associationId' param is mandatory"
+		return response
+	}
+
+	if len(dateStr) < 1 {
+		response.Status = http.StatusBadRequest
+		response.Message = "'date' param is mandatory"
+		return response
+	}
+
+	date, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		response.Status = http.StatusBadRequest
+		response.Message = "Error to convert date: " + err.Error()
 		return response
 	}
 
@@ -37,24 +49,18 @@ func GetMatches(request events.APIGatewayProxyRequest, claim dto.Claim) dto.Rest
 		pageSize = 20
 	}
 
-	var playoffRoundKeyIds []string
-	if playoffRoundKeyIdStr != "" {
-		playoffRoundKeyIds = strings.Split(playoffRoundKeyIdStr, ",")
-	}
-
 	filterOptions := matches_service.GetMatchesOptions{
-		LeaguePhaseWeekId:  leaguePhaseWeekId,
-		PlayoffRoundKeyIds: playoffRoundKeyIds,
-		AssociationId:      associationId,
-		Page:               page,
-		PageSize:           pageSize,
-		SortOrder:          1,
+		AssociationId: associationId,
+		Page:          page,
+		PageSize:      pageSize,
+		Date:          date,
+		SortOrder:     1,
 	}
 
-	matchesList, totalRecords, totalPages, err := matches_service.GetMatches(filterOptions)
+	matchesList, totalRecords, totalPages, err := matches_service.GetMatchHeaders(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to get matches: " + err.Error()
+		response.Message = "Error to get match headers: " + err.Error()
 		return response
 	}
 
