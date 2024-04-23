@@ -216,6 +216,15 @@ func StartSecondHalf(id string) (bool, error) {
 	return matches_repository.StartSecondHalf(id)
 }
 
+func SuspendMatch(id, comments string) (bool, error) {
+	_, _, err := matches_repository.GetMatch(id)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	return matches_repository.SuspendMatch(id, comments)
+}
+
 func EndMatch(id, comments string) (bool, error) {
 	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {

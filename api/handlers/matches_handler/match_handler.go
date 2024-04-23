@@ -37,6 +37,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 			return matches.StartSecondHalf(ctx, request)
 		case "match/end":
 			return matches.EndMatch(ctx, request)
+		case "match/suspend":
+			return matches.SuspendMatch(ctx, request)
 		}
 	}
 

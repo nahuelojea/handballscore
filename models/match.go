@@ -13,6 +13,7 @@ const (
 	FirstHalf  = "first_half"
 	SecondHalf = "second_half"
 	Finished   = "finished"
+	Suspended  = "suspended"
 )
 
 type Match struct {
