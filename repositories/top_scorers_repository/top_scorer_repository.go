@@ -1,13 +1,19 @@
 package top_scorers_repository
 
 import (
+	"context"
+	"math"
+
+	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	match_player_collection = "match_players"
-	player_collection       = "players"
-	team_collection         = "teams"
+	match_players_view = "match_players_view"
+	top_scorers_view   = "top_scorers_view"
 )
 
 type GetTopScorersOptions struct {
@@ -19,49 +25,137 @@ type GetTopScorersOptions struct {
 	SortOrder            int
 }
 
+func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCategoryId string) error {
+	viewName := top_scorers_view
+
+	if err := db.RunCommand(context.Background(), bson.D{{Key: "drop", Value: viewName}}).Err(); err != nil {
+		if err.Error() != "ns not found" {
+			return err
+		}
+	}
+
+	pipeline := []bson.M{
+		{
+			"$lookup": bson.M{
+				"from": "matches",
+				"let":  bson.M{"match_id_str": "$match_id"},
+				"pipeline": []bson.M{
+					{
+						"$match": bson.M{
+							"$expr": bson.M{
+								"$and": []bson.M{
+									{"$eq": []interface{}{"$_id", bson.M{"$toObjectId": "$$match_id_str"}}},
+									{"$eq": []interface{}{"$tournament_category_id", tournamentCategoryId}},
+								},
+							},
+						},
+					},
+				},
+				"as": "match_info",
+			},
+		},
+		{
+			"$unwind": bson.M{
+				"path":                       "$match_info",
+				"preserveNullAndEmptyArrays": false,
+			},
+		},
+		{
+			"$project": bson.M{
+				"match_id":       "$match_id",
+				"player_id":      "$player_id",
+				"goals":          "$goals.total",
+				"date":           "$match_info.date",
+				"team_home":      "$match_info.team_home",
+				"team_away":      "$match_info.team_away",
+				"place":          "$match_info.place",
+				"status":         "$match_info.status",
+				"player_name":    "$player_name",
+				"player_surname": "$player_surname",
+				"player_avatar":  "$player_avatar",
+				"team_name":      "$team_name",
+				"team_avatar":    "$team_avatar",
+				"association_id": "$association_id",
+			},
+		},
+		{
+			"$group": bson.M{
+				"_id":            "$player_id",
+				"total_goals":    bson.M{"$sum": "$goals"},
+				"total_matches":  bson.M{"$addToSet": "$match_id"},
+				"player_name":    bson.M{"$first": "$player_name"},
+				"player_surname": bson.M{"$first": "$player_surname"},
+				"player_avatar":  bson.M{"$first": "$player_avatar"},
+				"team_name":      bson.M{"$first": "$team_name"},
+				"team_avatar":    bson.M{"$first": "$team_avatar"},
+				"association_id": bson.M{"$first": "$association_id"},
+			},
+		},
+		{
+			"$match": bson.M{
+				"total_goals": bson.M{"$gt": 0},
+			},
+		},
+		{
+			"$addFields": bson.M{
+				"total_matches": bson.M{"$size": "$total_matches"},
+				"average": bson.M{
+					"$divide": []interface{}{
+						"$total_goals",
+						bson.M{"$size": "$total_matches"},
+					},
+				},
+			},
+		},
+		{
+			"$project": bson.M{
+				"total_goals":    1,
+				"average":        1,
+				"total_matches":  1,
+				"player_name":    1,
+				"player_surname": 1,
+				"player_avatar":  1,
+				"team_name":      1,
+				"team_avatar":    1,
+				"association_id": 1,
+			},
+		},
+		{
+			"$sort": bson.M{
+				"total_goals": -1,
+			},
+		},
+	}
+
+	err := db.CreateView(ctx, viewName, match_players_view, pipeline)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int64, int, error) {
-	/*ctx := context.TODO()
+	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(tournament_category_collection)
+
+	err := CreateTopScorersView(ctx, db, filterOptions.TournamentCategoryId)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	collection := db.Collection(top_scorers_view)
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
 	}
 
-	if filterOptions.Name != "" {
-		filter["name"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Name, Options: "i"}}
-	}
-	if filterOptions.CategoryId != "" {
-		filter["category_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.CategoryId, Options: "i"}}
-	}
-	if filterOptions.TournamentId != "" {
-		filter["tournament_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TournamentId, Options: "i"}}
-	}
-	if filterOptions.Status != "" {
-		filter["status"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Status, Options: "i"}}
-	}
-	if filterOptions.ChampionId != "" {
-		filter["champion_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.ChampionId, Options: "i"}}
-	}
-
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
-
-	sortOrder := 1
-	if filterOptions.SortOrder == 1 {
-		sortOrder = 1
-	}
-
-	sortFields := bson.D{
-		{Key: "start_date", Value: sortOrder},
-		{Key: "end_date", Value: sortOrder},
-		{Key: "status", Value: sortOrder},
-	}
 
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(sortFields)
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
@@ -69,13 +163,13 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 	}
 	defer cur.Close(ctx)
 
-	var tournaments []models.TournamentCategory
+	var topScorers []models.TopScorer
 	for cur.Next(ctx) {
-		var tournament models.TournamentCategory
-		if err := cur.Decode(&tournament); err != nil {
+		var topScorer models.TopScorer
+		if err := cur.Decode(&topScorer); err != nil {
 			return nil, 0, 0, err
 		}
-		tournaments = append(tournaments, tournament)
+		topScorers = append(topScorers, topScorer)
 	}
 
 	if err := cur.Err(); err != nil {
@@ -89,53 +183,5 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 
 	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
 
-	return tournaments, totalRecords, totalPages, nil*/
-
-	// Create sample top scorers for testing
-	topScorers := []models.TopScorer{
-		{PlayerName: "John Doe",
-			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
-			TeamName:     "Handball Norte",
-			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
-			Goals:        40,
-			Matches:      5,
-			Average:      8},
-		{PlayerName: "Jane Smith",
-			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
-			TeamName:     "Handball Sur",
-			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
-			Goals:        35,
-			Matches:      6,
-			Average:      5},
-		{PlayerName: "Mike Johnson",
-			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
-			TeamName:     "Handball Este",
-			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
-			Goals:        30,
-			Matches:      4,
-			Average:      7},
-		{PlayerName: "Sarah Davis",
-			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
-			TeamName:     "Handball Oeste",
-			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
-			Goals:        25,
-			Matches:      3,
-			Average:      8},
-		{PlayerName: "David Wilson",
-			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
-			TeamName:     "Handball Centro",
-			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
-			Goals:        20,
-			Matches:      2,
-			Average:      10},
-		{PlayerName: "Emily Thompson",
-			PlayerAvatar: "https://handballscore.s3.amazonaws.com/avatars/players/6545542c5cf49946f89ef98a.jpg",
-			TeamName:     "Handball Sur",
-			TeamAvatar:   "https://handballscore.s3.amazonaws.com/avatars/teams/6537cda15f3e10c95cc1726f.jpg",
-			Goals:        15,
-			Matches:      1,
-			Average:      15},
-	}
-
-	return topScorers, 6, 1, nil
+	return topScorers, totalRecords, totalPages, nil
 }
