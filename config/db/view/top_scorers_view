@@ -1,0 +1,129 @@
+[
+  {
+    $lookup: {
+      from: "matches",
+      let: {
+        match_id_str: "$match_id",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $eq: [
+                    "$_id",
+                    {
+                      $toObjectId:
+                        "$$match_id_str",
+                    },
+                  ],
+                },
+                {
+                  $eq: [
+                    "$tournament_category_id",
+                    "66435de5ded0b0c658fcf210",
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      ],
+      as: "match_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$match_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $project: {
+      match_id: "$match_id",
+      team_home: "$match_info.team_home",
+      team_name: "$team_name",
+      association_id: "$association_id",
+      player_id: "$player_id",
+      date: "$match_info.date",
+      team_away: "$match_info.team_away",
+      team_avatar: "$team_avatar",
+      player_name: "$player_name",
+      player_surname: "$player_surname",
+      player_avatar: "$player_avatar",
+      goals: "$goals.total",
+      place: "$match_info.place",
+      status: "$match_info.status",
+    },
+  },
+  {
+    $group: {
+      player_avatar: {
+        $first: "$player_avatar",
+      },
+      team_name: {
+        $first: "$team_name",
+      },
+      team_avatar: {
+        $first: "$team_avatar",
+      },
+      association_id: {
+        $first: "$association_id",
+      },
+      _id: "$player_id",
+      total_matches: {
+        $addToSet: "$match_id",
+      },
+      player_name: {
+        $first: "$player_name",
+      },
+      player_surname: {
+        $first: "$player_surname",
+      },
+      total_goals: {
+        $sum: "$goals",
+      },
+    },
+  },
+  {
+    $match: {
+      total_goals: {
+        $gt: 0,
+      },
+    },
+  },
+  {
+    $addFields: {
+      total_matches: {
+        $size: "$total_matches",
+      },
+      average: {
+        $divide: [
+          "$total_goals",
+          {
+            $size: "$total_matches",
+          },
+        ],
+      },
+    },
+  },
+  {
+    $project: {
+      player_surname: 1,
+      player_avatar: 1,
+      team_avatar: 1,
+      average: 1,
+      total_matches: 1,
+      player_name: 1,
+      team_name: 1,
+      association_id: 1,
+      total_goals: 1,
+    },
+  },
+  {
+    $sort: {
+      total_goals: -1,
+    },
+  },
+]

@@ -1,0 +1,130 @@
+[
+  {
+    $lookup: {
+      from: "teams",
+      let: {
+        team_home_id: {
+          $toObjectId: "$team_home.team_id",
+        },
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$_id", "$$team_home_id"],
+            },
+          },
+        },
+      ],
+      as: "team_home_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$team_home_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $lookup: {
+      from: "teams",
+      let: {
+        team_away_id: {
+          $toObjectId: "$team_away.team_id",
+        },
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$_id", "$$team_away_id"],
+            },
+          },
+        },
+      ],
+      as: "team_away_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$team_away_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $lookup: {
+      from: "tournaments_categories",
+      let: {
+        tournament_category_id: {
+          $toObjectId: "$tournament_category_id",
+        },
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: [
+                "$_id",
+                "$$tournament_category_id",
+              ],
+            },
+          },
+        },
+      ],
+      as: "tournament_category_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$tournament_category_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $project: {
+      _id: 1,
+      date: 1,
+      place: 1,
+      status: 1,
+      goals_home: {
+        $cond: [
+          {
+            $eq: ["$goals_home.total", 0],
+          },
+          0,
+          "$goals_home.total",
+        ],
+      },
+      goals_away: {
+        $cond: [
+          {
+            $eq: ["$goals_away.total", 0],
+          },
+          0,
+          "$goals_away.total",
+        ],
+      },
+      team_home_name: {
+        $concat: [
+          "$team_home_info.name",
+          " ",
+          "$team_home.variant",
+        ],
+      },
+      team_home_avatar: "$team_home_info.avatar",
+      team_away_name: {
+        $concat: [
+          "$team_away_info.name",
+          " ",
+          "$team_away.variant",
+        ],
+      },
+      team_away_avatar: "$team_away_info.avatar",
+      tournament_category_id: 1,
+      tournament_category_name:
+        "$tournament_category_info.name",
+      association_id: 1,
+      status_data: 1,
+    },
+  },
+]

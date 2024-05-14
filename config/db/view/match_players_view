@@ -1,0 +1,81 @@
+[
+  {
+    $lookup: {
+      from: "players",
+      let: {
+        player_id_str: "$player_id",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: [
+                "$_id",
+                {
+                  $toObjectId: "$$player_id_str",
+                },
+              ],
+            },
+          },
+        },
+      ],
+      as: "player_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$player_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $lookup: {
+      from: "teams",
+      let: {
+        team_id_str: "$player_info.team_id",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: [
+                "$_id",
+                {
+                  $toObjectId: "$$team_id_str",
+                },
+              ],
+            },
+          },
+        },
+      ],
+      as: "team_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$team_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $project: {
+      _id: 1,
+      match_id: 1,
+      team: 1,
+      player_id: 1,
+      number: 1,
+      goals: 1,
+      sanctions: 1,
+      association_id: 1,
+      status_data: 1,
+      player_name:
+        "$player_info.personal_data.name",
+      player_surname:
+        "$player_info.personal_data.surname",
+      player_avatar:
+        "$player_info.personal_data.avatar",
+      team_name: "$team_info.name",
+      team_avatar: "$team_info.avatar",
+    },
+  },
+]

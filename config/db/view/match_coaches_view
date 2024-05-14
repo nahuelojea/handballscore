@@ -1,0 +1,49 @@
+[
+  {
+    $lookup: {
+      from: "coaches",
+      let: {
+        coach_id_str: "$coach_id",
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: [
+                "$_id",
+                {
+                  $toObjectId: "$$coach_id_str",
+                },
+              ],
+            },
+          },
+        },
+      ],
+      as: "coach_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$coach_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $project: {
+      _id: 1,
+      match_id: 1,
+      team: 1,
+      coach_id: 1,
+      number: 1,
+      sanctions: 1,
+      association_id: 1,
+      status_data: 1,
+      coach_name:
+        "$coach_info.personal_data.name",
+      coach_surname:
+        "$coach_info.personal_data.surname",
+      coach_avatar:
+        "$coach_info.personal_data.avatar",
+    },
+  },
+]

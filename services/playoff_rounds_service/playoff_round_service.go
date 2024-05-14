@@ -103,7 +103,11 @@ func createPlayoffRoundsRecursive(playoffPhase models.PlayoffPhase,
 		roundKeys[i] = key
 	}
 
+	fmt.Println("ClassifiedNumber: ", playoffPhase.Config.ClassifiedNumber)
+
 	if playoffPhase.Config.ClassifiedNumber == 0 { // Solo se crean los partidos si no hay clasificados. Esto quiere decir que es una segunda fase
+
+		fmt.Println("ACA NO TENGO QUE LLEGAR")
 		if playoffPhase.Config.RandomOrder {
 			source := rand.NewSource(time.Now().UnixNano())
 			random := rand.New(source)
