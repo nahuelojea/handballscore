@@ -1,15 +1,14 @@
 package end_match
 
-import "github.com/nahuelojea/handballscore/handlers/end_match/domain"
+import (
+	"github.com/nahuelojea/handballscore/models"
+)
 
 type UpdateChampionHandler struct {
-	next EndMatchHandler
+	BaseEndMatchHandler
 }
 
-func (updateChampionHandler *UpdateChampionHandler) execute(*domain.EndMatch) {
+func (c *UpdateChampionHandler) HandleEndMatch(endMatch *models.EndMatch) {
 
-}
-
-func (updateChampionHandler *UpdateChampionHandler) setNext(next EndMatchHandler) {
-	updateChampionHandler.next = next
+	
 }

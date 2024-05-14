@@ -260,3 +260,53 @@ func UpdateTimeouts(match models.Match, Id string) (bool, error) {
 
 	return repositories.Update(match_collection, updateDataMap, Id)
 }
+
+func GetPendingMatchesByLeaguePhaseId(leaguePhaseId string) ([]models.Match, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(match_collection)
+
+	pipeline := bson.A{
+		bson.M{
+			"$lookup": bson.M{
+				"from": "league_phase_weeks",
+				"let":  bson.M{"league_phase_week_id_str": "$league_phase_week_id"},
+				"pipeline": bson.A{
+					bson.M{
+						"$match": bson.M{"$expr": bson.M{"$eq": bson.A{"$_id", "$$league_phase_week_id_str"}}},
+					},
+				},
+				"as": "league_phase_week_info",
+			},
+		},
+		bson.M{
+			"$unwind": bson.M{
+				"path":                       "$league_phase_week_info",
+				"preserveNullAndEmptyArrays": false,
+			},
+		},
+		bson.M{
+			"$match": bson.M{
+				"league_phase_week_info.league_phase_id": leaguePhaseId,
+				"status":                                 bson.M{"$nin": bson.A{models.Finished, models.Suspended}},
+			},
+		},
+	}
+
+	cur, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var matches []models.Match
+	for cur.Next(ctx) {
+		var match models.Match
+		if err := cur.Decode(&match); err != nil {
+			return nil, err
+		}
+		matches = append(matches, match)
+	}
+
+	return matches, nil
+}

@@ -340,3 +340,7 @@ func UpdateTimeouts(id string, tournamentTeamId models.TournamentTeamId, add boo
 
 	return matches_repository.UpdateTimeouts(match, id)
 }
+
+func GetPendingMatchesByLeaguePhaseId(leaguePhaseId string) ([]models.Match, error) {
+	return matches_repository.GetPendingMatchesByLeaguePhaseId(leaguePhaseId)
+}

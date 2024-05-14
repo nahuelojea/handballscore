@@ -1,25 +1,27 @@
 package end_match
 
 import (
-	"github.com/nahuelojea/handballscore/handlers/end_match/domain"
 	"github.com/nahuelojea/handballscore/models"
 )
 
 type EndMatchHandler interface {
-	execute(*domain.EndMatch)
-	setNext(EndMatchHandler)
+	HandleEndMatch(*models.EndMatch)
 }
 
-func EndMatchHandlerExecute(match models.Match, leaguePhase models.LeaguePhase) {
-	updateChampionHandler := &UpdateChampionHandler{}
+type BaseEndMatchHandler struct {
+	nextHandler EndMatchHandler
+}
 
-	generateNewPhaseHandler := &GenerateNewPhaseHandler{}
-	generateNewPhaseHandler.setNext(updateChampionHandler)
+func (h *BaseEndMatchHandler) SetNext(next EndMatchHandler) {
+	h.nextHandler = next
+}
 
-	updateTeamsScoreHandler := &UpdateTeamsScoreHandler{}
-	updateTeamsScoreHandler.setNext(generateNewPhaseHandler)
+func (h *BaseEndMatchHandler) GetNext() EndMatchHandler {
+	return h.nextHandler
+}
 
-	//endMatch := domain.EndMatch
-
-	//updateTeamsScoreHandler.execute(&endMatch)
+func (h *BaseEndMatchHandler) HandleEndMatch(endMatch *models.EndMatch) {
+	if h.nextHandler != nil {
+		h.nextHandler.HandleEndMatch(endMatch)
+	}
 }

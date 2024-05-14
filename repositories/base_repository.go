@@ -122,10 +122,10 @@ func Update(collectionName string, updateDataMap map[string]interface{}, id stri
 
 	filter := bson.M{"_id": bson.M{"$eq": objId}}
 
-	UpdateResult, err := collection.UpdateOne(ctx, filter, updateString)
+	updateResult, err := collection.UpdateOne(ctx, filter, updateString)
 	if err != nil {
 		return false, err
-	} else if UpdateResult.MatchedCount == 0 {
+	} else if updateResult.MatchedCount == 0 {
 		return false, fmt.Errorf("There is no record with this id")
 	}
 
