@@ -123,9 +123,9 @@ func (leaguePhase LeaguePhase) GenerateMatches(tournamentCategoryId string, roun
 					leaguePhase.Teams[rounds[i][j].Home]))
 			}
 
+			week++
 			fmt.Println()
 		}
-		week++
 	}
 	return matches
 }
