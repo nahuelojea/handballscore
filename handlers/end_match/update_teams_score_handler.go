@@ -15,8 +15,8 @@ func (c *UpdateTeamsScoreHandler) HandleEndMatch(endMatch *models.EndMatch) {
 
 	switch {
 	case endMatch.CurrentPhase == models.League_Current_Phase:
-		leaguePhase := endMatch.CurrentLeaguePhase.LeaguePhase
-		err = UpdateStandings(&endMatch.Match, &leaguePhase.TeamsRanking)
+		/*leaguePhase := endMatch.CurrentLeaguePhase.LeaguePhase
+		err = UpdateStandings(&endMatch.Match, &leaguePhase.TeamsRanking)*/
 	case endMatch.CurrentPhase == models.Playoff_Current_Phase:
 		playoffRoundKey := endMatch.CurrentPlayoffPhase.PlayoffRoundKey
 		err = UpdateStandings(&endMatch.Match, &playoffRoundKey.TeamsRanking)
@@ -33,7 +33,7 @@ func (c *UpdateTeamsScoreHandler) HandleEndMatch(endMatch *models.EndMatch) {
 	}
 }
 
-func UpdateStandings(match *models.Match, teamsScores *[]models.TeamScore) error {
+func UpdateStandings(match *models.Match, teamsScores *[2]models.TeamScore) error {
 	if match.GoalsHome.Total < 0 || match.GoalsAway.Total < 0 {
 		return errors.New("Invalid match result, goals can't be negative")
 	}
@@ -79,7 +79,7 @@ func UpdateStandings(match *models.Match, teamsScores *[]models.TeamScore) error
 	return nil
 }
 
-func findTeamInStandings(teamId models.TournamentTeamId, standings *[]models.TeamScore) *models.TeamScore {
+func findTeamInStandings(teamId models.TournamentTeamId, standings *[2]models.TeamScore) *models.TeamScore {
 	for _, team := range *standings {
 		if team.TeamId == teamId {
 			return &team
