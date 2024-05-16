@@ -44,7 +44,7 @@ func GetMatchesByJourney(request events.APIGatewayProxyRequest, claim dto.Claim)
 			AssociationId:  associationId,
 		}
 		playoffRoundKeys, _, _, _ := playoff_round_keys_service.GetPlayoffRoundKeys(filterPlayoffRoundKeys)
-		if len(playoffRoundKeys) > 1 {
+		if len(playoffRoundKeys) > 0 {
 			for _, playoffRoundKey := range playoffRoundKeys {
 				playoffRoundKeyIds = append(playoffRoundKeyIds, playoffRoundKey.Id.Hex())
 			}
