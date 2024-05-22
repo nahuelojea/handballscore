@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"reflect"
 
 	"github.com/nahuelojea/handballscore/dto"
 	TournamentDTO "github.com/nahuelojea/handballscore/dto/tournaments"
@@ -29,12 +28,6 @@ func CreateTournamentCategory(ctx context.Context, claim dto.Claim) dto.RestResp
 	}
 	if len(createTournamentCategoryRequest.Teams) == 0 {
 		restResponse.Message = "Teams are required"
-		return restResponse
-	}
-	if reflect.DeepEqual(createTournamentCategoryRequest.LeaguePhase, TournamentDTO.LeaguePhaseRequest{}) &&
-		reflect.DeepEqual(createTournamentCategoryRequest.PlayoffPhase, TournamentDTO.PlayoffPhaseRequest{}) &&
-		reflect.DeepEqual(createTournamentCategoryRequest.LeagueAndPlayoff, TournamentDTO.LeagueAndPlayoffRequest{}) {
-		restResponse.Message = "Tournament format is required"
 		return restResponse
 	}
 

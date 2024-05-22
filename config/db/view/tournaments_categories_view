@@ -1,0 +1,50 @@
+[
+  {
+    $lookup: {
+      from: "teams",
+      let: {
+        champion_id: {
+          $toObjectId: "$champion.team_id",
+        },
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$_id", "$$champion_id"],
+            },
+          },
+        },
+      ],
+      as: "champion_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$champion_info",
+      preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      start_date: 1,
+      end_date: 1,
+      status: 1,
+      teams: 1,
+      tournament_id: 1,
+      category_id: 1,
+      association_id: 1,
+      status_data: 1,
+      champion_name: {
+        $concat: [
+          "$champion_info.name",
+          " ",
+          "$champion.variant",
+        ],
+      },
+      champion_avatar: "$champion_info.avatar",
+    },
+  },
+]

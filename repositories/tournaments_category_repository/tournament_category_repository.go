@@ -14,6 +14,7 @@ import (
 
 const (
 	tournament_category_collection = "tournaments_categories"
+	tournament_category_view       = "tournaments_categories_view"
 )
 
 func CreateTournamentCategory(association_id string, tournament models.TournamentCategory) (string, bool, error) {
@@ -35,7 +36,6 @@ type GetTournamentsCategoryOptions struct {
 	CategoryId    string
 	TournamentId  string
 	Status        string
-	ChampionId    string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -43,10 +43,10 @@ type GetTournamentsCategoryOptions struct {
 	SortOrder     int
 }
 
-func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, int, error) {
+func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategoryView, int64, int, error) {
 	ctx := context.TODO()
 	db := db.MongoClient.Database(db.DatabaseName)
-	collection := db.Collection(tournament_category_collection)
+	collection := db.Collection(tournament_category_view)
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
@@ -63,9 +63,6 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	}
 	if filterOptions.Status != "" {
 		filter["status"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Status, Options: "i"}}
-	}
-	if filterOptions.ChampionId != "" {
-		filter["champion_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.ChampionId, Options: "i"}}
 	}
 
 	page := filterOptions.Page
@@ -93,9 +90,9 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	}
 	defer cur.Close(ctx)
 
-	var tournaments []models.TournamentCategory
+	var tournaments []models.TournamentCategoryView
 	for cur.Next(ctx) {
-		var tournament models.TournamentCategory
+		var tournament models.TournamentCategoryView
 		if err := cur.Decode(&tournament); err != nil {
 			return nil, 0, 0, err
 		}
@@ -121,8 +118,11 @@ func UpdateTournamentCategory(tournament models.TournamentCategory, ID string) (
 	if len(tournament.Name) > 0 {
 		updateDataMap["name"] = tournament.Name
 	}
-	if len(tournament.ChampionId) > 0 {
-		updateDataMap["champion_id"] = tournament.ChampionId
+	if len(tournament.Champion.TeamId) > 0 {
+		updateDataMap["champion.team_id"] = tournament.Champion.TeamId
+	}
+	if len(tournament.Champion.Variant) > 0 {
+		updateDataMap["champion.variant"] = tournament.Champion.Variant
 	}
 	if len(tournament.Status) > 0 {
 		updateDataMap["status"] = tournament.Status

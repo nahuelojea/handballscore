@@ -87,7 +87,7 @@ func GetCategoriesByTournament(request events.APIGatewayProxyRequest, claim dto.
 	return response
 }
 
-func GetUniqueCategoryIds(tournamentsList []models.TournamentCategory) []string {
+func GetUniqueCategoryIds(tournamentsList []models.TournamentCategoryView) []string {
 	categoryIds := make([]string, 0)
 	seen := make(map[string]bool)
 

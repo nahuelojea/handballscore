@@ -18,7 +18,7 @@ type TournamentCategory struct {
 	EndDate       time.Time          `bson:"end_date" json:"end_date"`
 	Status        string             `bson:"status" json:"status"`
 	Teams         []TournamentTeamId `bson:"teams" json:"teams"`
-	ChampionId    string             `bson:"champion_id" json:"champion_id"`
+	Champion      TournamentTeamId   `bson:"champion" json:"champion"`
 	TournamentId  string             `bson:"tournament_id" json:"tournament_id"`
 	CategoryId    string             `bson:"category_id" json:"category_id"`
 	AssociationId string             `bson:"association_id" json:"association_id"`

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"reflect"
 	"strconv"
 
 	TournamentCategoryDTO "github.com/nahuelojea/handballscore/dto/tournament_categories"
@@ -29,7 +28,6 @@ type GetTournamentsCategoryOptions struct {
 	CategoryId    string
 	TournamentId  string
 	Status        string
-	ChampionId    string
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -75,10 +73,6 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 
 	switch tournamentRequest.Format {
 	case TournamentDTO.League_Format:
-		if reflect.DeepEqual(tournamentRequest.LeaguePhase, TournamentDTO.LeaguePhaseRequest{}) {
-			return "", false, errors.New("League data is required")
-		}
-
 		var leaguePhaseConfig models.LeaguePhaseConfig
 		leaguePhaseConfig.HomeAndAway = tournamentRequest.LeaguePhase.HomeAndAway
 		leaguePhaseConfig.ClassifiedNumber = 0
@@ -86,10 +80,6 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 		return league_phases_service.CreateTournamentLeaguePhase(tournamentCategory, leaguePhaseConfig)
 
 	case TournamentDTO.Playoff_Format:
-		if reflect.DeepEqual(tournamentRequest.PlayoffPhase, TournamentDTO.PlayoffPhaseRequest{}) {
-			return "", false, errors.New("Playoff data is required")
-		}
-
 		var playoffPhaseConfig models.PlayoffPhaseConfig
 		playoffPhaseConfig.HomeAndAway = tournamentRequest.PlayoffPhase.HomeAndAway
 		playoffPhaseConfig.RandomOrder = tournamentRequest.PlayoffPhase.RandomOrder
@@ -99,8 +89,8 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 		return playoff_phases_service.CreateTournamentPlayoffPhase(tournamentCategory, playoffPhaseConfig)
 
 	case TournamentDTO.League_And_Playoff_Format:
-		if reflect.DeepEqual(tournamentRequest.LeagueAndPlayoff, TournamentDTO.LeagueAndPlayoffRequest{}) {
-			return "", false, errors.New("League Playoff data is required")
+		if tournamentRequest.LeagueAndPlayoff.LeaguePhase.ClassifiedNumber == 0 {
+			return "", false, errors.New("The classified number is required")
 		}
 
 		var leaguePhaseConfig models.LeaguePhaseConfig
@@ -123,13 +113,12 @@ func GetTournamentCategory(ID string) (models.TournamentCategory, bool, error) {
 	return TournamentsRepository.GetTournamentCategory(ID)
 }
 
-func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategory, int64, int, error) {
+func GetTournamentsCategory(filterOptions GetTournamentsCategoryOptions) ([]models.TournamentCategoryView, int64, int, error) {
 	filters := TournamentsRepository.GetTournamentsCategoryOptions{
 		Name:          filterOptions.Name,
 		CategoryId:    filterOptions.CategoryId,
 		TournamentId:  filterOptions.TournamentId,
 		Status:        filterOptions.Status,
-		ChampionId:    filterOptions.ChampionId,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
 		PageSize:      filterOptions.PageSize,
