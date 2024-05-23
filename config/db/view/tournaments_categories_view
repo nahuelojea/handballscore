@@ -4,7 +4,12 @@
       from: "teams",
       let: {
         champion_id: {
-          $toObjectId: "$champion.team_id",
+          $convert: {
+            input: "$champion.team_id",
+            to: "objectId",
+            onError: null,
+            onNull: null,
+          },
         },
       },
       pipeline: [
@@ -20,9 +25,23 @@
     },
   },
   {
-    $unwind: {
-      path: "$champion_info",
-      preserveNullAndEmptyArrays: false,
+    $addFields: {
+      champion_info: {
+        $cond: {
+          if: {
+            $gt: [
+              {
+                $size: "$champion_info",
+              },
+              0,
+            ],
+          },
+          then: {
+            $arrayElemAt: ["$champion_info", 0],
+          },
+          else: null,
+        },
+      },
     },
   },
   {
@@ -38,13 +57,29 @@
       association_id: 1,
       status_data: 1,
       champion_name: {
-        $concat: [
-          "$champion_info.name",
-          " ",
-          "$champion.variant",
-        ],
+        $cond: {
+          if: {
+            $ne: ["$champion_info", null],
+          },
+          then: {
+            $concat: [
+              "$champion_info.name",
+              " ",
+              "$champion.variant",
+            ],
+          },
+          else: "",
+        },
       },
-      champion_avatar: "$champion_info.avatar",
+      champion_avatar: {
+        $cond: {
+          if: {
+            $ne: ["$champion_info", null],
+          },
+          then: "$champion_info.avatar",
+          else: "",
+        },
+      },
     },
   },
 ]
