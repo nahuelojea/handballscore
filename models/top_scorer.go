@@ -2,6 +2,7 @@ package models
 
 type TopScorer struct {
 	PlayerName    string  `bson:"player_name"`
+	PlayerSurname string  `bson:"player_surname"`
 	PlayerAvatar  string  `bson:"player_avatar"`
 	TeamName      string  `bson:"team_name"`
 	TeamAvatar    string  `bson:"team_avatar"`
