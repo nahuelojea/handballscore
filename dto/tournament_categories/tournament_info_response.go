@@ -6,16 +6,7 @@ type TournamentInfoResponse struct {
 }
 
 type PlayoffPhaseInfoResponse struct {
-	PlayoffRounds []PlayoffRoundInfoResponse `bson:"playoff_rounds" json:"playoff_rounds"`
-}
-
-type PlayoffRoundInfoResponse struct {
-	Round               string                        `bson:"round" json:"round"`
-	PlayoffRoundKeyInfo []PlayoffRoundKeyInfoResponse `bson:"playoff_round_key_info" json:"playoff_round_key_info"`
-}
-
-type PlayoffRoundKeyInfoResponse struct {
-	TeamsRanking []TeamScoreResponse `bson:"teams_ranking" json:"teams_ranking"`
+	PlayoffKeys []PlayoffKeyResponse `bson:"playoff_keys" json:"playoff_keys"`
 }
 
 type LeaguePhaseInfoResponse struct {
@@ -39,4 +30,19 @@ type TeamScoreResponse struct {
 type TeamInfoResponse struct {
 	TeamName   string `bson:"team_name" json:"team_name"`
 	TeamAvatar string `bson:"team_avatar" json:"team_avatar"`
+}
+
+type PlayoffKeyResponse struct {
+	Id               string                   `bson:"id" json:"id"`
+	Name             string                   `bson:"name" json:"name"`
+	NextPlayoffKeyId string                   `bson:"next_playoff_key_id" json:"next_playoff_key_id"`
+	State            string                   `bson:"state" json:"state"`
+	PlayoffKeyTeams  []PlayoffKeyTeamResponse `bson:"playoff_key_teams" json:"playoff_key_teams"`
+}
+
+type PlayoffKeyTeamResponse struct {
+	Id string `bson:"id" json:"id"`
+	TeamInfoResponse
+	Result string `bson:"result" json:"result"`
+	Status string `bson:"status" json:"status"`
 }

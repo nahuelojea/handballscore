@@ -116,15 +116,16 @@ func getPlayoffPhaseInfo(tournamentCategory models.TournamentCategory) (Tourname
 		}
 
 		playoffPhaseInfo = TournamentCategoryDTO.PlayoffPhaseInfoResponse{
-			PlayoffRounds: playoffRounds,
+			PlayoffKeys: playoffRounds,
 		}
 	}
 
 	return playoffPhaseInfo, nil
 }
 
-func getPlayoffRoundsInfo(playoffPhase models.PlayoffPhase) ([]TournamentCategoryDTO.PlayoffRoundInfoResponse, error) {
-	var playoffRoundsInfo []TournamentCategoryDTO.PlayoffRoundInfoResponse
+func getPlayoffRoundsInfo(playoffPhase models.PlayoffPhase) ([]TournamentCategoryDTO.PlayoffKeyResponse, error) {
+
+	var playoffRoundsInfo []TournamentCategoryDTO.PlayoffKeyResponse
 
 	filterPlayoffRound := playoff_rounds_service.GetPlayoffRoundsOptions{
 		PlayoffPhaseId: playoffPhase.Id.Hex(),
@@ -134,24 +135,14 @@ func getPlayoffRoundsInfo(playoffPhase models.PlayoffPhase) ([]TournamentCategor
 	playoffRounds, _, _, _ := playoff_rounds_service.GetPlayoffRounds(filterPlayoffRound)
 
 	for _, round := range playoffRounds {
-		playoffRoundKeysInfo, err := getPlayoffRoundKeysInfo(round)
-		if err != nil {
-			return nil, err
-		}
-
-		playoffRoundInfo := TournamentCategoryDTO.PlayoffRoundInfoResponse{
-			Round:               round.PlayoffRoundNameTraduction(),
-			PlayoffRoundKeyInfo: playoffRoundKeysInfo,
-		}
-
-		playoffRoundsInfo = append(playoffRoundsInfo, playoffRoundInfo)
+		playoffRoundsInfo, err := getPlayoffRoundKeysInfo(round)
 	}
 
 	return playoffRoundsInfo, nil
 }
 
-func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCategoryDTO.PlayoffRoundKeyInfoResponse, error) {
-	var playoffRoundKeysInfo []TournamentCategoryDTO.PlayoffRoundKeyInfoResponse
+func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCategoryDTO.PlayoffKeyResponse, error) {
+	var playoffRoundKeysInfo []TournamentCategoryDTO.PlayoffKeyResponse
 
 	filterPlayoffRoundKey := playoff_round_keys_service.GetPlayoffRoundKeysOptions{
 		PlayoffRoundId: playoffRound.Id.Hex(),
@@ -161,49 +152,52 @@ func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCate
 	playoffRoundKeys, _, _, _ := playoff_round_keys_service.GetPlayoffRoundKeys(filterPlayoffRoundKey)
 
 	for _, playoffRoundKey := range playoffRoundKeys {
-		teamsRanking := make([]TournamentCategoryDTO.TeamScoreResponse, 0)
+		teamHomeName := ""
+		teamHomeAvatar := ""
+		teamAwayName := ""
+		teamAwayAvatar := ""
 
-		playoffRoundKey.SortTeamsRanking()
-
-		for i, teamScore := range playoffRoundKey.TeamsRanking {
-			teamName := ""
-			teamAvatar := ""
-
-			position := i + 1
-			classified := position == 1
-
-			team, _, _ := teams_service.GetTeam(teamScore.TeamId.TeamId)
-			if len(team.Name) > 0 {
-				teamName = team.Name
-			}
-			if len(team.Avatar) > 0 {
-				teamAvatar = team.Avatar
-			}
-
-			teamInfo := TournamentCategoryDTO.TeamInfoResponse{
-				TeamName:   strings.TrimSpace(teamName + " " + teamScore.TeamId.Variant),
-				TeamAvatar: teamAvatar,
-			}
-
-			teamRanking := TournamentCategoryDTO.TeamScoreResponse{
-				TeamInfo:        teamInfo,
-				Position:        position,
-				Classified:      classified,
-				Points:          teamScore.Points,
-				Matches:         teamScore.Matches,
-				Wins:            teamScore.Wins,
-				Draws:           teamScore.Draws,
-				Losses:          teamScore.Losses,
-				GoalsScored:     teamScore.GoalsScored,
-				GoalsConceded:   teamScore.GoalsConceded,
-				GoalsDifference: teamScore.GoalsScored - teamScore.GoalsConceded,
-			}
-
-			teamsRanking = append(teamsRanking, teamRanking)
+		team, _, _ := teams_service.GetTeam(playoffRoundKey.Teams[0].TeamId)
+		if len(team.Name) > 0 {
+			teamHomeName = team.Name
+		}
+		if len(team.Avatar) > 0 {
+			teamHomeName = team.Avatar
 		}
 
-		playoffRoundKeysInfo = append(playoffRoundKeysInfo, TournamentCategoryDTO.PlayoffRoundKeyInfoResponse{
-			TeamsRanking: teamsRanking,
+		team, _, _ = teams_service.GetTeam(playoffRoundKey.Teams[1].TeamId)
+		if len(team.Name) > 0 {
+			teamAwayName = team.Name
+		}
+		if len(team.Avatar) > 0 {
+			teamAwayName = team.Avatar
+		}
+
+		playoffRoundKeysInfo = append(playoffRoundKeysInfo, TournamentCategoryDTO.PlayoffKeyResponse{
+			Id:               playoffRoundKey.Id.Hex(),
+			Name:             playoffRound.Round + " - Key " + playoffRoundKey.KeyNumber,
+			NextPlayoffKeyId: playoffRoundKey.NextPlayoffKeyId.Hex(),
+			State:            playoffRoundKey.State,
+			PlayoffKeyTeams: []TournamentCategoryDTO.PlayoffKeyTeamResponse{
+				{
+					Id: playoffRoundKey.Teams[0].TeamId.Hex(),
+					TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
+						TeamName:   teamHomeName,
+						TeamAvatar: teamHomeAvatar,
+					},
+					Result: playoffRoundKey.Teams[0].Result,
+					Status: playoffRoundKey.Teams[0].Status,
+				},
+				{
+					Id: playoffRoundKey.Teams[1].TeamId.Hex(),
+					TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
+						TeamName:   teamAwayName,
+						TeamAvatar: teamAwayAvatar,
+					},
+					Result: playoffRoundKey.Teams[1].Result,
+					Status: playoffRoundKey.Teams[1].Status,
+				},
+			},
 		})
 	}
 
