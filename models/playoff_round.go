@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -73,5 +74,24 @@ func GetRoundFromTeamsCount(teamsCount int) string {
 		return SixteenFinals
 	default:
 		return ThirtyTwoFinals
+	}
+}
+
+func GetNextRound(currentRound string) (string, error) {
+	switch currentRound {
+	case ThirtyTwoFinals:
+		return SixteenFinals, nil
+	case SixteenFinals:
+		return EightFinals, nil
+	case EightFinals:
+		return QuarterFinals, nil
+	case QuarterFinals:
+		return SemiFinal, nil
+	case SemiFinal:
+		return Final, nil
+	case Final:
+		return "", errors.New("there is no next round after the Final")
+	default:
+		return "", errors.New("unknown round")
 	}
 }

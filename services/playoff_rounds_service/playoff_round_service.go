@@ -44,7 +44,6 @@ func CreatePlayoffRounds(association_id string, playoffRounds []models.PlayoffRo
 }
 
 func CreateTournamentPlayoffRounds(association_id string, playoffPhase models.PlayoffPhase) (string, bool, error) {
-
 	playoffRounds, playoffRoundKeys, matches := createRounds(playoffPhase)
 
 	_, _, err := CreatePlayoffRounds(association_id, playoffRounds)
@@ -66,12 +65,59 @@ func CreateTournamentPlayoffRounds(association_id string, playoffPhase models.Pl
 }
 
 func createRounds(playoffPhase models.PlayoffPhase) ([]models.PlayoffRound, []models.PlayoffRoundKey, []models.Match) {
+	var rounds []models.PlayoffRound
+	var keys []models.PlayoffRoundKey
+	var matches []models.Match
+
 	if playoffPhase.Config.ClassifiedNumber == 0 {
-		rounds, keys, matches := createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, len(playoffPhase.Teams), nil, nil, nil)
-		return rounds, keys, matches
+		rounds, keys, matches = createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, len(playoffPhase.Teams), nil, nil, nil)
 	} else {
-		rounds, keys, matches := createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, playoffPhase.Config.ClassifiedNumber, nil, nil, nil)
-		return rounds, keys, matches
+		rounds, keys, matches = createPlayoffRoundsRecursive(playoffPhase, playoffPhase.Teams, playoffPhase.Config.ClassifiedNumber, nil, nil, nil)
+	}
+
+	linkKeysBetweenRounds(rounds, keys)
+	return rounds, keys, matches
+}
+
+func linkKeysBetweenRounds(rounds []models.PlayoffRound, keys []models.PlayoffRoundKey) {
+	roundMap := make(map[string][]*models.PlayoffRoundKey)
+	for i := range keys {
+		roundMap[keys[i].PlayoffRoundId] = append(roundMap[keys[i].PlayoffRoundId], &keys[i])
+	}
+
+	for i := 0; i < len(rounds)-1; i++ {
+		currentRound := rounds[i]
+		nextRoundName, err := models.GetNextRound(currentRound.Round)
+		if err != nil {
+			// If there is no next round, we skip linking
+			continue
+		}
+
+		var nextRound *models.PlayoffRound
+		for j := range rounds {
+			if rounds[j].Round == nextRoundName {
+				nextRound = &rounds[j]
+				break
+			}
+		}
+
+		// If next round is not found, skip linking
+		if nextRound == nil {
+			continue
+		}
+
+		currentKeys := roundMap[currentRound.Id.Hex()]
+		nextKeys := roundMap[nextRound.Id.Hex()]
+
+		for j := range currentKeys {
+			keyNumber, err := strconv.Atoi(currentKeys[j].KeyNumber)
+			if err != nil {
+				// If there's an error converting keyNumber, skip this key
+				continue
+			}
+			nextKeyIndex := (keyNumber - 1) / 2
+			currentKeys[j].NextRoundKeyId = nextKeys[nextKeyIndex].Id.Hex()
+		}
 	}
 }
 
@@ -103,8 +149,7 @@ func createPlayoffRoundsRecursive(playoffPhase models.PlayoffPhase,
 		roundKeys[i] = key
 	}
 
-	if playoffPhase.Config.ClassifiedNumber == 0 { // Solo se crean los partidos si no hay clasificados. Esto quiere decir que es una segunda fase
-
+	if playoffPhase.Config.ClassifiedNumber == 0 { // Only create matches if there are no classified teams. This means it's a secondary phase
 		if playoffPhase.Config.RandomOrder {
 			source := rand.NewSource(time.Now().UnixNano())
 			random := rand.New(source)
@@ -124,7 +169,6 @@ func createPlayoffRoundsRecursive(playoffPhase models.PlayoffPhase,
 	}
 
 	keys = append(keys, roundKeys...)
-
 	rounds = append(rounds, round)
 
 	halfTeamsCount := teamsQuantity / 2
