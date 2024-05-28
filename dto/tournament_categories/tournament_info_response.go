@@ -43,6 +43,7 @@ type PlayoffKeyResponse struct {
 type PlayoffKeyTeamResponse struct {
 	Id string `bson:"id" json:"id"`
 	TeamInfoResponse
-	Result string `bson:"result" json:"result"`
-	Status string `bson:"status" json:"status"`
+	Result   string `bson:"result" json:"result"`
+	Status   string `bson:"status" json:"status"`
+	IsWinner bool   `bson:"is_winner" json:"is_winner"`
 }

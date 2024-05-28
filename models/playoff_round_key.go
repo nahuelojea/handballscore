@@ -10,12 +10,19 @@ import (
 type PlayoffRoundKey struct {
 	Id             primitive.ObjectID  `bson:"_id,omitempty" json:"id"`
 	KeyNumber      string              `bson:"key_number" json:"key_number"`
-	Teams          [2]TournamentTeamId `bson:"tournament_team_id" json:"tournament_team_id"`
+	Teams          [2]TournamentTeamId `bson:"teams" json:"teams"`
 	TeamsRanking   [2]TeamScore        `bson:"teams_ranking" json:"teams_ranking"`
+	MatchResults   [2]MatchResult      `bson:"match_results" json:"match_results"`
+	Winner         TournamentTeamId    `bson:"winner" json:"winner"`
 	NextRoundKeyId string              `bson:"next_round_key_id" json:"next_round_key_id"`
 	PlayoffRoundId string              `bson:"playoff_round_id" json:"playoff_round_id"`
 	Status_Data    `bson:"status_data" json:"status_data"`
 	AssociationId  string `bson:"association_id" json:"association_id"`
+}
+
+type MatchResult struct {
+	TeamHomeGoals int `bson:"team_home_goals" json:"team_home_goals"`
+	TeamAwayGoals int `bson:"team_away_goals" json:"team_away_goals"`
 }
 
 func (playoffRoundKey *PlayoffRoundKey) SortTeamsRanking() {

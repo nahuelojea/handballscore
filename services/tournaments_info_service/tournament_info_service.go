@@ -2,6 +2,7 @@ package tournaments_info_service
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 
 	TournamentCategoryDTO "github.com/nahuelojea/handballscore/dto/tournament_categories"
@@ -14,7 +15,6 @@ import (
 	tournaments_service "github.com/nahuelojea/handballscore/services/tournaments_category_service"
 )
 
-// GetInfo devuelve la información del torneo correspondiente al ID proporcionado.
 func GetInfo(id string) (TournamentCategoryDTO.TournamentInfoResponse, error) {
 	var tournamentInfoResponse TournamentCategoryDTO.TournamentInfoResponse
 
@@ -110,13 +110,13 @@ func getPlayoffPhaseInfo(tournamentCategory models.TournamentCategory) (Tourname
 	if len(playoffPhases) > 0 {
 		playoffPhase := playoffPhases[0]
 
-		playoffRounds, err := getPlayoffRoundsInfo(playoffPhase)
+		playoffKeys, err := getPlayoffRoundsInfo(playoffPhase)
 		if err != nil {
 			return playoffPhaseInfo, err
 		}
 
 		playoffPhaseInfo = TournamentCategoryDTO.PlayoffPhaseInfoResponse{
-			PlayoffKeys: playoffRounds,
+			PlayoffKeys: playoffKeys,
 		}
 	}
 
@@ -124,7 +124,6 @@ func getPlayoffPhaseInfo(tournamentCategory models.TournamentCategory) (Tourname
 }
 
 func getPlayoffRoundsInfo(playoffPhase models.PlayoffPhase) ([]TournamentCategoryDTO.PlayoffKeyResponse, error) {
-
 	var playoffRoundsInfo []TournamentCategoryDTO.PlayoffKeyResponse
 
 	filterPlayoffRound := playoff_rounds_service.GetPlayoffRoundsOptions{
@@ -135,7 +134,11 @@ func getPlayoffRoundsInfo(playoffPhase models.PlayoffPhase) ([]TournamentCategor
 	playoffRounds, _, _, _ := playoff_rounds_service.GetPlayoffRounds(filterPlayoffRound)
 
 	for _, round := range playoffRounds {
-		playoffRoundsInfo, err := getPlayoffRoundKeysInfo(round)
+		roundKeysInfo, err := getPlayoffRoundKeysInfo(round)
+		if err != nil {
+			return nil, errors.New("Error to get playoff round keys: " + err.Error())
+		}
+		playoffRoundsInfo = append(playoffRoundsInfo, roundKeysInfo...)
 	}
 
 	return playoffRoundsInfo, nil
@@ -157,45 +160,75 @@ func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCate
 		teamAwayName := ""
 		teamAwayAvatar := ""
 
-		team, _, _ := teams_service.GetTeam(playoffRoundKey.Teams[0].TeamId)
-		if len(team.Name) > 0 {
-			teamHomeName = team.Name
+		teamHome, _, _ := teams_service.GetTeam(playoffRoundKey.Teams[0].TeamId)
+		if len(teamHome.Name) > 0 {
+			teamHomeName = teamHome.Name
 		}
-		if len(team.Avatar) > 0 {
-			teamHomeName = team.Avatar
+		if len(teamHome.Avatar) > 0 {
+			teamHomeAvatar = teamHome.Avatar
 		}
 
-		team, _, _ = teams_service.GetTeam(playoffRoundKey.Teams[1].TeamId)
-		if len(team.Name) > 0 {
-			teamAwayName = team.Name
+		teamAway, _, _ := teams_service.GetTeam(playoffRoundKey.Teams[1].TeamId)
+		if len(teamAway.Name) > 0 {
+			teamAwayName = teamAway.Name
 		}
-		if len(team.Avatar) > 0 {
-			teamAwayName = team.Avatar
+		if len(teamAway.Avatar) > 0 {
+			teamAwayAvatar = teamAway.Avatar
+		}
+
+		name := playoffRound.PlayoffRoundNameTraduction()
+		if playoffRound.Round != "final" {
+			name += " " + playoffRoundKey.KeyNumber
+		}
+
+		isWinnerHome := playoffRoundKey.Winner == playoffRoundKey.Teams[0]
+		isWinnerAway := playoffRoundKey.Winner == playoffRoundKey.Teams[1]
+
+		matchStatus := "SCHEDULED"
+		var teamsStatus string
+		if playoffRoundKey.Winner != (models.TournamentTeamId{}) {
+			matchStatus = "DONE"
+			teamsStatus = "PLAYED"
+		}
+
+		var homeResult string
+		var awayResult string
+
+		if len(playoffRoundKey.MatchResults) > 0 {
+			if len(playoffRoundKey.MatchResults) == 2 {
+				homeResult = strconv.Itoa(playoffRoundKey.MatchResults[0].TeamHomeGoals) + " - " + strconv.Itoa(playoffRoundKey.MatchResults[1].TeamHomeGoals)
+				awayResult = strconv.Itoa(playoffRoundKey.MatchResults[0].TeamAwayGoals) + " - " + strconv.Itoa(playoffRoundKey.MatchResults[1].TeamAwayGoals)
+			} else {
+				homeResult = strconv.Itoa(playoffRoundKey.MatchResults[0].TeamHomeGoals)
+				awayResult = strconv.Itoa(playoffRoundKey.MatchResults[0].TeamAwayGoals)
+			}
 		}
 
 		playoffRoundKeysInfo = append(playoffRoundKeysInfo, TournamentCategoryDTO.PlayoffKeyResponse{
 			Id:               playoffRoundKey.Id.Hex(),
-			Name:             playoffRound.Round + " - Key " + playoffRoundKey.KeyNumber,
-			NextPlayoffKeyId: playoffRoundKey.NextPlayoffKeyId.Hex(),
-			State:            playoffRoundKey.State,
+			Name:             name,
+			NextPlayoffKeyId: playoffRoundKey.NextRoundKeyId,
+			State:            matchStatus,
 			PlayoffKeyTeams: []TournamentCategoryDTO.PlayoffKeyTeamResponse{
 				{
-					Id: playoffRoundKey.Teams[0].TeamId.Hex(),
+					Id: playoffRoundKey.Teams[0].TeamId,
 					TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
-						TeamName:   teamHomeName,
+						TeamName:   teamHomeName + " " + playoffRoundKey.Teams[0].Variant,
 						TeamAvatar: teamHomeAvatar,
 					},
-					Result: playoffRoundKey.Teams[0].Result,
-					Status: playoffRoundKey.Teams[0].Status,
+					Result:   homeResult,
+					Status:   teamsStatus,
+					IsWinner: isWinnerHome,
 				},
 				{
-					Id: playoffRoundKey.Teams[1].TeamId.Hex(),
+					Id: playoffRoundKey.Teams[1].TeamId,
 					TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
 						TeamName:   teamAwayName,
 						TeamAvatar: teamAwayAvatar,
 					},
-					Result: playoffRoundKey.Teams[1].Result,
-					Status: playoffRoundKey.Teams[1].Status,
+					Result:   awayResult,
+					Status:   teamsStatus,
+					IsWinner: isWinnerAway,
 				},
 			},
 		})
