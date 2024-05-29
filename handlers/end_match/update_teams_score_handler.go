@@ -2,8 +2,11 @@ package end_match
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories/league_phases_repository"
+	"github.com/nahuelojea/handballscore/repositories/playoff_round_keys_repository"
 )
 
 type UpdateTeamsScoreHandler struct {
@@ -13,13 +16,16 @@ type UpdateTeamsScoreHandler struct {
 func (c *UpdateTeamsScoreHandler) HandleEndMatch(endMatch *models.EndMatch) {
 	var err error
 
-	switch {
-	case endMatch.CurrentPhase == models.League_Current_Phase:
-		/*leaguePhase := endMatch.CurrentLeaguePhase.LeaguePhase
-		err = UpdateStandings(&endMatch.Match, &leaguePhase.TeamsRanking)*/
-	case endMatch.CurrentPhase == models.Playoff_Current_Phase:
-		playoffRoundKey := endMatch.CurrentPlayoffPhase.PlayoffRoundKey
-		err = UpdateStandings(&endMatch.Match, &playoffRoundKey.TeamsRanking)
+	fmt.Println("UpdateTeamsScoreHandler")
+	switch endMatch.CurrentPhase {
+	case models.League_Current_Phase:
+		leaguePhase := &endMatch.CurrentLeaguePhase.LeaguePhase
+		err = UpdateStandings(&endMatch.Match, leaguePhase.TeamsRanking[:])
+		league_phases_repository.UpdateTeamsRanking(*leaguePhase, leaguePhase.Id.Hex())
+	case models.Playoff_Current_Phase:
+		playoffRoundKey := &endMatch.CurrentPlayoffPhase.PlayoffRoundKey
+		err = UpdateStandings(&endMatch.Match, playoffRoundKey.TeamsRanking[:])
+		playoff_round_keys_repository.UpdateTeamsRanking(*playoffRoundKey, playoffRoundKey.Id.Hex())
 	}
 
 	if err != nil {
@@ -33,7 +39,7 @@ func (c *UpdateTeamsScoreHandler) HandleEndMatch(endMatch *models.EndMatch) {
 	}
 }
 
-func UpdateStandings(match *models.Match, teamsScores *[2]models.TeamScore) error {
+func UpdateStandings(match *models.Match, teamsScores []models.TeamScore) error {
 	if match.GoalsHome.Total < 0 || match.GoalsAway.Total < 0 {
 		return errors.New("Invalid match result, goals can't be negative")
 	}
@@ -79,10 +85,10 @@ func UpdateStandings(match *models.Match, teamsScores *[2]models.TeamScore) erro
 	return nil
 }
 
-func findTeamInStandings(teamId models.TournamentTeamId, standings *[2]models.TeamScore) *models.TeamScore {
-	for _, team := range *standings {
-		if team.TeamId == teamId {
-			return &team
+func findTeamInStandings(teamId models.TournamentTeamId, standings []models.TeamScore) *models.TeamScore {
+	for i := range standings {
+		if standings[i].TeamId == teamId {
+			return &standings[i]
 		}
 	}
 	return nil

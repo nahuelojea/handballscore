@@ -7,6 +7,7 @@ import (
 	"time"
 
 	dto "github.com/nahuelojea/handballscore/dto/matches"
+	"github.com/nahuelojea/handballscore/handlers/end_match"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/match_coaches_repository"
 	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
@@ -229,12 +230,23 @@ func StartSecondHalf(id string) (bool, error) {
 }
 
 func SuspendMatch(id, comments string) (bool, error) {
-	_, _, err := matches_repository.GetMatch(id)
+	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {
 		return false, errors.New("Error to get match: " + err.Error())
 	}
 
-	return matches_repository.SuspendMatch(id, comments)
+	_, err = matches_repository.SuspendMatch(id, comments)
+
+	if err != nil {
+		return false, errors.New("Error to suspend match: " + err.Error())
+	}
+
+	err = end_match.EndMatchChainEvents(&match)
+	if err != nil {
+		return false, errors.New("Error to end match chain events: " + err.Error())
+	}
+
+	return true, nil
 }
 
 func EndMatch(id, comments string) (bool, error) {
@@ -247,7 +259,18 @@ func EndMatch(id, comments string) (bool, error) {
 		return false, errors.New("The match must be found in the second half")
 	}
 
-	return matches_repository.EndMatch(id, comments)
+	_, err = matches_repository.EndMatch(id, comments)
+
+	if err != nil {
+		return false, errors.New("Error to end match: " + err.Error())
+	}
+
+	err = end_match.EndMatchChainEvents(&match)
+	if err != nil {
+		return false, errors.New("Error to end match chain events: " + err.Error())
+	}
+
+	return true, nil
 }
 
 func UpdateGoals(match models.Match, tournamentTeamId models.TournamentTeamId, add bool) (bool, error) {

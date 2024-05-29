@@ -107,6 +107,14 @@ func GetPlayoffRoundKeys(filterOptions GetPlayoffRoundKeysOptions) ([]models.Pla
 	return playoffRoundKeys, totalRecords, totalPages, nil
 }
 
+func UpdateTeamsRanking(playoffRoundKey models.PlayoffRoundKey, id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["teams_ranking"] = playoffRoundKey.TeamsRanking
+
+	return repositories.Update(playoff_round_key_collection, updateDataMap, id)
+}
+
 func DeletePlayoffRoundKey(ID string) (bool, error) {
 	return repositories.Delete(playoff_round_key_collection, ID)
 }

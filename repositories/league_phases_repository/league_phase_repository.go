@@ -98,6 +98,16 @@ func GetLeaguePhases(filterOptions GetLeaguePhasesOptions) ([]models.LeaguePhase
 	return leaguePhases, totalRecords, totalPages, nil
 }
 
+func UpdateTeamsRanking(leaguePhase models.LeaguePhase, id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	if leaguePhase.TeamsRanking != nil {
+		updateDataMap["teams_ranking"] = leaguePhase.TeamsRanking
+	}
+
+	return repositories.Update(league_phase_collection, updateDataMap, id)
+}
+
 func DeleteLeaguePhase(ID string) (bool, error) {
 	return repositories.Delete(league_phase_collection, ID)
 }
