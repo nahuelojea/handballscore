@@ -2,7 +2,6 @@ package end_match
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/league_phases_repository"
@@ -16,16 +15,22 @@ type UpdateTeamsScoreHandler struct {
 func (c *UpdateTeamsScoreHandler) HandleEndMatch(endMatch *models.EndMatch) {
 	var err error
 
-	fmt.Println("UpdateTeamsScoreHandler")
 	switch endMatch.CurrentPhase {
 	case models.League_Current_Phase:
 		leaguePhase := &endMatch.CurrentLeaguePhase.LeaguePhase
 		err = UpdateStandings(&endMatch.Match, leaguePhase.TeamsRanking[:])
-		league_phases_repository.UpdateTeamsRanking(*leaguePhase, leaguePhase.Id.Hex())
+		if err == nil {
+			_, err = league_phases_repository.UpdateTeamsRanking(*leaguePhase, leaguePhase.Id.Hex())
+		}
 	case models.Playoff_Current_Phase:
 		playoffRoundKey := &endMatch.CurrentPlayoffPhase.PlayoffRoundKey
 		err = UpdateStandings(&endMatch.Match, playoffRoundKey.TeamsRanking[:])
-		playoff_round_keys_repository.UpdateTeamsRanking(*playoffRoundKey, playoffRoundKey.Id.Hex())
+		if err == nil {
+			_, err = playoff_round_keys_repository.UpdateTeamsRanking(*playoffRoundKey, playoffRoundKey.Id.Hex())
+			if err == nil {
+				_, err = playoff_round_keys_repository.UpdateTeamsRanking(*playoffRoundKey, playoffRoundKey.Id.Hex())
+			}
+		}
 	}
 
 	if err != nil {
