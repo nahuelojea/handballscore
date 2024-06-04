@@ -61,9 +61,9 @@ func Login(ctx context.Context) dto.RestResponse {
 		Role: string(userData.Role),
 	}
 
-	token, err2 := json.Marshal(resp)
-	if err2 != nil {
-		response.Message = "Error formatting token to JSON > " + err2.Error()
+	token, err := json.Marshal(resp)
+	if err != nil {
+		response.Message = "Error formatting token to JSON > " + err.Error()
 		return response
 	}
 

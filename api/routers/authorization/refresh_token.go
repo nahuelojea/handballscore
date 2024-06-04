@@ -28,9 +28,9 @@ func RefreshToken(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		RefreshToken: refreshJwtKey,
 	}
 
-	token, err2 := json.Marshal(resp)
-	if err2 != nil {
-		response.Message = "Error formatting token to JSON > " + err2.Error()
+	token, err := json.Marshal(resp)
+	if err != nil {
+		response.Message = "Error formatting token to JSON > " + err.Error()
 		return response
 	}
 

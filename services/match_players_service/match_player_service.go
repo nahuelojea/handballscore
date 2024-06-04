@@ -143,8 +143,8 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 	}
 
 	if addExclusion {
-		if len(matchPlayer.Sanctions.Exclusions) == 2 {
-			return false, errors.New("The player has two exclusions")
+		if len(matchPlayer.Sanctions.Exclusions) == 3 {
+			return false, errors.New("The player has three exclusions")
 		}
 		matchPlayer.Exclusions = append(matchPlayer.Exclusions, models.Exclusion{Time: time})
 	} else {

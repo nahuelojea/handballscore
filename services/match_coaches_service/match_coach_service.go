@@ -80,8 +80,8 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 	}
 
 	if addExclusion {
-		if len(matchCoach.Exclusions) == 2 {
-			return false, errors.New("The coach has two exclusions")
+		if len(matchCoach.Exclusions) == 3 {
+			return false, errors.New("The coach has three exclusions")
 		}
 		matchCoach.Exclusions = append(matchCoach.Exclusions, models.Exclusion{Time: time})
 	} else {
