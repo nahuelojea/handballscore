@@ -18,6 +18,7 @@ const (
 
 type GetPlayoffRoundsOptions struct {
 	PlayoffPhaseId string
+	TeamsQuantity  int
 	AssociationId  string
 	Page           int
 	PageSize       int
@@ -59,6 +60,10 @@ func GetPlayoffRounds(filterOptions GetPlayoffRoundsOptions) ([]models.PlayoffRo
 
 	if filterOptions.PlayoffPhaseId != "" {
 		filter["playoff_phase_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.PlayoffPhaseId, Options: "i"}}
+	}
+
+	if filterOptions.TeamsQuantity != 0 {
+		filter["teams_quantity"] = filterOptions.TeamsQuantity
 	}
 
 	page := filterOptions.Page

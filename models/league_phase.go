@@ -14,6 +14,8 @@ type LeaguePhase struct {
 	TeamsRanking         []TeamScore        `bson:"teams_ranking" json:"teams_ranking"`
 	Config               LeaguePhaseConfig  `bson:"config" json:"config"`
 	TournamentCategoryId string             `bson:"tournament_category_id" json:"tournament_category_id"`
+	Winner               TournamentTeamId   `bson:"winner" json:"winner"`
+	Finished             bool               `bson:"finished" json:"finished"`
 	Status_Data          `bson:"status_data" json:"status_data"`
 	AssociationId        string `bson:"association_id" json:"association_id"`
 }

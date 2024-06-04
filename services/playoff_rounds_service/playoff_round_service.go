@@ -16,6 +16,7 @@ import (
 
 type GetPlayoffRoundsOptions struct {
 	PlayoffPhaseId string
+	TeamsQuantity  int
 	AssociationId  string
 	Page           int
 	PageSize       int
@@ -26,6 +27,7 @@ type GetPlayoffRoundsOptions struct {
 func GetPlayoffRounds(filterOptions GetPlayoffRoundsOptions) ([]models.PlayoffRound, int64, int, error) {
 	filters := playoff_rounds_repository.GetPlayoffRoundsOptions{
 		PlayoffPhaseId: filterOptions.PlayoffPhaseId,
+		TeamsQuantity:  filterOptions.TeamsQuantity,
 		AssociationId:  filterOptions.AssociationId,
 		Page:           filterOptions.Page,
 		PageSize:       filterOptions.PageSize,
@@ -163,7 +165,7 @@ func createPlayoffRoundsRecursive(playoffPhase models.PlayoffPhase,
 				roundKeys[i].TeamsRanking[0].TeamId = teams[i]
 				roundKeys[i].TeamsRanking[1].TeamId = teams[teamsQuantity-1-i]
 			}
-			firstRoundMatches := createFirstRoundMatches(playoffPhase, roundKeys)
+			firstRoundMatches := models.CreateRoundMatches(playoffPhase, roundKeys)
 			matches = append(matches, firstRoundMatches...)
 		}
 	}
@@ -178,23 +180,4 @@ func createPlayoffRoundsRecursive(playoffPhase models.PlayoffPhase,
 	} else {
 		return createPlayoffRoundsRecursive(playoffPhase, teams, halfTeamsCount, rounds, keys, matches)
 	}
-}
-
-func createFirstRoundMatches(playoffPhase models.PlayoffPhase, roundKeys []models.PlayoffRoundKey) []models.Match {
-	matches := []models.Match{}
-
-	for i := 0; i < len(roundKeys); i++ {
-		teamA := roundKeys[i].Teams[0]
-		teamB := roundKeys[i].Teams[1]
-
-		match := models.GeneratePlayoffMatch(playoffPhase.TournamentCategoryId, roundKeys[i].Id.Hex(), teamA, teamB)
-		matches = append(matches, match)
-
-		if playoffPhase.Config.HomeAndAway {
-			matchReturn := models.GeneratePlayoffMatch(playoffPhase.TournamentCategoryId, roundKeys[i].Id.Hex(), teamB, teamA)
-			matches = append(matches, matchReturn)
-		}
-	}
-
-	return matches
 }

@@ -310,3 +310,69 @@ func GetPendingMatchesByLeaguePhaseId(leaguePhaseId string) ([]models.Match, err
 
 	return matches, nil
 }
+
+func GetPendingMatchesByPlayoffRoundKeyId(playoffRoundKeyId string) ([]models.Match, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(match_collection)
+
+	pipeline := bson.A{
+		bson.M{
+			"$lookup": bson.M{
+				"from": "playoff_round_keys",
+				"let":  bson.M{"playoff_round_key_id_str": "$playoff_round_key_id"},
+				"pipeline": bson.A{
+					bson.M{
+						"$match": bson.M{"$expr": bson.M{"$eq": bson.A{"$_id", "$$playoff_round_key_id_str"}}},
+					},
+				},
+				"as": "playoff_round_key_info",
+			},
+		},
+		bson.M{
+			"$unwind": bson.M{
+				"path":                       "$playoff_round_key_info",
+				"preserveNullAndEmptyArrays": false,
+			},
+		},
+		bson.M{
+			"$match": bson.M{
+				"playoff_round_key_info._id": playoffRoundKeyId,
+				"status":                     bson.M{"$nin": bson.A{models.Finished, models.Suspended}},
+			},
+		},
+	}
+
+	cur, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var matches []models.Match
+	for cur.Next(ctx) {
+		var match models.Match
+		if err := cur.Decode(&match); err != nil {
+			return nil, err
+		}
+		matches = append(matches, match)
+	}
+
+	return matches, nil
+}
+
+func UpdateHomeTeam(id string, team models.TournamentTeamId) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["team_home"] = team
+
+	return repositories.Update(match_collection, updateDataMap, id)
+}
+
+func UpdateAwayTeam(id string, team models.TournamentTeamId) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["team_away"] = team
+
+	return repositories.Update(match_collection, updateDataMap, id)
+}

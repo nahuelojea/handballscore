@@ -70,7 +70,7 @@ func GetPlayoffRoundKeys(filterOptions GetPlayoffRoundKeysOptions) ([]models.Pla
 	}
 
 	sortFields := bson.D{
-		{Key: "playoff_round_id", Value: sortOrder},
+		{Key: "key_number", Value: sortOrder},
 	}
 
 	findOptions := options.Find()
@@ -107,10 +107,21 @@ func GetPlayoffRoundKeys(filterOptions GetPlayoffRoundKeysOptions) ([]models.Pla
 	return playoffRoundKeys, totalRecords, totalPages, nil
 }
 
-func UpdateTeamsRanking(playoffRoundKey models.PlayoffRoundKey, id string) (bool, error) {
+func UpdatePlayoffRoundKey(playoffRoundKey models.PlayoffRoundKey, id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
+	updateDataMap["teams"] = playoffRoundKey.Teams
 	updateDataMap["teams_ranking"] = playoffRoundKey.TeamsRanking
+	updateDataMap["match_results"] = playoffRoundKey.MatchResults
+
+	return repositories.Update(playoff_round_key_collection, updateDataMap, id)
+}
+
+func FinishRoundKey(id string, winner models.TournamentTeamId) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["finished"] = true
+	updateDataMap["winner"] = winner
 
 	return repositories.Update(playoff_round_key_collection, updateDataMap, id)
 }

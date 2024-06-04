@@ -113,7 +113,7 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	return tournaments, totalRecords, totalPages, nil
 }
 
-func UpdateTournamentCategory(tournament models.TournamentCategory, ID string) (bool, error) {
+func UpdateTournamentCategory(tournament models.TournamentCategory, id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if len(tournament.Name) > 0 {
 		updateDataMap["name"] = tournament.Name
@@ -134,7 +134,7 @@ func UpdateTournamentCategory(tournament models.TournamentCategory, ID string) (
 		updateDataMap["end_date"] = tournament.EndDate
 	}
 
-	return repositories.Update(tournament_category_collection, updateDataMap, ID)
+	return repositories.Update(tournament_category_collection, updateDataMap, id)
 }
 
 func DeleteTournamentCategory(ID string) (bool, error) {

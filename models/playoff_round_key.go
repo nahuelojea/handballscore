@@ -14,6 +14,7 @@ type PlayoffRoundKey struct {
 	TeamsRanking   [2]TeamScore        `bson:"teams_ranking" json:"teams_ranking"`
 	MatchResults   []MatchResult       `bson:"match_results" json:"match_results"`
 	Winner         TournamentTeamId    `bson:"winner" json:"winner"`
+	Finished       bool                `bson:"finished" json:"finished"`
 	NextRoundKeyId string              `bson:"next_round_key_id" json:"next_round_key_id"`
 	PlayoffRoundId string              `bson:"playoff_round_id" json:"playoff_round_id"`
 	Status_Data    `bson:"status_data" json:"status_data"`

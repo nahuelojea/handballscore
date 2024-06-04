@@ -108,6 +108,15 @@ func UpdateTeamsRanking(leaguePhase models.LeaguePhase, id string) (bool, error)
 	return repositories.Update(league_phase_collection, updateDataMap, id)
 }
 
+func FinishPhase(id string, winner models.TournamentTeamId) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
+	updateDataMap["finished"] = true
+	updateDataMap["winner"] = winner
+
+	return repositories.Update(league_phase_collection, updateDataMap, id)
+}
+
 func DeleteLeaguePhase(ID string) (bool, error) {
 	return repositories.Delete(league_phase_collection, ID)
 }

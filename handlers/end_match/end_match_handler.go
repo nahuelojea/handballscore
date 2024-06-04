@@ -102,13 +102,13 @@ func buildEndMatchData(match *models.Match) (models.EndMatch, error) {
 
 func configureChainResponsability() *UpdateTeamsScoreHandler {
 	updateTeamsScoreHandler := &UpdateTeamsScoreHandler{}
-	/*generateNewPhaseHandler := &end_match.GenerateNewPhaseHandler{}
-	generateNewPlayoffRoundKeyHandler := &end_match.GenerateNewPlayoffRoundKeyHandler{}
-	updateChampionHandler := &end_match.UpdateChampionHandler{}
+	endPhaseHandler := &EndPhaseHandler{}
+	generateNewMatchesHandler := &GenerateNewMatchesHandler{}
+	UpdateChampionHandler := &UpdateChampionHandler{}
 
-	updateTeamsScoreHandler.SetNext(generateNewPhaseHandler)
-	generateNewPhaseHandler.SetNext(generateNewPlayoffRoundKeyHandler)
-	generateNewPlayoffRoundKeyHandler.SetNext(updateChampionHandler)*/
+	updateTeamsScoreHandler.SetNext(endPhaseHandler)
+	endPhaseHandler.SetNext(generateNewMatchesHandler)
+	generateNewMatchesHandler.SetNext(UpdateChampionHandler)
 
 	return updateTeamsScoreHandler
 }

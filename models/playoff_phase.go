@@ -37,3 +37,22 @@ func (playoffPhase *PlayoffPhase) SetModifiedDate() {
 func (playoffPhase *PlayoffPhase) SetId(id primitive.ObjectID) {
 	playoffPhase.Id = id
 }
+
+func CreateRoundMatches(playoffPhase PlayoffPhase, roundKeys []PlayoffRoundKey) []Match {
+	matches := []Match{}
+
+	for i := 0; i < len(roundKeys); i++ {
+		teamA := roundKeys[i].Teams[0]
+		teamB := roundKeys[i].Teams[1]
+
+		match := GeneratePlayoffMatch(playoffPhase.TournamentCategoryId, roundKeys[i].Id.Hex(), teamA, teamB)
+		matches = append(matches, match)
+
+		if playoffPhase.Config.HomeAndAway {
+			matchReturn := GeneratePlayoffMatch(playoffPhase.TournamentCategoryId, roundKeys[i].Id.Hex(), teamB, teamA)
+			matches = append(matches, matchReturn)
+		}
+	}
+
+	return matches
+}
