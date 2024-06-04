@@ -31,8 +31,9 @@ func (c *GenerateNewMatchesHandler) HandleEndMatch(endMatch *models.EndMatch) {
 		Status: func() string {
 			if err != nil {
 				return err.Error()
+			} else {
+				return status
 			}
-			return status
 		}(),
 	}
 
@@ -48,62 +49,35 @@ func handleNewMatchesLeaguePhase(endMatch *models.EndMatch, status *string) erro
 	}
 
 	leaguePhase.SortTeamsRanking()
-
 	classifiedTeams := leaguePhase.TeamsRanking[:leaguePhase.Config.ClassifiedNumber]
 
-	playoffPhaseOptions := playoff_phases_repository.GetPlayoffPhasesOptions{
-		TournamentCategoryId: endMatch.CurrentTournamentCategory.Id.Hex(),
-		AssociationId:        endMatch.CurrentTournamentCategory.AssociationId,
-	}
-
-	playoffPhases, _, _, err := playoff_phases_repository.GetPlayoffPhases(playoffPhaseOptions)
+	playoffPhases, _, _, err := getPlayoffPhases(endMatch.CurrentTournamentCategory)
 	if err != nil {
-		return errors.New("Error to get playoff phases: " + err.Error())
+		return err
 	}
 
-	playoffRoundsOptions := playoff_rounds_repository.GetPlayoffRoundsOptions{
-		PlayoffPhaseId: playoffPhases[0].Id.Hex(),
-		TeamsQuantity:  leaguePhase.Config.ClassifiedNumber,
-	}
-
-	playoffRounds, _, _, err := playoff_rounds_repository.GetPlayoffRounds(playoffRoundsOptions)
+	playoffRounds, _, _, err := getPlayoffRounds(playoffPhases[0].Id.Hex(), leaguePhase.Config.ClassifiedNumber)
 	if err != nil {
-		return errors.New("Error to get playoff rounds: " + err.Error())
+		return err
 	}
 
-	playoffRoundKeysOption := playoff_round_keys_repository.GetPlayoffRoundKeysOptions{
-		PlayoffRoundId: playoffRounds[0].Id.Hex(),
-	}
-
-	playoffRoundKeys, _, _, err := playoff_round_keys_repository.GetPlayoffRoundKeys(playoffRoundKeysOption)
+	playoffRoundKeys, _, _, err := getPlayoffRoundKeys(playoffRounds[0].Id.Hex())
 	if err != nil {
-		return errors.New("Error to get playoff round keys: " + err.Error())
+		return err
 	}
 
-	n := len(classifiedTeams)
-	for i := 0; i < len(playoffRoundKeys); i++ {
-		playoffRoundKeys[i].Teams[0] = classifiedTeams[i].TeamId
-		playoffRoundKeys[i].Teams[1] = classifiedTeams[n-1-i].TeamId
-		playoffRoundKeys[i].TeamsRanking[0].TeamId = classifiedTeams[i].TeamId
-		playoffRoundKeys[i].TeamsRanking[1].TeamId = classifiedTeams[n-1-i].TeamId
-	}
+	assignTeamsToPlayoffKeys(classifiedTeams, playoffRoundKeys)
 
-	for i := range playoffRoundKeys {
-		_, err = playoff_round_keys_repository.UpdatePlayoffRoundKey(playoffRoundKeys[i], playoffRoundKeys[i].Id.Hex())
-		if err != nil {
-			return errors.New("Error to update playoff round key: " + err.Error())
-		}
+	if err := updatePlayoffRoundKeys(playoffRoundKeys); err != nil {
+		return err
 	}
 
 	matches := models.CreateRoundMatches(playoffPhases[0], playoffRoundKeys)
-
-	_, _, err = matches_repository.CreateMatches(endMatch.CurrentTournamentCategory.AssociationId, matches)
-	if err != nil {
+	if _, _, err := matches_repository.CreateMatches(endMatch.CurrentTournamentCategory.AssociationId, matches); err != nil {
 		return errors.New("Error to create matches: " + err.Error())
 	}
 
 	*status = "New matches generated to end league phase"
-
 	return nil
 }
 
@@ -114,15 +88,14 @@ func handleNewMatchesPlayoffPhase(endMatch *models.EndMatch, status *string) err
 		return nil
 	}
 
-	nextPlayoffRoundKey, _, err := playoff_round_keys_repository.GetPlayoffRoundKey(playoffRoundKey.NextRoundKeyId)
+	nextPlayoffRoundKey, _, err := getNextPlayoffRoundKey(playoffRoundKey.NextRoundKeyId)
 	if err != nil {
-		return errors.New("Error to get next playoff round key: " + err.Error())
+		return err
 	}
 
 	playoffRoundKey.SortTeamsRanking()
 	classifiedTeam := playoffRoundKey.TeamsRanking[0].TeamId
-	keyNumber, _ := strconv.Atoi(playoffRoundKey.KeyNumber)
-	firstTeamInKey := keyNumber%2 == 0
+	firstTeamInKey := isEvenKey(playoffRoundKey.KeyNumber)
 
 	matches, err := matches_repository.GetPendingMatchesByPlayoffRoundKeyId(nextPlayoffRoundKey.Id.Hex())
 	if err != nil {
@@ -130,51 +103,98 @@ func handleNewMatchesPlayoffPhase(endMatch *models.EndMatch, status *string) err
 	}
 
 	if len(matches) == 0 {
-		createNewMatches(endMatch, nextPlayoffRoundKey, classifiedTeam, firstTeamInKey)
+		err = createNewMatches(endMatch, nextPlayoffRoundKey, classifiedTeam, firstTeamInKey)
 	} else {
-		updateExistingMatches(matches, classifiedTeam, firstTeamInKey)
+		err = updateExistingMatches(matches, classifiedTeam, firstTeamInKey)
+	}
+
+	if err != nil {
+		return err
 	}
 
 	*status = "New matches generated to end playoff phase key"
-
 	return nil
 }
 
-func createNewMatches(endMatch *models.EndMatch, nextPlayoffRoundKey models.PlayoffRoundKey, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
-	var match models.Match
-	if firstTeamInKey {
-		match = models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, nextPlayoffRoundKey.Id.Hex(), classifiedTeam, models.TournamentTeamId{})
-	} else {
-		match = models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, nextPlayoffRoundKey.Id.Hex(), models.TournamentTeamId{}, classifiedTeam)
+func getPlayoffPhases(category models.TournamentCategory) ([]models.PlayoffPhase, int64, int, error) {
+	options := playoff_phases_repository.GetPlayoffPhasesOptions{
+		TournamentCategoryId: category.Id.Hex(),
+		AssociationId:        category.AssociationId,
 	}
+	return playoff_phases_repository.GetPlayoffPhases(options)
+}
 
-	_, _, err := matches_repository.CreateMatch(endMatch.Match.AssociationId, match)
-	if err != nil {
+func getPlayoffRounds(phaseId string, teamsQuantity int) ([]models.PlayoffRound, int64, int, error) {
+	options := playoff_rounds_repository.GetPlayoffRoundsOptions{
+		PlayoffPhaseId: phaseId,
+		TeamsQuantity:  teamsQuantity,
+	}
+	return playoff_rounds_repository.GetPlayoffRounds(options)
+}
+
+func getPlayoffRoundKeys(roundId string) ([]models.PlayoffRoundKey, int64, int, error) {
+	options := playoff_round_keys_repository.GetPlayoffRoundKeysOptions{
+		PlayoffRoundId: roundId,
+	}
+	return playoff_round_keys_repository.GetPlayoffRoundKeys(options)
+}
+
+func assignTeamsToPlayoffKeys(classifiedTeams []models.TeamScore, playoffRoundKeys []models.PlayoffRoundKey) {
+	n := len(classifiedTeams)
+	for i := range playoffRoundKeys {
+		playoffRoundKeys[i].Teams[0] = classifiedTeams[i].TeamId
+		playoffRoundKeys[i].Teams[1] = classifiedTeams[n-1-i].TeamId
+		playoffRoundKeys[i].TeamsRanking[0].TeamId = classifiedTeams[i].TeamId
+		playoffRoundKeys[i].TeamsRanking[1].TeamId = classifiedTeams[n-1-i].TeamId
+	}
+}
+
+func updatePlayoffRoundKeys(keys []models.PlayoffRoundKey) error {
+	for _, key := range keys {
+		if _, err := playoff_round_keys_repository.UpdatePlayoffRoundKey(key, key.Id.Hex()); err != nil {
+			return errors.New("Error to update playoff round key: " + err.Error())
+		}
+	}
+	return nil
+}
+
+func getNextPlayoffRoundKey(nextRoundKeyId string) (models.PlayoffRoundKey, bool, error) {
+	return playoff_round_keys_repository.GetPlayoffRoundKey(nextRoundKeyId)
+}
+
+func isEvenKey(keyNumber string) bool {
+	num, _ := strconv.Atoi(keyNumber)
+	return num%2 == 0
+}
+
+func createNewMatches(endMatch *models.EndMatch, nextPlayoffRoundKey models.PlayoffRoundKey, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
+	match := generateMatch(endMatch, nextPlayoffRoundKey.Id.Hex(), classifiedTeam, firstTeamInKey)
+	if _, _, err := matches_repository.CreateMatch(endMatch.Match.AssociationId, match); err != nil {
 		return errors.New("Error to create match: " + err.Error())
 	}
 
 	if len(nextPlayoffRoundKey.NextRoundKeyId) > 0 {
 		if endMatch.CurrentPlayoffPhase.PlayoffPhase.Config.HomeAndAway {
-			createReturnMatch(endMatch, nextPlayoffRoundKey.NextRoundKeyId, classifiedTeam, firstTeamInKey)
+			return createReturnMatch(endMatch, nextPlayoffRoundKey.NextRoundKeyId, classifiedTeam, firstTeamInKey)
 		}
 	} else {
 		if !endMatch.CurrentPlayoffPhase.PlayoffPhase.Config.SingleMatchFinal && endMatch.CurrentPlayoffPhase.PlayoffPhase.Config.HomeAndAway {
-			createReturnMatch(endMatch, nextPlayoffRoundKey.Id.Hex(), classifiedTeam, firstTeamInKey)
+			return createReturnMatch(endMatch, nextPlayoffRoundKey.Id.Hex(), classifiedTeam, firstTeamInKey)
 		}
 	}
 	return nil
 }
 
-func createReturnMatch(endMatch *models.EndMatch, nextRoundKeyId string, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
-	var returnMatch models.Match
+func generateMatch(endMatch *models.EndMatch, roundKeyId string, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) models.Match {
 	if firstTeamInKey {
-		returnMatch = models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, nextRoundKeyId, models.TournamentTeamId{}, classifiedTeam)
-	} else {
-		returnMatch = models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, nextRoundKeyId, classifiedTeam, models.TournamentTeamId{})
+		return models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, roundKeyId, classifiedTeam, models.TournamentTeamId{})
 	}
+	return models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, roundKeyId, models.TournamentTeamId{}, classifiedTeam)
+}
 
-	_, _, err := matches_repository.CreateMatch(endMatch.Match.AssociationId, returnMatch)
-	if err != nil {
+func createReturnMatch(endMatch *models.EndMatch, nextRoundKeyId string, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
+	returnMatch := generateMatch(endMatch, nextRoundKeyId, classifiedTeam, !firstTeamInKey)
+	if _, _, err := matches_repository.CreateMatch(endMatch.Match.AssociationId, returnMatch); err != nil {
 		return errors.New("Error to create return match: " + err.Error())
 	}
 	return nil
@@ -182,38 +202,34 @@ func createReturnMatch(endMatch *models.EndMatch, nextRoundKeyId string, classif
 
 func updateExistingMatches(matches []models.Match, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
 	if len(matches) == 1 {
-		if firstTeamInKey {
-			_, err := matches_repository.UpdateHomeTeam(matches[0].Id.Hex(), classifiedTeam)
-			if err != nil {
-				return errors.New("Error to update home team: " + err.Error())
-			}
-		} else {
-			_, err := matches_repository.UpdateAwayTeam(matches[0].Id.Hex(), classifiedTeam)
-			if err != nil {
-				return errors.New("Error to update away team: " + err.Error())
-			}
+		return updateSingleMatch(matches[0], classifiedTeam, firstTeamInKey)
+	}
+	return updateMultipleMatches(matches, classifiedTeam, firstTeamInKey)
+}
+
+func updateSingleMatch(match models.Match, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
+	if firstTeamInKey {
+		if _, err := matches_repository.UpdateHomeTeam(match.Id.Hex(), classifiedTeam); err != nil {
+			return errors.New("Error to update home team: " + err.Error())
 		}
 	} else {
-		if firstTeamInKey {
-			_, err := matches_repository.UpdateHomeTeam(matches[0].Id.Hex(), classifiedTeam)
-			if err != nil {
-				return errors.New("Error to update home team: " + err.Error())
-			}
+		if _, err := matches_repository.UpdateAwayTeam(match.Id.Hex(), classifiedTeam); err != nil {
+			return errors.New("Error to update away team: " + err.Error())
+		}
+	}
+	return nil
+}
 
-			_, err = matches_repository.UpdateAwayTeam(matches[1].Id.Hex(), classifiedTeam)
-			if err != nil {
-				return errors.New("Error to update away team: " + err.Error())
-			}
+func updateMultipleMatches(matches []models.Match, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
+	for i, match := range matches {
+		var err error
+		if (i == 0 && firstTeamInKey) || (i == 1 && !firstTeamInKey) {
+			_, err = matches_repository.UpdateHomeTeam(match.Id.Hex(), classifiedTeam)
 		} else {
-			_, err := matches_repository.UpdateAwayTeam(matches[0].Id.Hex(), classifiedTeam)
-			if err != nil {
-				return errors.New("Error to update away team: " + err.Error())
-			}
-
-			_, err = matches_repository.UpdateHomeTeam(matches[1].Id.Hex(), classifiedTeam)
-			if err != nil {
-				return errors.New("Error to update home team: " + err.Error())
-			}
+			_, err = matches_repository.UpdateAwayTeam(match.Id.Hex(), classifiedTeam)
+		}
+		if err != nil {
+			return errors.New("Error to update team: " + err.Error())
 		}
 	}
 	return nil
