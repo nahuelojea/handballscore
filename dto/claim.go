@@ -8,6 +8,7 @@ import (
 type Claim struct {
 	Email         string             `json:"email"`
 	Role          string             `json:"role"`
+	TeamId        string             `json:"team_id"`
 	AssociationId string             `json:"association_id"`
 	Id            primitive.ObjectID `bson:"_id" json:"_id"`
 	jwt.RegisteredClaims

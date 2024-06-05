@@ -64,6 +64,7 @@ func generateToken(user models.User) *jwt.Token {
 		"email":          user.Email,
 		"role":           user.Role,
 		"association_id": user.AssociationId,
+		"team_id":        user.TeamId,
 		"_id":            user.Id.Hex(),
 		"exp":            time.Now().Add(time.Hour * 24).Unix(),
 	}
@@ -77,6 +78,7 @@ func generateRefreshToken(user models.User) *jwt.Token {
 		"email":          user.Email,
 		"role":           user.Role,
 		"association_id": user.AssociationId,
+		"team_id":        user.TeamId,
 		"_id":            user.Id.Hex(),
 		"exp":            time.Now().Add(7 * 24 * time.Hour).Unix(),
 	}

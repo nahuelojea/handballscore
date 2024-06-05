@@ -58,7 +58,8 @@ func Login(ctx context.Context) dto.RestResponse {
 			Email:            association.Email,
 			Avatar:           association.Avatar,
 			PhoneNumber:      association.PhoneNumber},
-		Role: string(userData.Role),
+		Role:   string(userData.Role),
+		TeamId: string(userData.TeamId),
 	}
 
 	token, err := json.Marshal(resp)

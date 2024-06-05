@@ -7,6 +7,7 @@ type LoginResponse struct {
 	RefreshToken string      `json:"refresh_token"`
 	Association  Association `json:"association"`
 	Role         string      `json:"role"`
+	TeamId       string      `json:"team_id"`
 }
 
 type Association struct {
