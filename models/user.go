@@ -7,19 +7,17 @@ import (
 )
 
 const (
-	AdminRole       Role = "admin"
-	AssociationRole Role = "association"
-	TeamRole        Role = "team"
-	ViewerRole      Role = "viewer"
+	AdminRole       string = "admin"
+	AssociationRole string = "association"
+	TeamRole        string = "team"
+	ViewerRole      string = "viewer"
 )
-
-type Role string
 
 type User struct {
 	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Email         string             `bson:"email" json:"email"`
 	Password      string             `bson:"password" json:"password,omitempty"`
-	Role          Role               `bson:"role" json:"role"`
+	Role          string             `bson:"role" json:"role"`
 	TeamId        string             `bson:"team_id" json:"team_id"`
 	Personal_Data `bson:"personal_data" json:"personal_data"`
 	Status_Data   `bson:"status_data" json:"status_data"`

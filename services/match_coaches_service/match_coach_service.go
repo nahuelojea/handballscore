@@ -37,8 +37,33 @@ func CreateMatchCoaches(startMatchRequest dto.StartMatchRequest, match models.Ma
 	}
 }
 
-func CreateMatchCoach(association_id string, matchCoach models.MatchCoach) (string, bool, error) {
-	return match_coaches_repository.CreateMatchCoach(association_id, matchCoach)
+func CreateMatchCoach(associationId string, matchCoachRequest dto.MatchCoachRequest) (string, bool, error) {
+	match, _, err := matches_repository.GetMatch(matchCoachRequest.MatchId)
+	if err != nil {
+		return "", false, errors.New("Error to get match: " + err.Error())
+	}
+
+	if match.Status != models.Programmed &&
+		match.Status != models.FirstHalf &&
+		match.Status != models.SecondHalf {
+		return "", false, errors.New("The coach cannot be added in this match instance")
+	}
+
+	matchCoach := models.MatchCoach{
+		MatchId: matchCoachRequest.MatchId,
+		CoachId: matchCoachRequest.CoachId,
+		TeamId: models.TournamentTeamId{
+			TeamId:  matchCoachRequest.Team.Id,
+			Variant: matchCoachRequest.Team.Variant,
+		},
+		Sanctions: models.Sanctions{
+			Exclusions: []models.Exclusion{},
+			YellowCard: false,
+			RedCard:    false,
+			BlueCard:   false,
+			Report:     ""},
+	}
+	return match_coaches_repository.CreateMatchCoach(associationId, matchCoach)
 }
 
 func DeleteMatchCoach(id string) (bool, error) {

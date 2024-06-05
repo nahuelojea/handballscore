@@ -17,6 +17,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 		}
 	case "POST":
 		switch ctx.Value(dto.Key("path")).(string) {
+		case "matchCoach":
+			return match_coaches.AddMatchCoach(ctx, claim)
 		case "matchCoach/filter":
 			return match_coaches.GetMatchCoaches(ctx, request, claim)
 		}
@@ -30,6 +32,11 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 			return match_coaches.UpdateRedCard(ctx, request)
 		case "matchCoach/blueCard":
 			return match_coaches.UpdateBlueCard(ctx, request)
+		}
+	case "DELETE":
+		switch ctx.Value(dto.Key("path")).(string) {
+		case "matchCoach":
+			return match_coaches.DeleteMatchCoach(request)
 		}
 	}
 

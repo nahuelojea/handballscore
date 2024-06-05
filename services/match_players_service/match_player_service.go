@@ -47,7 +47,36 @@ func CreateMatchPlayers(startMatchRequest dto.StartMatchRequest, match models.Ma
 	}
 }
 
-func CreateMatchPlayer(association_id string, matchPlayer models.MatchPlayer) (string, bool, error) {
+func CreateMatchPlayer(association_id string, matchPlayerRequest dto.MatchPlayerRequest) (string, bool, error) {
+	match, _, err := matches_repository.GetMatch(matchPlayerRequest.MatchId)
+	if err != nil {
+		return "", false, errors.New("Error to get match: " + err.Error())
+	}
+
+	if match.Status != models.Programmed &&
+		match.Status != models.FirstHalf &&
+		match.Status != models.SecondHalf {
+		return "", false, errors.New("The player cannot be added in this match instance")
+	}
+
+	matchPlayer := models.MatchPlayer{
+		MatchId:  matchPlayerRequest.MatchId,
+		PlayerId: matchPlayerRequest.PlayerId,
+		Number:   matchPlayerRequest.Number,
+		TeamId: models.TournamentTeamId{
+			TeamId:  matchPlayerRequest.Team.Id,
+			Variant: matchPlayerRequest.Team.Variant,
+		},
+		Goals: models.Goals{
+			FirstHalf:  0,
+			SecondHalf: 0},
+		Sanctions: models.Sanctions{
+			Exclusions: []models.Exclusion{},
+			YellowCard: false,
+			RedCard:    false,
+			BlueCard:   false,
+			Report:     ""},
+	}
 	return match_players_repository.CreateMatchPlayer(association_id, matchPlayer)
 }
 
@@ -183,6 +212,17 @@ func UpdateRedCard(id string, addRedCard bool) (bool, error) {
 	matchPlayer.RedCard = addRedCard
 
 	return match_players_repository.UpdateRedCard(matchPlayer)
+}
+
+func UpdateNumber(id, number string) (bool, error) {
+	matchPlayer, _, err := match_players_repository.GetMatchPlayer(id)
+	if err != nil {
+		return false, errors.New("Error to get match player: " + err.Error())
+	}
+
+	matchPlayer.Number = number
+
+	return match_players_repository.UpdateMatchPlayer(matchPlayer, id)
 }
 
 func UpdateBlueCard(id, report string, addBlueCard bool) (bool, error) {

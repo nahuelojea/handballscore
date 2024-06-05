@@ -11,6 +11,19 @@ type StartMatchRequest struct {
 }
 
 type MatchPlayerRequest struct {
-	PlayerId string `bson:"id" json:"id"`
-	Number   string `bson:"number" json:"number"`
+	MatchId  string           `bson:"match_id" json:"match_id"`
+	PlayerId string           `bson:"player_id" json:"player_id"`
+	Team     MatchTeamRequest `bson:"team" json:"team"`
+	Number   string           `bson:"number" json:"number"`
+}
+
+type MatchCoachRequest struct {
+	MatchId string           `bson:"match_id" json:"match_id"`
+	CoachId string           `bson:"coach_id" json:"coach_id"`
+	Team    MatchTeamRequest `bson:"team" json:"team"`
+}
+
+type MatchTeamRequest struct {
+	Id      string `bson:"id" json:"id"`
+	Variant string `bson:"variant" json:"variant"`
 }
