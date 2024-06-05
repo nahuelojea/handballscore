@@ -7,8 +7,10 @@ import (
 )
 
 const (
-	Admin  Role = "admin"
-	Viewer Role = "viewer"
+	AdminRole       Role = "admin"
+	AssociationRole Role = "association"
+	TeamRole        Role = "team"
+	ViewerRole      Role = "viewer"
 )
 
 type Role string
@@ -18,6 +20,7 @@ type User struct {
 	Email         string             `bson:"email" json:"email"`
 	Password      string             `bson:"password" json:"password,omitempty"`
 	Role          Role               `bson:"role" json:"role"`
+	TeamId        string             `bson:"team_id" json:"team_id"`
 	Personal_Data `bson:"personal_data" json:"personal_data"`
 	Status_Data   `bson:"status_data" json:"status_data"`
 	AssociationId string `bson:"association_id" json:"association_id"`

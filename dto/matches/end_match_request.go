@@ -1,5 +1,6 @@
 package dto
 
 type EndMatchRequest struct {
-	Comments string `bson:"comments" json:"comments"`
+	AuthorizationCode string `bson:"authorization_code" json:"authorization_code"`
+	Comments          string `bson:"comments" json:"comments"`
 }

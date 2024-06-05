@@ -128,11 +128,11 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 	return matchesJourney, totalRecords, int(totalPages), nil
 }
 
-func ProgramMatch(matchTime time.Time, place string, id string) (bool, error) {
+func ProgramMatch(matchTime time.Time, place, authorizationCode, id string) (bool, error) {
 	if matchTime.Compare(time.Now()) < 1 {
 		return false, errors.New("The date cannot be earlier than the current date")
 	}
-	return matches_repository.ProgramMatch(matchTime, place, id)
+	return matches_repository.ProgramMatch(matchTime, place, authorizationCode, id)
 }
 
 func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error) {
@@ -249,7 +249,7 @@ func SuspendMatch(id, comments string) (bool, error) {
 	return true, nil
 }
 
-func EndMatch(id, comments string) (bool, error) {
+func EndMatch(id, authorizationCode, comments string) (bool, error) {
 	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {
 		return false, errors.New("Error to get match: " + err.Error())
@@ -257,6 +257,10 @@ func EndMatch(id, comments string) (bool, error) {
 
 	if match.Status != models.SecondHalf {
 		return false, errors.New("The match must be found in the second half")
+	}
+
+	if match.AuthorizationCode != authorizationCode {
+		return false, errors.New("The authorization code is incorrect")
 	}
 
 	_, err = matches_repository.EndMatch(id, comments)

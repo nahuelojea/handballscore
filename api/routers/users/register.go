@@ -30,8 +30,8 @@ func Register(ctx context.Context) dto.RestResponse {
 		fmt.Println(restResponse.Message)
 		return restResponse
 	}
-	if len(user.Password) < 6 {
-		restResponse.Message = "You must specify a password of at least 6 characters"
+	if len(user.Password) < 3 {
+		restResponse.Message = "You must specify a password of at least 3 characters"
 		fmt.Println(restResponse.Message)
 		return restResponse
 	}
@@ -55,7 +55,7 @@ func Register(ctx context.Context) dto.RestResponse {
 		return restResponse
 	}
 
-	user.Role = models.Viewer
+	user.Role = models.ViewerRole
 
 	_, status, err := users_service.CreateUser(user)
 	if err != nil {
