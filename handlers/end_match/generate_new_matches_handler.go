@@ -2,7 +2,9 @@ package end_match
 
 import (
 	"errors"
+	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
@@ -66,7 +68,7 @@ func handleNewMatchesLeaguePhase(endMatch *models.EndMatch, status *string) erro
 		return err
 	}
 
-	assignTeamsToPlayoffKeys(classifiedTeams, playoffRoundKeys)
+	assignTeamsToPlayoffKeys(classifiedTeams, playoffRoundKeys, playoffPhases[0].Config.RandomOrder)
 
 	if err := updatePlayoffRoundKeys(playoffRoundKeys); err != nil {
 		return err
@@ -139,7 +141,16 @@ func getPlayoffRoundKeys(roundId string) ([]models.PlayoffRoundKey, int64, int, 
 	return playoff_round_keys_repository.GetPlayoffRoundKeys(options)
 }
 
-func assignTeamsToPlayoffKeys(classifiedTeams []models.TeamScore, playoffRoundKeys []models.PlayoffRoundKey) {
+func assignTeamsToPlayoffKeys(classifiedTeams []models.TeamScore, playoffRoundKeys []models.PlayoffRoundKey, randomOrder bool) {
+
+	if randomOrder {
+		source := rand.NewSource(time.Now().UnixNano())
+		random := rand.New(source)
+		random.Shuffle(len(classifiedTeams), func(i, j int) {
+			classifiedTeams[i], classifiedTeams[j] = classifiedTeams[j], classifiedTeams[i]
+		})
+	}
+
 	n := len(classifiedTeams)
 	for i := range playoffRoundKeys {
 		playoffRoundKeys[i].Teams[0] = classifiedTeams[i].TeamId
