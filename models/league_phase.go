@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
 	"time"
 
@@ -99,6 +100,12 @@ func (leaguePhase LeaguePhase) GenerateLeaguePhaseWeeks() ([]LeaguePhaseWeek, []
 func (leaguePhase LeaguePhase) GenerateMatches(tournamentCategoryId string, rounds [][]MatchRound, leaguePhaseWeeks []LeaguePhaseWeek) []Match {
 	var matches []Match
 	var week = 1
+
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+	random.Shuffle(len(leaguePhase.Teams), func(i, j int) {
+		leaguePhase.Teams[i], leaguePhase.Teams[j] = leaguePhase.Teams[j], leaguePhase.Teams[i]
+	})
 
 	for i := 0; i < len(rounds); i++ {
 		leaguePhaseWeek, _ := getLeaguePhaseWeekByNumber(leaguePhaseWeeks, week)
