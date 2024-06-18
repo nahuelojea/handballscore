@@ -12,6 +12,7 @@ type Player struct {
 	AffiliateNumber     string    `bson:"affiliate_number" json:"affiliate_number"`
 	TeamId              string    `bson:"team_id" json:"team_id"`
 	ExpirationInsurance time.Time `bson:"expiration_insurance" json:"expiration_insurance"`
+	SuscriptionEndDate  time.Time `bson:"suscription_end_date" json:"suscription_end_date"`
 	AssociationId       string    `bson:"association_id" json:"association_id"`
 	Status_Data         `bson:"status_data" json:"status_data"`
 }

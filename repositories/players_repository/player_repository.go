@@ -172,7 +172,7 @@ func UpdatePlayer(player models.Player, ID string) (bool, error) {
 	if len(player.AffiliateNumber) > 0 {
 		updateDataMap["affiliate_number"] = player.AffiliateNumber
 	}
-	if !player.DateOfBirth.IsZero() {
+	if !player.ExpirationInsurance.IsZero() {
 		updateDataMap["expiration_insurance"] = player.ExpirationInsurance
 	}
 	if len(player.TeamId) > 0 {

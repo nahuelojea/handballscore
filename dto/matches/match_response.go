@@ -3,14 +3,15 @@ package dto
 import "time"
 
 type MatchResponse struct {
-	MatchId   string            `bson:"match_id,omitempty" json:"match_id"`
-	Date      time.Time         `bson:"date" json:"date"`
-	TeamHome  MatchTeamResponse `bson:"team_home" json:"team_home"`
-	TeamAway  MatchTeamResponse `bson:"team_away" json:"team_away"`
-	Place     string            `bson:"place" json:"place"`
-	Status    string            `bson:"status" json:"status"`
-	GoalsHome int               `bson:"goals_home" json:"goals_home"`
-	GoalsAway int               `bson:"goals_away" json:"goals_away"`
+	MatchId           string            `bson:"match_id,omitempty" json:"match_id"`
+	Date              time.Time         `bson:"date" json:"date"`
+	TeamHome          MatchTeamResponse `bson:"team_home" json:"team_home"`
+	TeamAway          MatchTeamResponse `bson:"team_away" json:"team_away"`
+	Place             string            `bson:"place" json:"place"`
+	Status            string            `bson:"status" json:"status"`
+	AuthorizationCode string            `bson:"authorization_code" json:"authorization_code"`
+	GoalsHome         int               `bson:"goals_home" json:"goals_home"`
+	GoalsAway         int               `bson:"goals_away" json:"goals_away"`
 }
 
 type MatchTeamResponse struct {

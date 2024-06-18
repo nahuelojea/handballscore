@@ -109,14 +109,15 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 		}
 
 		matchJourney := dto.MatchResponse{
-			MatchId:   match.Id.Hex(),
-			Date:      match.Date,
-			TeamHome:  homeMatchTeam,
-			TeamAway:  awayMatchTeam,
-			Place:     match.Place,
-			Status:    match.Status,
-			GoalsHome: match.GoalsHome.Total,
-			GoalsAway: match.GoalsAway.Total,
+			MatchId:           match.Id.Hex(),
+			Date:              match.Date,
+			TeamHome:          homeMatchTeam,
+			TeamAway:          awayMatchTeam,
+			Place:             match.Place,
+			Status:            match.Status,
+			AuthorizationCode: match.AuthorizationCode,
+			GoalsHome:         match.GoalsHome.Total,
+			GoalsAway:         match.GoalsAway.Total,
 		}
 		matchesJourney = append(matchesJourney, matchJourney)
 	}
