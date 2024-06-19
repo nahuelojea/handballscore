@@ -1,7 +1,9 @@
 package players_service
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"time"
@@ -11,6 +13,7 @@ import (
 	"github.com/nahuelojea/handballscore/repositories/teams_repository"
 	"github.com/nahuelojea/handballscore/services/categories_service"
 	"github.com/nahuelojea/handballscore/storage"
+	"github.com/xuri/excelize/v2"
 )
 
 const AvatarUrl = "avatars/players/"
@@ -116,4 +119,65 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 	}
 
 	return nil
+}
+
+func ImportFromExcel(fileContent string) (bool, []error) {
+	decodedFile, err := base64.StdEncoding.DecodeString(fileContent)
+	if err != nil {
+		return false, []error{errors.New("Invalid file format")}
+	}
+
+	excelFile, err := excelize.OpenReader(bytes.NewReader(decodedFile))
+	if err != nil {
+		return false, []error{errors.New("Cannot read the excel file")}
+	}
+
+	rows, err := excelFile.GetRows("Jugadores")
+	if err != nil {
+		return false, []error{errors.New("Cannot get rows from the excel file")}
+	}
+
+	var errorsList []error
+
+	for i, row := range rows[1:] {
+		dateOfBirth, err := time.Parse("02/01/2006", row[2])
+		if err != nil {
+			errorsList = append(errorsList, fmt.Errorf("Invalid date of birth format in row %d: %v", i+2, row))
+			continue
+		}
+
+		expirationInsurance, err := time.Parse("02/01/2006", "01/03/2025")
+		if err != nil {
+			errorsList = append(errorsList, fmt.Errorf("Invalid expiration insurance date format in row %d: %v", i+2, row))
+			continue
+		}
+
+		fmt.Println("Expiration insurance: ", expirationInsurance)
+
+		player := models.Player{
+			Personal_Data: models.Personal_Data{
+				Name:        row[0],
+				Surname:     row[1],
+				DateOfBirth: dateOfBirth,
+				Dni:         row[3],
+				Gender:      row[4],
+				PhoneNumber: row[5],
+				Disabled:    false,
+			},
+			AffiliateNumber:     row[6],
+			TeamId:              row[9],
+			ExpirationInsurance: expirationInsurance,
+			AssociationId:       row[10],
+		}
+		_, _, err = CreatePlayer(player.AssociationId, player)
+		if err != nil {
+			errorsList = append(errorsList, fmt.Errorf("Failed to create player for row %d: %v", i+2, row))
+			continue
+		}
+	}
+
+	if len(errorsList) > 0 {
+		return false, errorsList
+	}
+	return true, nil
 }

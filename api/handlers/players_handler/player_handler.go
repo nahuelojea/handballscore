@@ -17,6 +17,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest, 
 			return players.AddPlayer(ctx, claim)
 		case "player/avatar":
 			return players.UploadAvatar(ctx, request)
+		case "player/import":
+			return players.ImportFromExcel(ctx, request)
 		}
 	case "GET":
 		switch ctx.Value(dto.Key("path")).(string) {
