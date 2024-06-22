@@ -115,8 +115,16 @@ func getPlayoffPhaseInfo(tournamentCategory models.TournamentCategory) (Tourname
 			return playoffPhaseInfo, err
 		}
 
+		playoffPhaseConfig := TournamentCategoryDTO.PlayoffConfigResponse{
+			HomeAndAway:      playoffPhase.Config.HomeAndAway,
+			SingleMatchFinal: playoffPhase.Config.SingleMatchFinal,
+			RandomOrder:      playoffPhase.Config.RandomOrder,
+			ClassifiedNumber: playoffPhase.Config.ClassifiedNumber,
+		}
+
 		playoffPhaseInfo = TournamentCategoryDTO.PlayoffPhaseInfoResponse{
-			PlayoffKeys: playoffKeys,
+			PlayoffKeys:   playoffKeys,
+			PlayoffConfig: playoffPhaseConfig,
 		}
 	}
 

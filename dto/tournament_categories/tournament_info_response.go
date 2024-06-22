@@ -6,7 +6,8 @@ type TournamentInfoResponse struct {
 }
 
 type PlayoffPhaseInfoResponse struct {
-	PlayoffKeys []PlayoffKeyResponse `bson:"playoff_keys" json:"playoff_keys"`
+	PlayoffConfig PlayoffConfigResponse `bson:"playoff_config" json:"playoff_config"`
+	PlayoffKeys   []PlayoffKeyResponse  `bson:"playoff_keys" json:"playoff_keys"`
 }
 
 type LeaguePhaseInfoResponse struct {
@@ -46,4 +47,11 @@ type PlayoffKeyTeamResponse struct {
 	Result   string `bson:"result" json:"result"`
 	Status   string `bson:"status" json:"status"`
 	IsWinner bool   `bson:"is_winner" json:"is_winner"`
+}
+
+type PlayoffConfigResponse struct {
+	HomeAndAway      bool `bson:"home_and_away" json:"home_and_away"`
+	SingleMatchFinal bool `bson:"single_match_final" json:"single_match_final"`
+	RandomOrder      bool `bson:"random_order" json:"random_order"`
+	ClassifiedNumber int  `bson:"classified_number" json:"classified_number"`
 }
