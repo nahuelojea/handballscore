@@ -123,6 +123,8 @@
       tournament_category_id: 1,
       tournament_category_name:
         "$tournament_category_info.name",
+      category_id:
+        "$tournament_category_info.category_id",
       association_id: 1,
       status_data: 1,
     },

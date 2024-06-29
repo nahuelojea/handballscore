@@ -9,34 +9,6 @@ import (
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 )
 
-func CreateMatchCoaches(startMatchRequest dto.StartMatchRequest, match models.Match) {
-	for _, coachHome := range startMatchRequest.CoachsHome {
-		matchCoach := models.MatchCoach{
-			CoachId: coachHome,
-			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusion{},
-				YellowCard: false,
-				RedCard:    false,
-				BlueCard:   false,
-				Report:     ""},
-		}
-		match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
-	}
-
-	for _, coachAway := range startMatchRequest.CoachsAway {
-		matchCoach := models.MatchCoach{
-			CoachId: coachAway,
-			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusion{},
-				YellowCard: false,
-				RedCard:    false,
-				BlueCard:   false,
-				Report:     ""},
-		}
-		match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
-	}
-}
-
 func CreateMatchCoach(associationId string, matchCoachRequest dto.MatchCoachRequest) (string, bool, error) {
 	match, _, err := matches_repository.GetMatch(matchCoachRequest.MatchId)
 	if err != nil {

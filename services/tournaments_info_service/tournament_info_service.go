@@ -192,7 +192,7 @@ func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCate
 		isWinnerHome := playoffRoundKey.Winner == playoffRoundKey.Teams[0]
 		isWinnerAway := playoffRoundKey.Winner == playoffRoundKey.Teams[1]
 
-		matchStatus := "SCHEDULED"
+		matchStatus := "NO_PARTY"
 		var teamsStatus string
 		if playoffRoundKey.Winner != (models.TournamentTeamId{}) {
 			matchStatus = "DONE"
@@ -212,33 +212,40 @@ func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCate
 			}
 		}
 
+		playoffKeyTeams := []TournamentCategoryDTO.PlayoffKeyTeamResponse{}
+
+		if playoffRoundKey.Teams[0].TeamId != "" {
+			playoffKeyTeams = append(playoffKeyTeams, TournamentCategoryDTO.PlayoffKeyTeamResponse{
+				Id: playoffRoundKey.Teams[0].TeamId,
+				TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
+					TeamName:   teamHomeName + " " + playoffRoundKey.Teams[0].Variant,
+					TeamAvatar: teamHomeAvatar,
+				},
+				Result:   homeResult,
+				Status:   teamsStatus,
+				IsWinner: isWinnerHome,
+			})
+		}
+
+		if playoffRoundKey.Teams[1].TeamId != "" {
+			playoffKeyTeams = append(playoffKeyTeams, TournamentCategoryDTO.PlayoffKeyTeamResponse{
+				Id: playoffRoundKey.Teams[1].TeamId,
+				TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
+					TeamName:   teamAwayName,
+					TeamAvatar: teamAwayAvatar,
+				},
+				Result:   awayResult,
+				Status:   teamsStatus,
+				IsWinner: isWinnerAway,
+			})
+		}
+
 		playoffRoundKeysInfo = append(playoffRoundKeysInfo, TournamentCategoryDTO.PlayoffKeyResponse{
 			Id:               playoffRoundKey.Id.Hex(),
 			Name:             name,
 			NextPlayoffKeyId: playoffRoundKey.NextRoundKeyId,
 			State:            matchStatus,
-			PlayoffKeyTeams: []TournamentCategoryDTO.PlayoffKeyTeamResponse{
-				{
-					Id: playoffRoundKey.Teams[0].TeamId,
-					TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
-						TeamName:   teamHomeName + " " + playoffRoundKey.Teams[0].Variant,
-						TeamAvatar: teamHomeAvatar,
-					},
-					Result:   homeResult,
-					Status:   teamsStatus,
-					IsWinner: isWinnerHome,
-				},
-				{
-					Id: playoffRoundKey.Teams[1].TeamId,
-					TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
-						TeamName:   teamAwayName,
-						TeamAvatar: teamAwayAvatar,
-					},
-					Result:   awayResult,
-					Status:   teamsStatus,
-					IsWinner: isWinnerAway,
-				},
-			},
+			PlayoffKeyTeams:  playoffKeyTeams,
 		})
 	}
 

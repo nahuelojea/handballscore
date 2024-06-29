@@ -33,30 +33,6 @@ func StartMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.
 		return response
 	}
 
-	if len(startMatchRequest.PlayersHome) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "There must be a minimum of one player on the home team"
-		return response
-	}
-
-	if len(startMatchRequest.PlayersAway) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "There must be a minimum of one player on the away team"
-		return response
-	}
-
-	if len(startMatchRequest.CoachsHome) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "There must be a minimum of one coach on the home team"
-		return response
-	}
-
-	if len(startMatchRequest.CoachsAway) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "There must be a minimum of one coach on the away team"
-		return response
-	}
-
 	if len(startMatchRequest.Referees) < 1 {
 		response.Status = http.StatusBadRequest
 		response.Message = "There must be a minimum of one referee"

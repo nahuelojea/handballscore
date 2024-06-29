@@ -19,6 +19,7 @@ type MatchHeaderView struct {
 	GoalsAway              int                `bson:"goals_away" json:"goals_away"`
 	TournamentCategoryId   string             `bson:"tournament_category_id" json:"tournament_category_id"`
 	TournamentCategoryName string             `bson:"tournament_category_name" json:"tournament_category_name"`
+	Category_Id            string             `bson:"category_id" json:"category_id"`
 	AssociationId          string             `bson:"association_id" json:"association_id"`
 	Status_Data            `bson:"status_data" json:"status_data"`
 }

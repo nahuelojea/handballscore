@@ -10,43 +10,6 @@ import (
 	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
-func CreateMatchPlayers(startMatchRequest dto.StartMatchRequest, match models.Match) {
-	for _, playerHome := range startMatchRequest.PlayersHome {
-		matchPlayer := models.MatchPlayer{
-			PlayerId: playerHome.PlayerId,
-			Number:   playerHome.Number,
-			TeamId:   match.TeamHome,
-			Goals: models.Goals{
-				FirstHalf:  0,
-				SecondHalf: 0},
-			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusion{},
-				YellowCard: false,
-				RedCard:    false,
-				BlueCard:   false,
-				Report:     ""},
-		}
-		match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
-	}
-
-	for _, playerAway := range startMatchRequest.PlayersAway {
-		matchPlayer := models.MatchPlayer{
-			PlayerId: playerAway.PlayerId,
-			Number:   playerAway.Number,
-			Goals: models.Goals{
-				FirstHalf:  0,
-				SecondHalf: 0},
-			Sanctions: models.Sanctions{
-				Exclusions: []models.Exclusion{},
-				YellowCard: false,
-				RedCard:    false,
-				BlueCard:   false,
-				Report:     ""},
-		}
-		match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
-	}
-}
-
 func CreateMatchPlayer(association_id string, matchPlayerRequest dto.MatchPlayerRequest) (string, bool, error) {
 	match, _, err := matches_repository.GetMatch(matchPlayerRequest.MatchId)
 	if err != nil {
