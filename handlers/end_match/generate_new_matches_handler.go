@@ -99,10 +99,18 @@ func handleNewMatchesPlayoffPhase(endMatch *models.EndMatch, status *string) err
 	classifiedTeam := playoffRoundKey.TeamsRanking[0].TeamId
 	firstTeamInKey := isEvenKey(playoffRoundKey.KeyNumber)
 
-	matches, err := matches_repository.GetPendingMatchesByPlayoffRoundKeyId(nextPlayoffRoundKey.Id.Hex())
-	if err != nil {
-		return errors.New("Error to get pending matches by playoff round key id: " + err.Error())
+	if firstTeamInKey {
+		nextPlayoffRoundKey.Teams[0] = classifiedTeam
+	} else {
+		nextPlayoffRoundKey.Teams[1] = classifiedTeam
 	}
+
+	_, err = playoff_round_keys_repository.UpdatePlayoffRoundKey(nextPlayoffRoundKey, nextPlayoffRoundKey.Id.Hex())
+	if err != nil {
+		return errors.New("Error to update playoff round key: " + err.Error())
+	}
+
+	matches, _ := matches_repository.GetPendingMatchesByPlayoffRoundKeyId(nextPlayoffRoundKey.Id.Hex())
 
 	if len(matches) == 0 {
 		err = createNewMatches(endMatch, nextPlayoffRoundKey, classifiedTeam, firstTeamInKey)

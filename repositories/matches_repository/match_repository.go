@@ -318,34 +318,14 @@ func GetPendingMatchesByPlayoffRoundKeyId(playoffRoundKeyId string) ([]models.Ma
 	db := db.MongoClient.Database(db.DatabaseName)
 	collection := db.Collection(match_collection)
 
-	pipeline := bson.A{
-		bson.M{
-			"$lookup": bson.M{
-				"from": "playoff_round_keys",
-				"let":  bson.M{"playoff_round_key_id_str": "$playoff_round_key_id"},
-				"pipeline": bson.A{
-					bson.M{
-						"$match": bson.M{"$expr": bson.M{"$eq": bson.A{"$_id", "$$playoff_round_key_id_str"}}},
-					},
-				},
-				"as": "playoff_round_key_info",
-			},
-		},
-		bson.M{
-			"$unwind": bson.M{
-				"path":                       "$playoff_round_key_info",
-				"preserveNullAndEmptyArrays": false,
-			},
-		},
-		bson.M{
-			"$match": bson.M{
-				"playoff_round_key_info._id": playoffRoundKeyId,
-				"status":                     bson.M{"$nin": bson.A{models.Finished, models.Suspended}},
-			},
+	filter := bson.M{
+		"playoff_round_key_id": playoffRoundKeyId,
+		"status": bson.M{
+			"$nin": bson.A{models.Finished, models.Suspended},
 		},
 	}
 
-	cur, err := collection.Aggregate(ctx, pipeline)
+	cur, err := collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}

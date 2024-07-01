@@ -1,6 +1,8 @@
 package dto
 
 type StartMatchRequest struct {
+	CoachsHome  []string `bson:"coachs_home" json:"coachs_home"`
+	CoachsAway  []string `bson:"coachs_away" json:"coachs_away"`
 	Referees    []string `bson:"referees" json:"referees"`
 	Scorekeeper string   `bson:"scorekeeper" json:"scorekeeper"`
 	Timekeeper  string   `bson:"timekeeper" json:"timekeeper"`

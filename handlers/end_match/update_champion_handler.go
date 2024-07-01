@@ -58,7 +58,7 @@ func handleLeaguePhaseChampion(endMatch *models.EndMatch, status *string) {
 func handlePlayoffPhaseChampion(endMatch *models.EndMatch, status *string) {
 	playoffRoundKey := &endMatch.CurrentPlayoffPhase.PlayoffRoundKey
 
-	if playoffRoundKey.NextRoundKeyId != "" && playoffRoundKey.Finished {
+	if playoffRoundKey.NextRoundKeyId == "" && playoffRoundKey.Finished {
 		endMatch.CurrentTournamentCategory.Champion = playoffRoundKey.Winner
 		endMatch.CurrentTournamentCategory.EndDate = time.Now()
 		endMatch.CurrentTournamentCategory.Status = models.Ended
