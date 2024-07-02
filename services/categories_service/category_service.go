@@ -1,6 +1,7 @@
 package categories_service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/nahuelojea/handballscore/models"
@@ -59,6 +60,9 @@ func GetLimitYearsByCategory(ID string) (int, int, string, error) {
 
 	ageLimitFromYear := time.Now().Year() - category.AgeLimitTo
 	ageLimitToYear := time.Now().Year() - category.AgeLimitFrom
+
+	fmt.Println("ageLimitFromYear: ", ageLimitFromYear)
+	fmt.Println("ageLimitToYear: ", ageLimitToYear)
 
 	return ageLimitFromYear, ageLimitToYear, category.Gender, nil
 }

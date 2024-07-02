@@ -1,6 +1,7 @@
 package end_match
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/nahuelojea/handballscore/models"
@@ -13,7 +14,8 @@ type UpdateChampionHandler struct {
 }
 
 func (c *UpdateChampionHandler) HandleEndMatch(endMatch *models.EndMatch) {
-	var status string
+	var err error
+	status := "Step ignored"
 
 	switch endMatch.CurrentPhase {
 	case models.League_Current_Phase:
@@ -22,10 +24,18 @@ func (c *UpdateChampionHandler) HandleEndMatch(endMatch *models.EndMatch) {
 		handlePlayoffPhaseChampion(endMatch, &status)
 	}
 
-	endMatch.GenerateNewPhase = models.StepStatus{
-		IsDone: status != "",
-		Status: status,
+	endMatch.UpdateChampion = models.StepStatus{
+		IsDone: err == nil,
+		Status: func() string {
+			if err != nil {
+				return err.Error()
+			} else {
+				return status
+			}
+		}(),
 	}
+
+	fmt.Println("UpdateChampionHandler Status: ", endMatch.UpdateChampion.Status)
 
 	if nextHandler := c.GetNext(); nextHandler != nil {
 		nextHandler.HandleEndMatch(endMatch)

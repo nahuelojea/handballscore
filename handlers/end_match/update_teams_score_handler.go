@@ -2,6 +2,7 @@ package end_match
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/league_phases_repository"
@@ -31,6 +32,8 @@ func (c *UpdateTeamsScoreHandler) HandleEndMatch(endMatch *models.EndMatch) {
 			return "Teams scores updated"
 		}(),
 	}
+
+	fmt.Println("UpdateTeamsScore Status: ", endMatch.UpdateTeamsScore.Status)
 
 	if nextHandler := c.GetNext(); nextHandler != nil {
 		nextHandler.HandleEndMatch(endMatch)

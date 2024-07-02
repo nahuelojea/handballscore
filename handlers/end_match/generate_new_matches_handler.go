@@ -2,6 +2,7 @@ package end_match
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"strconv"
 	"time"
@@ -38,6 +39,8 @@ func (c *GenerateNewMatchesHandler) HandleEndMatch(endMatch *models.EndMatch) {
 			}
 		}(),
 	}
+
+	fmt.Println("GenerateNewMatchesHandler Status: ", endMatch.GenerateNewPhase.Status)
 
 	if nextHandler := c.GetNext(); nextHandler != nil {
 		nextHandler.HandleEndMatch(endMatch)
@@ -101,8 +104,10 @@ func handleNewMatchesPlayoffPhase(endMatch *models.EndMatch, status *string) err
 
 	if firstTeamInKey {
 		nextPlayoffRoundKey.Teams[0] = classifiedTeam
+		nextPlayoffRoundKey.TeamsRanking[0].TeamId = classifiedTeam
 	} else {
 		nextPlayoffRoundKey.Teams[1] = classifiedTeam
+		nextPlayoffRoundKey.TeamsRanking[1].TeamId = classifiedTeam
 	}
 
 	_, err = playoff_round_keys_repository.UpdatePlayoffRoundKey(nextPlayoffRoundKey, nextPlayoffRoundKey.Id.Hex())
@@ -123,6 +128,7 @@ func handleNewMatchesPlayoffPhase(endMatch *models.EndMatch, status *string) err
 	}
 
 	*status = "New matches generated to end playoff phase key"
+
 	return nil
 }
 
@@ -206,9 +212,9 @@ func createNewMatches(endMatch *models.EndMatch, nextPlayoffRoundKey models.Play
 
 func generateMatch(endMatch *models.EndMatch, roundKeyId string, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) models.Match {
 	if firstTeamInKey {
-		return models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, roundKeyId, classifiedTeam, models.TournamentTeamId{})
+		return models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.Id.Hex(), roundKeyId, classifiedTeam, models.TournamentTeamId{})
 	}
-	return models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.TournamentId, roundKeyId, models.TournamentTeamId{}, classifiedTeam)
+	return models.GeneratePlayoffMatch(endMatch.CurrentTournamentCategory.Id.Hex(), roundKeyId, models.TournamentTeamId{}, classifiedTeam)
 }
 
 func createReturnMatch(endMatch *models.EndMatch, nextRoundKeyId string, classifiedTeam models.TournamentTeamId, firstTeamInKey bool) error {
