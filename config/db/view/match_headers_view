@@ -86,6 +86,7 @@
       date: 1,
       place: 1,
       status: 1,
+      authorization_code: 1,
       goals_home: {
         $cond: [
           {
