@@ -121,7 +121,7 @@ func UpdateGoal(id string, addGoal bool) (bool, error) {
 }
 
 func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
-	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
+	matchPlayer, match, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -137,6 +137,11 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 	if addExclusion {
 		if len(matchPlayer.Sanctions.Exclusions) == 3 {
 			return false, errors.New("The player has three exclusions")
+		}
+		if match.Status == models.FirstHalf {
+			time = "1º " + time
+		} else {
+			time = "2º " + time
 		}
 		matchPlayer.Exclusions = append(matchPlayer.Exclusions, models.Exclusion{Time: time})
 	} else {

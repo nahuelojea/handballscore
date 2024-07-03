@@ -299,6 +299,12 @@ func UpdateTimeouts(id string, tournamentTeamId models.TournamentTeamId, add boo
 		return false, errors.New("The match must be in play")
 	}
 
+	if match.Status == models.FirstHalf {
+		time = "1º " + time
+	} else {
+		time = "2º " + time
+	}
+
 	if match.TeamHome == tournamentTeamId || match.TeamAway == tournamentTeamId {
 		if match.TeamHome == tournamentTeamId {
 			if add {
