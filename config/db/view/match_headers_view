@@ -105,6 +105,7 @@
           "$goals_away.total",
         ],
       },
+      team_home_id: "$team_home_info._id",
       team_home_name: {
         $concat: [
           "$team_home_info.name",
@@ -113,6 +114,7 @@
         ],
       },
       team_home_avatar: "$team_home_info.avatar",
+      team_away_id: "$team_away_info._id",
       team_away_name: {
         $concat: [
           "$team_away_info.name",
