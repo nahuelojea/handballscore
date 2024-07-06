@@ -76,6 +76,10 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 		return false, err
 	}
 
+	if matchCoach.RedCard {
+		return false, errors.New("The coach has red card")
+	}
+
 	if addExclusion {
 		if len(matchCoach.Exclusions) == 3 {
 			return false, errors.New("The coach has three exclusions")
@@ -98,6 +102,10 @@ func UpdateYellowCard(id string, addYellowCard bool) (bool, error) {
 	matchCoach, _, err := getMatchCoachAvailableToAction(id)
 	if err != nil {
 		return false, err
+	}
+
+	if matchCoach.RedCard {
+		return false, errors.New("The coach has red card")
 	}
 
 	matchCoach.YellowCard = addYellowCard
@@ -145,14 +153,6 @@ func getMatchCoachAvailableToAction(id string) (models.MatchCoach, models.Match,
 
 	if match.Status != models.FirstHalf && match.Status != models.SecondHalf {
 		return models.MatchCoach{}, models.Match{}, errors.New("The match must be in progress")
-	}
-
-	if matchCoach.RedCard {
-		return models.MatchCoach{}, models.Match{}, errors.New("The coach has red card")
-	}
-
-	if matchCoach.BlueCard {
-		return models.MatchCoach{}, models.Match{}, errors.New("The coach has blue card")
 	}
 
 	return matchCoach, match, nil
