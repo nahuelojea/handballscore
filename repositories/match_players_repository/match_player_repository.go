@@ -125,9 +125,7 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayerV
 func UpdateMatchPlayer(matchPlayer models.MatchPlayer, id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
-	if len(matchPlayer.Number) > 0 {
-		updateDataMap["number"] = matchPlayer.Number
-	}
+	updateDataMap["number"] = matchPlayer.Number
 
 	return repositories.Update(match_player_collection, updateDataMap, id)
 }

@@ -30,12 +30,6 @@ func UpdateNumber(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	if len(numberRequest.Number) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "Number is required"
-		return response
-	}
-
 	_, err = match_players_service.UpdateNumber(id, numberRequest.Number)
 	if err != nil {
 		response.Status = http.StatusInternalServerError

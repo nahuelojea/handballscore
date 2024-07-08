@@ -182,7 +182,7 @@ func UpdateRedCard(id string, addRedCard bool) (bool, error) {
 	return match_players_repository.UpdateRedCard(matchPlayer)
 }
 
-func UpdateNumber(id, number string) (bool, error) {
+func UpdateNumber(id string, number int) (bool, error) {
 	matchPlayer, _, err := match_players_repository.GetMatchPlayer(id)
 	if err != nil {
 		return false, errors.New("Error to get match player: " + err.Error())

@@ -10,7 +10,7 @@ type MatchPlayerRequest struct {
 	MatchId  string           `bson:"match_id" json:"match_id"`
 	PlayerId string           `bson:"player_id" json:"player_id"`
 	Team     MatchTeamRequest `bson:"team" json:"team"`
-	Number   string           `bson:"number" json:"number"`
+	Number   int              `bson:"number" json:"number"`
 }
 
 type MatchCoachRequest struct {

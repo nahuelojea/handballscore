@@ -14,7 +14,7 @@ type MatchPlayerView struct {
 	PlayerName    string             `bson:"player_name" json:"player_name"`
 	PlayerSurname string             `bson:"player_surname" json:"player_surname"`
 	PlayerAvatar  string             `bson:"player_avatar" json:"player_avatar"`
-	Number        string             `bson:"number" json:"number"`
+	Number        int                `bson:"number" json:"number"`
 	Goals         `bson:"goals" json:"goals"`
 	Sanctions     `bson:"sanctions" json:"sanctions"`
 	AssociationId string `bson:"association_id" json:"association_id"`

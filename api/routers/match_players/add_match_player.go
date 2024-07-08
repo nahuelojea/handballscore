@@ -40,10 +40,6 @@ func AddMatchPlayer(ctx context.Context, claim dto.Claim) dto.RestResponse {
 		restResponse.Message = "Team id is required"
 		return restResponse
 	}
-	if len(matchPlayerRequest.Number) == 0 {
-		restResponse.Message = "Number is required"
-		return restResponse
-	}
 
 	id, status, err := match_players_service.CreateMatchPlayer(claim.AssociationId, matchPlayerRequest)
 	if err != nil {

@@ -11,7 +11,7 @@ type MatchPlayer struct {
 	MatchId       string             `bson:"match_id" json:"match_id"`
 	TeamId        TournamentTeamId   `bson:"team" json:"team"`
 	PlayerId      string             `bson:"player_id" json:"player_id"`
-	Number        string             `bson:"number" json:"number"`
+	Number        int                `bson:"number" json:"number"`
 	Goals         `bson:"goals" json:"goals"`
 	Sanctions     `bson:"sanctions" json:"sanctions"`
 	AssociationId string `bson:"association_id" json:"association_id"`
