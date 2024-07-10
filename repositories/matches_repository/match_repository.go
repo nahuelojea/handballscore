@@ -272,10 +272,19 @@ func GetPendingMatchesByLeaguePhaseId(leaguePhaseId string) ([]models.Match, err
 		bson.M{
 			"$lookup": bson.M{
 				"from": "league_phase_weeks",
-				"let":  bson.M{"league_phase_week_id_str": "$league_phase_week_id"},
+				"let": bson.M{
+					"league_phase_week_id_str": "$league_phase_week_id",
+				},
 				"pipeline": bson.A{
 					bson.M{
-						"$match": bson.M{"$expr": bson.M{"$eq": bson.A{"$_id", "$$league_phase_week_id_str"}}},
+						"$match": bson.M{
+							"$expr": bson.M{
+								"$eq": bson.A{
+									"$_id",
+									bson.M{"$toObjectId": "$$league_phase_week_id_str"},
+								},
+							},
+						},
 					},
 				},
 				"as": "league_phase_week_info",
