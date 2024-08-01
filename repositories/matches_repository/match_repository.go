@@ -367,3 +367,32 @@ func UpdateAwayTeam(id string, team models.TournamentTeamId) (bool, error) {
 
 	return repositories.Update(match_collection, updateDataMap, id)
 }
+
+func GetLastEndedMatchByTeam(team models.TournamentTeamId, tournamentCategoryId string) (models.Match, bool, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(match_collection)
+
+	filter := bson.M{
+		"$and": bson.A{
+			bson.M{"$or": bson.A{
+				bson.M{"team_home.team_id": team.TeamId, "team_home.variant": team.Variant, "status": models.Finished},
+				bson.M{"team_away.team_id": team.TeamId, "team_away.variant": team.Variant, "status": models.Finished},
+			}},
+			bson.M{"tournament_category_id": tournamentCategoryId},
+		},
+	}
+
+	sort := bson.D{{Key: "date", Value: -1}}
+
+	findOptions := options.FindOne()
+	findOptions.SetSort(sort)
+
+	var match models.Match
+	err := collection.FindOne(ctx, filter, findOptions).Decode(&match)
+	if err != nil {
+		return match, false, err
+	}
+
+	return match, true, nil
+}

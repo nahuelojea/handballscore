@@ -9,6 +9,7 @@ import (
 	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/handlers/end_match"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 	"github.com/nahuelojea/handballscore/services/teams_service"
 )
@@ -128,10 +129,70 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 }
 
 func ProgramMatch(matchTime time.Time, place, authorizationCode, id string) (bool, error) {
-	if matchTime.Compare(time.Now()) < 1 {
+	if matchTime.Before(time.Now()) {
 		return false, errors.New("The date cannot be earlier than the current date")
 	}
+
+	match, _, err := matches_repository.GetMatch(id)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	err = processTeamPlayers(match.TeamHome, match.TournamentCategoryId, match.AssociationId, id)
+	if err != nil {
+		return false, err
+	}
+
+	err = processTeamPlayers(match.TeamAway, match.TournamentCategoryId, match.AssociationId, id)
+	if err != nil {
+		return false, err
+	}
+
 	return matches_repository.ProgramMatch(matchTime, place, authorizationCode, id)
+}
+
+func processTeamPlayers(teamId models.TournamentTeamId, tournamentCategoryId, associationId, matchId string) error {
+	lastEndedMatch, isPresent, _ := matches_repository.GetLastEndedMatchByTeam(teamId, tournamentCategoryId)
+	if !isPresent {
+		return nil
+	}
+
+	getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
+		MatchId: lastEndedMatch.Id.Hex(),
+		Team:    lastEndedMatch.TeamHome,
+	}
+
+	players, totalRecords, _, _ := match_players_repository.GetMatchPlayers(getPlayersOptions)
+	if totalRecords > 0 {
+		for _, player := range players {
+			matchPlayer := models.MatchPlayer{
+				MatchId:  matchId,
+				PlayerId: player.PlayerId,
+				Number:   player.Number,
+				TeamId: models.TournamentTeamId{
+					TeamId:  player.TeamId.TeamId,
+					Variant: player.TeamId.Variant,
+				},
+				Goals: models.Goals{
+					FirstHalf:  0,
+					SecondHalf: 0,
+				},
+				Sanctions: models.Sanctions{
+					Exclusions: []models.Exclusion{},
+					YellowCard: false,
+					RedCard:    false,
+					BlueCard:   false,
+					Report:     "",
+				},
+			}
+			_, _, err := match_players_repository.CreateMatchPlayer(associationId, matchPlayer)
+			if err != nil {
+				return errors.New("Error to create match player: " + err.Error())
+			}
+		}
+	}
+
+	return nil
 }
 
 func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error) {
