@@ -2,6 +2,7 @@ package matches_service
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/handlers/end_match"
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories/match_coaches_repository"
 	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 	"github.com/nahuelojea/handballscore/services/teams_service"
@@ -138,35 +140,50 @@ func ProgramMatch(matchTime time.Time, place, authorizationCode, id string) (boo
 		return false, errors.New("Error to get match: " + err.Error())
 	}
 
-	err = processTeamPlayers(match.TeamHome, match.TournamentCategoryId, match.AssociationId, id)
-	if err != nil {
-		return false, err
-	}
-
-	err = processTeamPlayers(match.TeamAway, match.TournamentCategoryId, match.AssociationId, id)
-	if err != nil {
-		return false, err
-	}
+	laodMatchPlayersAndCoachesFromLastMatch(match)
 
 	return matches_repository.ProgramMatch(matchTime, place, authorizationCode, id)
 }
 
-func processTeamPlayers(teamId models.TournamentTeamId, tournamentCategoryId, associationId, matchId string) error {
-	lastEndedMatch, isPresent, _ := matches_repository.GetLastEndedMatchByTeam(teamId, tournamentCategoryId)
+func laodMatchPlayersAndCoachesFromLastMatch(match models.Match) error {
+	err := processTeamPlayersAndCoaches(match, match.TeamHome)
+	if err != nil {
+		return err
+	}
+
+	err = processTeamPlayersAndCoaches(match, match.TeamAway)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func processTeamPlayersAndCoaches(match models.Match, team models.TournamentTeamId) error {
+	lastEndedMatch, isPresent, _ := matches_repository.GetLastEndedMatchByTeam(team, match.TournamentCategoryId)
 	if !isPresent {
 		return nil
 	}
 
-	getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
-		MatchId: lastEndedMatch.Id.Hex(),
-		Team:    lastEndedMatch.TeamHome,
+	if match.Date.Year() != lastEndedMatch.Date.Year() {
+		return nil
 	}
 
-	players, totalRecords, _, _ := match_players_repository.GetMatchPlayers(getPlayersOptions)
-	if totalRecords > 0 {
+	if match.Status == models.Programmed || match.Status == models.Suspended {
+		return nil
+	}
+
+	getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
+		MatchId:       lastEndedMatch.Id.Hex(),
+		Team:          team,
+		AssociationId: match.AssociationId,
+	}
+
+	players, _, _, _ := match_players_repository.GetMatchPlayers(getPlayersOptions)
+	if len(players) != 0 {
+
 		for _, player := range players {
 			matchPlayer := models.MatchPlayer{
-				MatchId:  matchId,
+				MatchId:  match.Id.Hex(),
 				PlayerId: player.PlayerId,
 				Number:   player.Number,
 				TeamId: models.TournamentTeamId{
@@ -185,9 +202,41 @@ func processTeamPlayers(teamId models.TournamentTeamId, tournamentCategoryId, as
 					Report:     "",
 				},
 			}
-			_, _, err := match_players_repository.CreateMatchPlayer(associationId, matchPlayer)
+			_, _, err := match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
 			if err != nil {
-				return errors.New("Error to create match player: " + err.Error())
+				fmt.Println("Error to create match player: %s", err.Error())
+			}
+		}
+	}
+
+	getCoachesOptions := match_coaches_repository.GetMatchCoachOptions{
+		MatchId:       lastEndedMatch.Id.Hex(),
+		Team:          team,
+		AssociationId: match.AssociationId,
+	}
+
+	coaches, _, _, _ := match_coaches_repository.GetMatchCoaches(getCoachesOptions)
+	if len(coaches) != 0 {
+		for _, coach := range coaches {
+			matchCoach := models.MatchCoach{
+				MatchId: match.Id.Hex(),
+				CoachId: coach.CoachId,
+				TeamId: models.TournamentTeamId{
+					TeamId:  coach.TeamId.TeamId,
+					Variant: coach.TeamId.Variant,
+				},
+				Sanctions: models.Sanctions{
+					Exclusions: []models.Exclusion{},
+					YellowCard: false,
+					RedCard:    false,
+					BlueCard:   false,
+					Report:     "",
+				},
+			}
+
+			_, _, err := match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
+			if err != nil {
+				fmt.Println("Error to create match coach: %s", err.Error())
 			}
 		}
 	}
