@@ -1,9 +1,8 @@
 package dto
 
 type StartMatchRequest struct {
-	Referees    []string `bson:"referees" json:"referees"`
-	Scorekeeper string   `bson:"scorekeeper" json:"scorekeeper"`
-	Timekeeper  string   `bson:"timekeeper" json:"timekeeper"`
+	Scorekeeper string `bson:"scorekeeper" json:"scorekeeper"`
+	Timekeeper  string `bson:"timekeeper" json:"timekeeper"`
 }
 
 type MatchPlayerRequest struct {

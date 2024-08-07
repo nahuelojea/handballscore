@@ -244,13 +244,31 @@ func processTeamPlayersAndCoaches(match models.Match, team models.TournamentTeam
 	return nil
 }
 
+func AssingReferees(id string, assignRefereesRequest dto.AssingRefereesRequest) (bool, error) {
+	match, _, err := matches_repository.GetMatch(id)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	if len(assignRefereesRequest.Referees) == 0 {
+		return false, errors.New("The match must have at least one referee")
+	}
+
+	match.Referees = assignRefereesRequest.Referees
+
+	return matches_repository.UpdateReferees(match, id)
+}
+
 func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error) {
 	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {
 		return false, errors.New("Error to get match: " + err.Error())
 	}
 
-	match.Referees = startMatchRequest.Referees
+	if match.Referees == nil || len(match.Referees) == 0 {
+		return false, errors.New("The match must have at least one referee")
+	}
+
 	match.Scorekeeper = startMatchRequest.Scorekeeper
 	match.Timekeeper = startMatchRequest.Timekeeper
 

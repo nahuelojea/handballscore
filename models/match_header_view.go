@@ -15,6 +15,7 @@ type MatchHeaderView struct {
 	TeamAwayId             primitive.ObjectID `bson:"team_away_id" json:"team_away_id"`
 	TeamAwayName           string             `bson:"team_away_name" json:"team_away_name"`
 	TeamAwayAvatar         string             `bson:"team_away_avatar" json:"team_away_avatar"`
+	Referees               []string           `bson:"referees" json:"referees"`
 	Place                  string             `bson:"place" json:"place"`
 	Status                 string             `bson:"status" json:"status"`
 	AuthorizationCode      string             `bson:"authorization_code" json:"authorization_code"`

@@ -208,10 +208,17 @@ func ProgramMatch(time time.Time, place, authorizationCode, id string) (bool, er
 	return repositories.Update(match_collection, updateDataMap, id)
 }
 
-func StartMatch(match models.Match, Id string) (bool, error) {
+func UpdateReferees(match models.Match, Id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
 	updateDataMap["referees"] = match.Referees
+
+	return repositories.Update(match_collection, updateDataMap, Id)
+}
+
+func StartMatch(match models.Match, Id string) (bool, error) {
+	updateDataMap := make(map[string]interface{})
+
 	updateDataMap["scorekeeper"] = match.Scorekeeper
 	updateDataMap["timekeeper"] = match.Timekeeper
 	updateDataMap["status"] = models.FirstHalf

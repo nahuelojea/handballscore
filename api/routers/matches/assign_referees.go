@@ -12,7 +12,7 @@ import (
 	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
-func StartMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
+func AssignReferees(ctx context.Context, request events.APIGatewayProxyRequest) dto.RestResponse {
 	var response dto.RestResponse
 	response.Status = http.StatusBadRequest
 
@@ -23,36 +23,30 @@ func StartMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.
 		return response
 	}
 
-	var startMatchRequest MatchesDTO.StartMatchRequest
+	var assignRefereesRequest MatchesDTO.AssingRefereesRequest
 
 	body := ctx.Value(dto.Key("body")).(string)
-	err := json.Unmarshal([]byte(body), &startMatchRequest)
+	err := json.Unmarshal([]byte(body), &assignRefereesRequest)
 	if err != nil {
 		response.Status = http.StatusBadRequest
 		response.Message = "Invalid data format: " + err.Error()
 		return response
 	}
 
-	if len(startMatchRequest.Timekeeper) < 1 {
+	if len(assignRefereesRequest.Referees) < 1 {
 		response.Status = http.StatusBadRequest
-		response.Message = "Timekeeper is required"
+		response.Message = "Referees is required"
 		return response
 	}
 
-	if len(startMatchRequest.Scorekeeper) < 1 {
-		response.Status = http.StatusBadRequest
-		response.Message = "Scorekeeper is required"
-		return response
-	}
-
-	_, err = matches_service.StartMatch(startMatchRequest, Id)
+	_, err = matches_service.AssingReferees(Id, assignRefereesRequest)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
-		response.Message = "Error to start match: " + err.Error()
+		response.Message = "Error to assign referees: " + err.Error()
 		return response
 	}
 
 	response.Status = http.StatusOK
-	response.Message = "Match started"
+	response.Message = "Referees assigned"
 	return response
 }

@@ -10,6 +10,7 @@ const (
 	AdminRole       string = "admin"
 	AssociationRole string = "association"
 	TeamRole        string = "team"
+	RefereeRole     string = "referee"
 	ViewerRole      string = "viewer"
 )
 
@@ -18,6 +19,7 @@ type User struct {
 	Email         string             `bson:"email" json:"email"`
 	Password      string             `bson:"password" json:"password,omitempty"`
 	Role          string             `bson:"role" json:"role"`
+	RoleId        string             `bson:"role_id" json:"role_id"`
 	TeamId        string             `bson:"team_id" json:"team_id"`
 	Personal_Data `bson:"personal_data" json:"personal_data"`
 	Status_Data   `bson:"status_data" json:"status_data"`

@@ -59,6 +59,7 @@ func Login(ctx context.Context) dto.RestResponse {
 			Avatar:           association.Avatar,
 			PhoneNumber:      association.PhoneNumber},
 		Role:   string(userData.Role),
+		RoleId: string(userData.RoleId),
 		TeamId: string(userData.TeamId),
 	}
 

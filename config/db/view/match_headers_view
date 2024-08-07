@@ -123,6 +123,7 @@
         ],
       },
       team_away_avatar: "$team_away_info.avatar",
+      referees: 1,
       tournament_category_id: 1,
       tournament_category_name:
         "$tournament_category_info.name",
