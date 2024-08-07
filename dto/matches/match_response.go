@@ -7,6 +7,7 @@ type MatchResponse struct {
 	Date              time.Time         `bson:"date" json:"date"`
 	TeamHome          MatchTeamResponse `bson:"team_home" json:"team_home"`
 	TeamAway          MatchTeamResponse `bson:"team_away" json:"team_away"`
+	Referees          []string          `bson:"referees" json:"referees"`
 	Place             string            `bson:"place" json:"place"`
 	Status            string            `bson:"status" json:"status"`
 	AuthorizationCode string            `bson:"authorization_code" json:"authorization_code"`
