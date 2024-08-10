@@ -165,7 +165,7 @@ func processTeamPlayersAndCoaches(match models.Match, team models.TournamentTeam
 		return nil
 	}
 
-	if match.Date.Year() != lastEndedMatch.Date.Year() {
+	if time.Now().Year() != lastEndedMatch.Date.Year() {
 		return nil
 	}
 
