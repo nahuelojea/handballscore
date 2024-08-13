@@ -193,7 +193,7 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	return matchViews, totalRecords, totalPages, nil
 }
 
-func ProgramMatch(time time.Time, place, authorizationCode, id string) (bool, error) {
+func ProgramMatch(time time.Time, place, id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if !time.IsZero() {
 		updateDataMap["date"] = time
@@ -202,7 +202,6 @@ func ProgramMatch(time time.Time, place, authorizationCode, id string) (bool, er
 		updateDataMap["place"] = place
 	}
 
-	updateDataMap["authorization_code"] = authorizationCode
 	updateDataMap["status"] = models.Programmed
 
 	return repositories.Update(match_collection, updateDataMap, id)

@@ -110,16 +110,15 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 		}
 
 		matchJourney := dto.MatchResponse{
-			MatchId:           match.Id.Hex(),
-			Date:              match.Date,
-			TeamHome:          homeMatchTeam,
-			TeamAway:          awayMatchTeam,
-			Referees:          match.Referees,
-			Place:             match.Place,
-			Status:            match.Status,
-			AuthorizationCode: match.AuthorizationCode,
-			GoalsHome:         match.GoalsHome.Total,
-			GoalsAway:         match.GoalsAway.Total,
+			MatchId:   match.Id.Hex(),
+			Date:      match.Date,
+			TeamHome:  homeMatchTeam,
+			TeamAway:  awayMatchTeam,
+			Referees:  match.Referees,
+			Place:     match.Place,
+			Status:    match.Status,
+			GoalsHome: match.GoalsHome.Total,
+			GoalsAway: match.GoalsAway.Total,
 		}
 		matchesJourney = append(matchesJourney, matchJourney)
 	}
@@ -131,7 +130,7 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 	return matchesJourney, totalRecords, int(totalPages), nil
 }
 
-func ProgramMatch(matchTime time.Time, place, authorizationCode, id string) (bool, error) {
+func ProgramMatch(matchTime time.Time, place, id string) (bool, error) {
 	if matchTime.Before(time.Now()) {
 		return false, errors.New("The date cannot be earlier than the current date")
 	}
@@ -143,7 +142,7 @@ func ProgramMatch(matchTime time.Time, place, authorizationCode, id string) (boo
 
 	laodMatchPlayersAndCoachesFromLastMatch(match)
 
-	return matches_repository.ProgramMatch(matchTime, place, authorizationCode, id)
+	return matches_repository.ProgramMatch(matchTime, place, id)
 }
 
 func laodMatchPlayersAndCoachesFromLastMatch(match models.Match) error {
@@ -309,7 +308,7 @@ func SuspendMatch(id, comments string) (bool, error) {
 	return true, nil
 }
 
-func EndMatch(id, authorizationCode, comments string) (bool, error) {
+func EndMatch(id, comments string) (bool, error) {
 	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {
 		return false, errors.New("Error to get match: " + err.Error())
@@ -317,10 +316,6 @@ func EndMatch(id, authorizationCode, comments string) (bool, error) {
 
 	if match.Status != models.SecondHalf {
 		return false, errors.New("The match must be found in the second half")
-	}
-
-	if match.AuthorizationCode != authorizationCode {
-		return false, errors.New("The authorization code is incorrect")
 	}
 
 	_, err = matches_repository.EndMatch(id, comments)

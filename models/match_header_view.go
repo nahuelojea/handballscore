@@ -18,7 +18,6 @@ type MatchHeaderView struct {
 	Referees               []string           `bson:"referees" json:"referees"`
 	Place                  string             `bson:"place" json:"place"`
 	Status                 string             `bson:"status" json:"status"`
-	AuthorizationCode      string             `bson:"authorization_code" json:"authorization_code"`
 	GoalsHome              int                `bson:"goals_home" json:"goals_home"`
 	GoalsAway              int                `bson:"goals_away" json:"goals_away"`
 	TournamentCategoryId   string             `bson:"tournament_category_id" json:"tournament_category_id"`

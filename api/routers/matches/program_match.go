@@ -32,13 +32,7 @@ func ProgramMatch(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	if len(programMatchRequest.AuthorizationCode) != 6 {
-		response.Status = http.StatusBadRequest
-		response.Message = "Authorization code must have 6 characters"
-		return response
-	}
-
-	_, err = matches_service.ProgramMatch(programMatchRequest.Date, programMatchRequest.Place, programMatchRequest.AuthorizationCode, Id)
+	_, err = matches_service.ProgramMatch(programMatchRequest.Date, programMatchRequest.Place, Id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to program match data: " + err.Error()

@@ -30,7 +30,7 @@ func EndMatch(ctx context.Context, request events.APIGatewayProxyRequest) dto.Re
 		return response
 	}
 
-	_, err = matches_service.EndMatch(id, endMatchRequest.AuthorizationCode, endMatchRequest.Comments)
+	_, err = matches_service.EndMatch(id, endMatchRequest.Comments)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to end match: " + err.Error()

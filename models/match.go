@@ -33,7 +33,6 @@ type Match struct {
 	TimeoutsAway         []Timeout          `bson:"timeouts_away" json:"timeouts_away"`
 	LeaguePhaseWeekId    string             `bson:"league_phase_week_id" json:"league_phase_week_id"`
 	PlayoffRoundKeyId    string             `bson:"playoff_round_key_id" json:"playoff_round_key_id"`
-	AuthorizationCode    string             `bson:"authorization_code" json:"authorization_code"`
 	TournamentCategoryId string             `bson:"tournament_category_id" json:"tournament_category_id"`
 	AssociationId        string             `bson:"association_id" json:"association_id"`
 	Status_Data          `bson:"status_data" json:"status_data"`
