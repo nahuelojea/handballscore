@@ -162,7 +162,10 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{{Key: sortField, Value: sortOrder}})
+	findOptions.SetSort(bson.D{
+		{Key: "place", Value: sortOrder},
+		{Key: "date", Value: sortOrder},
+	})
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {
