@@ -196,7 +196,7 @@ func UpdateNumber(id string, number int) (bool, error) {
 		AssociationId: matchPlayer.AssociationId,
 	}
 
-	players, _, _, err := match_players_repository.GetMatchPlayers(match_players)
+	players, _, _, _ := match_players_repository.GetMatchPlayers(match_players)
 	if len(players) != 0 {
 		return false, errors.New("The number is already in use")
 	}
