@@ -2,6 +2,7 @@ package match_players_service
 
 import (
 	"errors"
+	"strconv"
 
 	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
@@ -186,6 +187,18 @@ func UpdateNumber(id string, number int) (bool, error) {
 	matchPlayer, _, err := match_players_repository.GetMatchPlayer(id)
 	if err != nil {
 		return false, errors.New("Error to get match player: " + err.Error())
+	}
+
+	match_players := match_players_repository.GetMatchPlayerOptions{
+		MatchId:       matchPlayer.MatchId,
+		Team:          matchPlayer.TeamId,
+		Number:        strconv.Itoa(number),
+		AssociationId: matchPlayer.AssociationId,
+	}
+
+	players, _, _, err := match_players_repository.GetMatchPlayers(match_players)
+	if len(players) != 0 {
+		return false, errors.New("The number is already in use")
 	}
 
 	matchPlayer.Number = number
