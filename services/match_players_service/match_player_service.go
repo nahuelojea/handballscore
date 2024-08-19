@@ -2,7 +2,6 @@ package match_players_service
 
 import (
 	"errors"
-	"strconv"
 
 	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
@@ -60,7 +59,7 @@ type GetMatchPlayerOptions struct {
 	MatchId       string
 	Team          models.TournamentTeamId
 	PlayerId      string
-	Number        string
+	Number        int
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -191,8 +190,8 @@ func UpdateNumber(id string, number int) (bool, error) {
 
 	match_players := match_players_repository.GetMatchPlayerOptions{
 		MatchId:       matchPlayer.MatchId,
-		Team:          matchPlayer.TeamId,
-		Number:        strconv.Itoa(number),
+		Team:          models.TournamentTeamId{TeamId: matchPlayer.TeamId.TeamId, Variant: matchPlayer.TeamId.Variant},
+		Number:        number,
 		AssociationId: matchPlayer.AssociationId,
 	}
 

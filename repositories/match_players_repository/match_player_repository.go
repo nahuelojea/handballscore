@@ -43,7 +43,7 @@ type GetMatchPlayerOptions struct {
 	MatchId       string
 	Team          models.TournamentTeamId
 	PlayerId      string
-	Number        string
+	Number        int
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -71,8 +71,8 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayerV
 	if filterOptions.PlayerId != "" {
 		filter["player_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.PlayerId, Options: "i"}}
 	}
-	if filterOptions.Number != "" {
-		filter["number"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.Number, Options: "i"}}
+	if filterOptions.Number != 0 {
+		filter["number"] = filterOptions.Number
 	}
 
 	page := filterOptions.Page
