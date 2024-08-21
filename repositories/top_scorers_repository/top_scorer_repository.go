@@ -26,7 +26,7 @@ type GetTopScorersOptions struct {
 }
 
 func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCategoryId string) error {
-	viewName := top_scorers_view
+	viewName := "top_scorers_view"
 
 	if err := db.RunCommand(context.Background(), bson.D{{Key: "drop", Value: viewName}}).Err(); err != nil {
 		if err.Error() != "ns not found" {
@@ -46,6 +46,9 @@ func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCat
 								"$and": []bson.M{
 									{"$eq": []interface{}{"$_id", bson.M{"$toObjectId": "$$match_id_str"}}},
 									{"$eq": []interface{}{"$tournament_category_id", tournamentCategoryId}},
+									{"$not": bson.M{
+										"$in": []interface{}{"$status", []string{models.Created, models.Programmed}},
+									}},
 								},
 							},
 						},
@@ -127,7 +130,7 @@ func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCat
 		},
 	}
 
-	err := db.CreateView(ctx, viewName, match_players_view, pipeline)
+	err := db.CreateView(ctx, viewName, "match_players_view", pipeline)
 	if err != nil {
 		return err
 	}
