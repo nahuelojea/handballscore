@@ -16,6 +16,7 @@ func GetTopScorers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.R
 	id := request.QueryStringParameters["id"]
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
+	surname := request.QueryStringParameters["surname"]
 	associationId := claim.AssociationId
 
 	if len(id) < 1 {
@@ -43,6 +44,7 @@ func GetTopScorers(request events.APIGatewayProxyRequest, claim dto.Claim) dto.R
 	filterOptions := top_scorers_service.GetTopScorersOptions{
 		TournamentCategoryId: id,
 		AssociationId:        associationId,
+		Surname:              surname,
 		Page:                 page,
 		PageSize:             pageSize,
 	}

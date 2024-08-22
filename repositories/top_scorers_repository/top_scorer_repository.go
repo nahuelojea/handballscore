@@ -12,6 +12,7 @@ import (
 type GetTopScorersOptions struct {
 	TournamentCategoryId string
 	AssociationId        string
+	Surname              string
 	Page                 int
 	PageSize             int
 	SortField            string
@@ -89,7 +90,21 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 				"association_id": filterOptions.AssociationId,
 			},
 		},
-		{
+	}
+
+	if filterOptions.Surname != "" {
+		pipeline = append(pipeline, bson.M{
+			"$match": bson.M{
+				"player_surname": bson.M{
+					"$regex":   filterOptions.Surname,
+					"$options": "i",
+				},
+			},
+		})
+	}
+
+	pipeline = append(pipeline,
+		bson.M{
 			"$addFields": bson.M{
 				"total_matches": bson.M{"$size": "$total_matches"},
 				"average": bson.M{
@@ -100,7 +115,7 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 				},
 			},
 		},
-		{
+		bson.M{
 			"$project": bson.M{
 				"total_goals":    1,
 				"average":        1,
@@ -113,18 +128,18 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 				"association_id": 1,
 			},
 		},
-		{
+		bson.M{
 			"$sort": bson.M{
 				"total_goals": -1,
 			},
 		},
-		{
+		bson.M{
 			"$skip": int64((filterOptions.Page - 1) * filterOptions.PageSize),
 		},
-		{
+		bson.M{
 			"$limit": int64(filterOptions.PageSize),
 		},
-	}
+	)
 
 	cur, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
