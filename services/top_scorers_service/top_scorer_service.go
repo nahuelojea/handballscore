@@ -8,7 +8,7 @@ import (
 type GetTopScorersOptions struct {
 	TournamentCategoryId string
 	AssociationId        string
-	Surname              string
+	Name                 string
 	Page                 int
 	PageSize             int
 	SortField            string
@@ -19,7 +19,7 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 	filters := top_scorers_repository.GetTopScorersOptions{
 		TournamentCategoryId: filterOptions.TournamentCategoryId,
 		AssociationId:        filterOptions.AssociationId,
-		Surname:              filterOptions.Surname,
+		Name:                 filterOptions.Name,
 		Page:                 filterOptions.Page,
 		PageSize:             filterOptions.PageSize,
 		SortField:            filterOptions.SortField,

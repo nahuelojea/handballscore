@@ -12,7 +12,7 @@ import (
 type GetTopScorersOptions struct {
 	TournamentCategoryId string
 	AssociationId        string
-	Surname              string
+	Name                 string
 	Page                 int
 	PageSize             int
 	SortField            string
@@ -92,12 +92,18 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 		},
 	}
 
-	if filterOptions.Surname != "" {
+	if filterOptions.Name != "" {
 		pipeline = append(pipeline, bson.M{
 			"$match": bson.M{
-				"player_surname": bson.M{
-					"$regex":   filterOptions.Surname,
-					"$options": "i",
+				"$or": []bson.M{
+					{"player_name": bson.M{
+						"$regex":   filterOptions.Name,
+						"$options": "i",
+					}},
+					{"player_surname": bson.M{
+						"$regex":   filterOptions.Name,
+						"$options": "i",
+					}},
 				},
 			},
 		})
