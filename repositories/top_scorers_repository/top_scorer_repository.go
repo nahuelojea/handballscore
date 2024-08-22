@@ -7,13 +7,6 @@ import (
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-)
-
-const (
-	match_players_view = "match_players_view"
-	top_scorers_view   = "top_scorers_view"
 )
 
 type GetTopScorersOptions struct {
@@ -25,14 +18,10 @@ type GetTopScorersOptions struct {
 	SortOrder            int
 }
 
-func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCategoryId string) error {
-	viewName := "top_scorers_view"
-
-	if err := db.RunCommand(context.Background(), bson.D{{Key: "drop", Value: viewName}}).Err(); err != nil {
-		if err.Error() != "ns not found" {
-			return err
-		}
-	}
+func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int64, int, error) {
+	ctx := context.TODO()
+	database := db.MongoClient.Database(db.DatabaseName)
+	collection := database.Collection("match_players_view")
 
 	pipeline := []bson.M{
 		{
@@ -45,7 +34,7 @@ func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCat
 							"$expr": bson.M{
 								"$and": []bson.M{
 									{"$eq": []interface{}{"$_id", bson.M{"$toObjectId": "$$match_id_str"}}},
-									{"$eq": []interface{}{"$tournament_category_id", tournamentCategoryId}},
+									{"$eq": []interface{}{"$tournament_category_id", filterOptions.TournamentCategoryId}},
 									{"$not": bson.M{
 										"$in": []interface{}{"$status", []string{models.Created, models.Programmed}},
 									}},
@@ -96,7 +85,8 @@ func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCat
 		},
 		{
 			"$match": bson.M{
-				"total_goals": bson.M{"$gt": 0},
+				"total_goals":    bson.M{"$gt": 0},
+				"association_id": filterOptions.AssociationId,
 			},
 		},
 		{
@@ -128,39 +118,15 @@ func CreateTopScorersView(ctx context.Context, db *mongo.Database, tournamentCat
 				"total_goals": -1,
 			},
 		},
+		{
+			"$skip": int64((filterOptions.Page - 1) * filterOptions.PageSize),
+		},
+		{
+			"$limit": int64(filterOptions.PageSize),
+		},
 	}
 
-	err := db.CreateView(ctx, viewName, "match_players_view", pipeline)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int64, int, error) {
-	ctx := context.TODO()
-	db := db.MongoClient.Database(db.DatabaseName)
-
-	err := CreateTopScorersView(ctx, db, filterOptions.TournamentCategoryId)
-	if err != nil {
-		return nil, 0, 0, err
-	}
-
-	collection := db.Collection(top_scorers_view)
-
-	filter := bson.M{
-		"association_id": filterOptions.AssociationId,
-	}
-
-	page := filterOptions.Page
-	pageSize := filterOptions.PageSize
-
-	findOptions := options.Find()
-	findOptions.SetLimit(int64(pageSize))
-	findOptions.SetSkip(int64((page - 1) * pageSize))
-
-	cur, err := collection.Find(ctx, filter, findOptions)
+	cur, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, 0, 0, err
 	}
@@ -179,12 +145,26 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 		return nil, 0, 0, err
 	}
 
-	totalRecords, err := collection.CountDocuments(ctx, filter)
+	countPipeline := append(pipeline[:len(pipeline)-3], bson.M{
+		"$count": "totalRecords",
+	})
+
+	var countResult struct {
+		TotalRecords int64 `bson:"totalRecords"`
+	}
+	countCur, err := collection.Aggregate(ctx, countPipeline)
 	if err != nil {
 		return nil, 0, 0, err
 	}
+	defer countCur.Close(ctx)
 
-	totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+	if countCur.Next(ctx) {
+		if err := countCur.Decode(&countResult); err != nil {
+			return nil, 0, 0, err
+		}
+	}
 
-	return topScorers, totalRecords, totalPages, nil
+	totalPages := int(math.Ceil(float64(countResult.TotalRecords) / float64(filterOptions.PageSize)))
+
+	return topScorers, countResult.TotalRecords, totalPages, nil
 }
