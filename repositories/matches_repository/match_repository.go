@@ -141,8 +141,16 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 		"association_id": filterOptions.AssociationId,
 	}
 
+	argLocation, err := time.LoadLocation("America/Argentina/Buenos_Aires")
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
 	if !filterOptions.Date.IsZero() {
-		startDate := time.Date(filterOptions.Date.Year(), filterOptions.Date.Month(), filterOptions.Date.Day(), 0, 0, 0, 0, filterOptions.Date.Location())
+		startDate := time.Date(
+			filterOptions.Date.Year(), filterOptions.Date.Month(), filterOptions.Date.Day(),
+			0, 0, 0, 0, argLocation,
+		)
 		endDate := startDate.AddDate(0, 0, 1)
 		filter["date"] = bson.M{"$gte": startDate, "$lt": endDate}
 	}
