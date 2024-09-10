@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	APP_DOMAIN = "https://handballscore.onrender.com"
+	APP_DOMAINS = "https://handballscore.onrender.com, https://www.handballscore.com"
 )
 
 func main() {
@@ -26,8 +26,27 @@ func main() {
 func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	var res *events.APIGatewayProxyResponse
 
+	allowedDomains := strings.Split(APP_DOMAINS, ", ")
+
+	origin := request.Headers["origin"]
+	allowedOrigin := ""
+	for _, domain := range allowedDomains {
+		if domain == origin {
+			allowedOrigin = domain
+			break
+		}
+	}
+
+	if allowedOrigin == "" {
+		return &events.APIGatewayProxyResponse{
+			StatusCode: http.StatusForbidden,
+			Body:       "Origin not allowed",
+			Headers:    nil,
+		}, nil
+	}
+
 	headers := map[string]string{
-		"Access-Control-Allow-Origin":  APP_DOMAIN, // Replace with your allowed domain or "*"
+		"Access-Control-Allow-Origin":  allowedOrigin,
 		"Access-Control-Allow-Headers": "Content-Type, Authorization",
 		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT, PATCH, DELETE",
 		"Content-Type":                 "application/json",
