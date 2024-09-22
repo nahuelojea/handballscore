@@ -188,18 +188,6 @@ func UpdateNumber(id string, number int) (bool, error) {
 		return false, errors.New("Error to get match player: " + err.Error())
 	}
 
-	match_players := match_players_repository.GetMatchPlayerOptions{
-		MatchId:       matchPlayer.MatchId,
-		Team:          models.TournamentTeamId{TeamId: matchPlayer.TeamId.TeamId, Variant: matchPlayer.TeamId.Variant},
-		Number:        number,
-		AssociationId: matchPlayer.AssociationId,
-	}
-
-	players, _, _, _ := match_players_repository.GetMatchPlayers(match_players)
-	if len(players) != 0 {
-		return false, errors.New("The number is already in use")
-	}
-
 	matchPlayer.Number = number
 
 	return match_players_repository.UpdateMatchPlayer(matchPlayer, id)

@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/nahuelojea/handballscore/models"
@@ -153,11 +154,10 @@ func ImportFromExcel(fileContent string) (bool, []error) {
 		}
 
 		fmt.Println("Expiration insurance: ", expirationInsurance)
-
 		player := models.Player{
 			Personal_Data: models.Personal_Data{
-				Name:        row[0],
-				Surname:     row[1],
+				Name:        strings.TrimSpace(row[0]),
+				Surname:     strings.TrimSpace(row[1]),
 				DateOfBirth: dateOfBirth,
 				Dni:         row[3],
 				Gender:      row[4],

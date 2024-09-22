@@ -14,6 +14,9 @@ const (
 	QuarterFinals   = "quarter_finals"
 	SemiFinal       = "semi_final"
 	Final           = "final"
+	ThirdPlace      = "third_place"
+	FifthPlace      = "fifth_place"
+	SeventhPlace    = "seventh_place"
 )
 
 type PlayoffRound struct {
@@ -55,6 +58,12 @@ func (playoffRound *PlayoffRound) PlayoffRoundNameTraduction() string {
 		return "Semifinal"
 	case Final:
 		return "Final"
+	case ThirdPlace:
+		return "Tercer Puesto"
+	case FifthPlace:
+		return "Quinto Puesto"
+	case SeventhPlace:
+		return "Septimo Puesto"
 	default:
 		return "Fase Desconocida"
 	}
