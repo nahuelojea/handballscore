@@ -4,7 +4,25 @@
       from: "teams",
       let: {
         team_home_id: {
-          $toObjectId: "$team_home.team_id",
+          $cond: {
+            if: {
+              $and: [
+                {
+                  $ne: [
+                    "$team_home.team_id",
+                    null,
+                  ],
+                },
+                {
+                  $ne: ["$team_home.team_id", ""],
+                },
+              ],
+            },
+            then: {
+              $toObjectId: "$team_home.team_id",
+            },
+            else: null,
+          },
         },
       },
       pipeline: [
@@ -30,7 +48,25 @@
       from: "teams",
       let: {
         team_away_id: {
-          $toObjectId: "$team_away.team_id",
+          $cond: {
+            if: {
+              $and: [
+                {
+                  $ne: [
+                    "$team_away.team_id",
+                    null,
+                  ],
+                },
+                {
+                  $ne: ["$team_away.team_id", ""],
+                },
+              ],
+            },
+            then: {
+              $toObjectId: "$team_away.team_id",
+            },
+            else: null,
+          },
         },
       },
       pipeline: [
@@ -56,7 +92,29 @@
       from: "tournaments_categories",
       let: {
         tournament_category_id: {
-          $toObjectId: "$tournament_category_id",
+          $cond: {
+            if: {
+              $and: [
+                {
+                  $ne: [
+                    "$tournament_category_id",
+                    null,
+                  ],
+                },
+                {
+                  $ne: [
+                    "$tournament_category_id",
+                    "",
+                  ],
+                },
+              ],
+            },
+            then: {
+              $toObjectId:
+                "$tournament_category_id",
+            },
+            else: null,
+          },
         },
       },
       pipeline: [
@@ -78,6 +136,108 @@
     $unwind: {
       path: "$tournament_category_info",
       preserveNullAndEmptyArrays: false,
+    },
+  },
+  {
+    $lookup: {
+      from: "playoff_round_keys",
+      let: {
+        playoff_round_key_id: {
+          $cond: {
+            if: {
+              $and: [
+                {
+                  $ne: [
+                    "$playoff_round_key_id",
+                    null,
+                  ],
+                },
+                {
+                  $ne: [
+                    "$playoff_round_key_id",
+                    "",
+                  ],
+                },
+              ],
+            },
+            then: {
+              $toObjectId:
+                "$playoff_round_key_id",
+            },
+            else: null,
+          },
+        },
+      },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: [
+                "$_id",
+                "$$playoff_round_key_id",
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "playoff_rounds",
+            let: {
+              playoff_round_id: {
+                $cond: {
+                  if: {
+                    $and: [
+                      {
+                        $ne: [
+                          "$playoff_round_id",
+                          null,
+                        ],
+                      },
+                      {
+                        $ne: [
+                          "$playoff_round_id",
+                          "",
+                        ],
+                      },
+                    ],
+                  },
+                  then: {
+                    $toObjectId:
+                      "$playoff_round_id",
+                  },
+                  else: null,
+                },
+              },
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: [
+                      "$_id",
+                      "$$playoff_round_id",
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "playoff_round_info",
+          },
+        },
+        {
+          $unwind: {
+            path: "$playoff_round_info",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ],
+      as: "playoff_round_key_info",
+    },
+  },
+  {
+    $unwind: {
+      path: "$playoff_round_key_info",
+      preserveNullAndEmptyArrays: true,
     },
   },
   {
@@ -130,6 +290,15 @@
         "$tournament_category_info.category_id",
       association_id: 1,
       status_data: 1,
+      playoff_round: {
+        $cond: [
+          {
+            $ne: ["$playoff_round_key_id", null],
+          },
+          "$playoff_round_key_info.playoff_round_info.round",
+          null,
+        ],
+      },
     },
   },
 ]

@@ -285,6 +285,8 @@ func StartSecondHalf(id string) (bool, error) {
 		return false, errors.New("The match must be found in the first half")
 	}
 
+	RecalculateMatchGoals(id)
+
 	return matches_repository.StartSecondHalf(id)
 }
 
@@ -293,6 +295,8 @@ func SuspendMatch(id, comments string) (bool, error) {
 	if err != nil {
 		return false, errors.New("Error to get match: " + err.Error())
 	}
+
+	RecalculateMatchGoals(id)
 
 	_, err = matches_repository.SuspendMatch(id, comments)
 
@@ -317,6 +321,8 @@ func EndMatch(id, comments string) (bool, error) {
 	if match.Status != models.SecondHalf {
 		return false, errors.New("The match must be found in the second half")
 	}
+
+	RecalculateMatchGoals(id)
 
 	_, err = matches_repository.EndMatch(id, comments)
 
@@ -427,6 +433,39 @@ func UpdateTimeouts(id string, tournamentTeamId models.TournamentTeamId, add boo
 	}
 
 	return matches_repository.UpdateTimeouts(match, id)
+}
+
+func RecalculateMatchGoals(matchID string) (bool, error) {
+	match, _, err := matches_repository.GetMatch(matchID)
+	if err != nil {
+		return false, errors.New("Error to get match: " + err.Error())
+	}
+
+	homeGoals := 0
+	awayGoals := 0
+
+	getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
+		MatchId:       matchID,
+		AssociationId: match.AssociationId,
+	}
+
+	players, _, _, err := match_players_repository.GetMatchPlayers(getPlayersOptions)
+	if err != nil {
+		return false, errors.New("Error to get match players: " + err.Error())
+	}
+
+	for _, player := range players {
+		if player.TeamId == match.TeamHome {
+			homeGoals += player.Goals.FirstHalf + player.Goals.SecondHalf
+		} else if player.TeamId == match.TeamAway {
+			awayGoals += player.Goals.FirstHalf + player.Goals.SecondHalf
+		}
+	}
+
+	match.GoalsHome.Total = homeGoals
+	match.GoalsAway.Total = awayGoals
+
+	return matches_repository.UpdateGoals(match, matchID)
 }
 
 func GetPendingMatchesByLeaguePhaseId(leaguePhaseId string) ([]models.Match, error) {
