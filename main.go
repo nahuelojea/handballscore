@@ -26,27 +26,8 @@ func main() {
 func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
 	var res *events.APIGatewayProxyResponse
 
-	allowedDomains := strings.Split(APP_DOMAINS, ", ")
-
-	origin := request.Headers["origin"]
-	allowedOrigin := ""
-	for _, domain := range allowedDomains {
-		if domain == origin {
-			allowedOrigin = domain
-			break
-		}
-	}
-
-	if allowedOrigin == "" {
-		return &events.APIGatewayProxyResponse{
-			StatusCode: http.StatusForbidden,
-			Body:       "Origin not allowed",
-			Headers:    nil,
-		}, nil
-	}
-
 	headers := map[string]string{
-		"Access-Control-Allow-Origin":  allowedOrigin,
+		"Access-Control-Allow-Origin":  "*",
 		"Access-Control-Allow-Headers": "Content-Type, Authorization",
 		"Access-Control-Allow-Methods": "OPTIONS, POST, GET, PUT, PATCH, DELETE",
 		"Content-Type":                 "application/json",
