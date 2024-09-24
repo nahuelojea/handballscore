@@ -130,14 +130,11 @@ func UpdateMatchPlayer(matchPlayer models.MatchPlayer, id string) (bool, error) 
 	return repositories.Update(match_player_collection, updateDataMap, id)
 }
 
-func UpdateGoals(matchPlayer models.MatchPlayer, status string) (bool, error) {
+func UpdateGoals(matchPlayer models.MatchPlayer) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 
-	if status == models.FirstHalf {
-		updateDataMap["goals.first_half"] = matchPlayer.Goals.FirstHalf
-	} else {
-		updateDataMap["goals.second_half"] = matchPlayer.Goals.SecondHalf
-	}
+	updateDataMap["goals.first_half"] = matchPlayer.Goals.FirstHalf
+	updateDataMap["goals.second_half"] = matchPlayer.Goals.SecondHalf
 	updateDataMap["goals.total"] = matchPlayer.Goals.Total
 
 	return repositories.Update(match_player_collection, updateDataMap, matchPlayer.Id.Hex())

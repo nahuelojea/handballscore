@@ -7,7 +7,6 @@ import (
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
-	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
 func CreateMatchPlayer(association_id string, matchPlayerRequest dto.MatchPlayerRequest) (string, bool, error) {
@@ -90,34 +89,70 @@ func UpdateGoal(id string, addGoal bool) (bool, error) {
 	if matchPlayer.RedCard {
 		return false, errors.New("The player has red card")
 	}
-
 	if matchPlayer.BlueCard {
 		return false, errors.New("The player has blue card")
 	}
 
-	matches_service.UpdateGoals(match, matchPlayer.TeamId, addGoal)
-
 	if match.Status == models.FirstHalf {
 		if addGoal {
 			matchPlayer.Goals.FirstHalf++
-		} else {
-			if matchPlayer.Goals.FirstHalf != 0 {
-				matchPlayer.Goals.FirstHalf--
-			}
+		} else if matchPlayer.Goals.FirstHalf > 0 {
+			matchPlayer.Goals.FirstHalf--
 		}
 	} else {
 		if addGoal {
 			matchPlayer.Goals.SecondHalf++
-		} else {
-			if matchPlayer.Goals.SecondHalf != 0 {
-				matchPlayer.Goals.SecondHalf--
-			}
+		} else if matchPlayer.Goals.SecondHalf > 0 {
+			matchPlayer.Goals.SecondHalf--
+		} else if matchPlayer.Goals.FirstHalf > 0 {
+			matchPlayer.Goals.FirstHalf--
 		}
 	}
 
 	matchPlayer.Goals.Total = matchPlayer.Goals.FirstHalf + matchPlayer.Goals.SecondHalf
 
-	return match_players_repository.UpdateGoals(matchPlayer, match.Status)
+	if _, err := match_players_repository.UpdateGoals(matchPlayer); err != nil {
+		return false, err
+	}
+
+	return RecalculateTeamGoals(match, matchPlayer.TeamId)
+}
+
+func RecalculateTeamGoals(match models.Match, team models.TournamentTeamId) (bool, error) {
+	teamFirstHalfGoals := 0
+	teamSecondHalfGoals := 0
+
+	getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
+		MatchId:       match.Id.Hex(),
+		AssociationId: match.AssociationId,
+		Team:          team,
+	}
+
+	players, _, _, err := match_players_repository.GetMatchPlayers(getPlayersOptions)
+	if err != nil {
+		return false, errors.New("Error to get match players: " + err.Error())
+	}
+
+	for _, player := range players {
+		if player.TeamId == team {
+			teamFirstHalfGoals += player.Goals.FirstHalf
+			teamSecondHalfGoals += player.Goals.SecondHalf
+		}
+	}
+
+	if match.TeamHome == team {
+		match.GoalsHome.FirstHalf = teamFirstHalfGoals
+		match.GoalsHome.SecondHalf = teamSecondHalfGoals
+		match.GoalsHome.Total = teamFirstHalfGoals + teamSecondHalfGoals
+	} else if match.TeamAway == team {
+		match.GoalsAway.FirstHalf = teamFirstHalfGoals
+		match.GoalsAway.SecondHalf = teamSecondHalfGoals
+		match.GoalsAway.Total = teamFirstHalfGoals + teamSecondHalfGoals
+	} else {
+		return false, errors.New("The team id does not match any of the two teams in the match")
+	}
+
+	return matches_repository.UpdateGoals(match, match.Id.Hex())
 }
 
 func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
