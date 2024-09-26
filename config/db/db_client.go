@@ -36,8 +36,6 @@ func Connect(ctx context.Context) error {
 			fmt.Println("Error al hacer ping a MongoDB:", err)
 			return
 		}
-
-		fmt.Println("Conexión exitosa a la base de datos")
 		DatabaseName = ctx.Value(dto.Key("database")).(string)
 	})
 

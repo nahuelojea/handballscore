@@ -12,7 +12,6 @@ import (
 
 func GetSecret(secretName string) (dto.Secret, error) {
 	var secretData dto.Secret
-	fmt.Println("> Getting Secret " + secretName)
 
 	svc := secretsmanager.NewFromConfig(awsgo.Cfg)
 	key, err := svc.GetSecretValue(awsgo.Ctx, &secretsmanager.GetSecretValueInput{
@@ -24,6 +23,5 @@ func GetSecret(secretName string) (dto.Secret, error) {
 	}
 
 	json.Unmarshal([]byte(*key.SecretString), &secretData)
-	fmt.Println(" > Secret read OK " + secretName)
 	return secretData, nil
 }

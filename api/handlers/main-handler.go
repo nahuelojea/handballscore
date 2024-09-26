@@ -38,12 +38,13 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 		restResponse.Message = msg
 		return restResponse
 	}
+	fmt.Println("API Request Body: > " + request.Body)
 
-	fmt.Println("Request headers: > ")
-	for header, value := range request.Headers {
-		fmt.Printf("-----> %s > %s\n", header, value)
-	}
-	fmt.Println("Request body: > " + request.Body)
+	fmt.Println("User Email: > " + claim.Email)
+	fmt.Println("User AssociationId: > " + claim.AssociationId)
+	fmt.Println("User Role: > " + claim.Role)
+	fmt.Println("User RoleId: > " + claim.RoleId)
+	fmt.Println("User TeamId: > " + claim.TeamId)
 
 	parts := strings.Split(ctx.Value(dto.Key("path")).(string), "/")
 

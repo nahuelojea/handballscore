@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -86,6 +87,9 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 
 	respAPI := handlers.ProcessRequest(awsgo.Ctx, request)
+
+	fmt.Println("API Response: " + respAPI.Message)
+
 	if respAPI.CustomResp == nil {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: respAPI.Status,
