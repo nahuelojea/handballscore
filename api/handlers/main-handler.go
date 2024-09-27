@@ -11,6 +11,7 @@ import (
 	"github.com/nahuelojea/handballscore/api/handlers/authorization_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/categories_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/coaches_handler"
+	"github.com/nahuelojea/handballscore/api/handlers/league_phase_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/match_coaches_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/match_players_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/matches_handler"
@@ -50,7 +51,6 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 
 	if len(parts) > 0 {
 		entityPath := parts[0]
-
 		switch entityPath {
 		case "association":
 			return associations_handler.ProcessRequest(ctx, request, claim, restResponse)
@@ -60,6 +60,8 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 			return categories_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "coach":
 			return coaches_handler.ProcessRequest(ctx, request, claim, restResponse)
+		case "leaguePhase":
+			return league_phase_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "match":
 			return matches_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "matchCoach":
