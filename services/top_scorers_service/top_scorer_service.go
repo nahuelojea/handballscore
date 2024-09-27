@@ -22,8 +22,6 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 		Name:                 filterOptions.Name,
 		Page:                 filterOptions.Page,
 		PageSize:             filterOptions.PageSize,
-		SortField:            filterOptions.SortField,
-		SortOrder:            filterOptions.SortOrder,
 	}
 	return top_scorers_repository.GetTopScorers(filters)
 }

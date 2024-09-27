@@ -15,8 +15,6 @@ type GetTopScorersOptions struct {
 	Name                 string
 	Page                 int
 	PageSize             int
-	SortField            string
-	SortOrder            int
 }
 
 func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int64, int, error) {
@@ -25,6 +23,11 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 	collection := database.Collection("match_players_view")
 
 	pipeline := []bson.M{
+		{
+			"$match": bson.M{
+				"association_id": filterOptions.AssociationId,
+			},
+		},
 		{
 			"$lookup": bson.M{
 				"from": "matches",
@@ -43,6 +46,15 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 							},
 						},
 					},
+					{
+						"$project": bson.M{
+							"date":      1,
+							"team_home": 1,
+							"team_away": 1,
+							"place":     1,
+							"status":    1,
+						},
+					},
 				},
 				"as": "match_info",
 			},
@@ -54,27 +66,14 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 			},
 		},
 		{
-			"$project": bson.M{
-				"match_id":       "$match_id",
-				"player_id":      "$player_id",
-				"goals":          "$goals.total",
-				"date":           "$match_info.date",
-				"team_home":      "$match_info.team_home",
-				"team_away":      "$match_info.team_away",
-				"place":          "$match_info.place",
-				"status":         "$match_info.status",
-				"player_name":    "$player_name",
-				"player_surname": "$player_surname",
-				"player_avatar":  "$player_avatar",
-				"team_name":      "$team_name",
-				"team_avatar":    "$team_avatar",
-				"association_id": "$association_id",
+			"$match": bson.M{
+				"goals.total": bson.M{"$gt": 0}, // Filtrar jugadores con goles
 			},
 		},
 		{
 			"$group": bson.M{
 				"_id":            "$player_id",
-				"total_goals":    bson.M{"$sum": "$goals"},
+				"total_goals":    bson.M{"$sum": "$goals.total"},
 				"total_matches":  bson.M{"$addToSet": "$match_id"},
 				"player_name":    bson.M{"$first": "$player_name"},
 				"player_surname": bson.M{"$first": "$player_surname"},
@@ -84,26 +83,14 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 				"association_id": bson.M{"$first": "$association_id"},
 			},
 		},
-		{
-			"$match": bson.M{
-				"total_goals":    bson.M{"$gt": 0},
-				"association_id": filterOptions.AssociationId,
-			},
-		},
 	}
 
 	if filterOptions.Name != "" {
 		pipeline = append(pipeline, bson.M{
 			"$match": bson.M{
 				"$or": []bson.M{
-					{"player_name": bson.M{
-						"$regex":   filterOptions.Name,
-						"$options": "i",
-					}},
-					{"player_surname": bson.M{
-						"$regex":   filterOptions.Name,
-						"$options": "i",
-					}},
+					{"player_name": bson.M{"$regex": filterOptions.Name, "$options": "i"}},
+					{"player_surname": bson.M{"$regex": filterOptions.Name, "$options": "i"}},
 				},
 			},
 		})
