@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"strings"
 	"time"
 
 	dto "github.com/nahuelojea/handballscore/dto/matches"
@@ -13,7 +12,6 @@ import (
 	"github.com/nahuelojea/handballscore/repositories/match_coaches_repository"
 	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
-	"github.com/nahuelojea/handballscore/services/teams_service"
 )
 
 type GetMatchesOptions struct {
@@ -80,33 +78,23 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 		SortOrder:          filterOptions.SortOrder,
 	}
 
-	matches, _, _, err := matches_repository.GetMatches(filters)
+	matches, _, _, err := matches_repository.GetMatchHeaders(filters)
 	if err != nil {
 		return nil, 0, 0, errors.New("Error to get matches: " + err.Error())
 	}
 
 	var matchesJourney []dto.MatchResponse
 	for _, match := range matches {
-		teamHome, _, err := teams_service.GetTeam(match.TeamHome.TeamId)
-		if err != nil {
-			return nil, 0, 0, errors.New("Error to get team: " + match.TeamHome.TeamId + " " + err.Error())
-		}
-
-		teamAway, _, err := teams_service.GetTeam(match.TeamAway.TeamId)
-		if err != nil {
-			return nil, 0, 0, errors.New("Error to get team: " + match.TeamAway.TeamId + " " + err.Error())
-		}
-
 		homeMatchTeam := dto.MatchTeamResponse{
-			TeamId: teamHome.Id.Hex(),
-			Name:   strings.TrimSpace(teamHome.Name + " " + match.TeamHome.Variant),
-			Avatar: teamHome.Avatar,
+			TeamId: match.TeamHomeId.Hex(),
+			Name:   match.TeamHomeName,
+			Avatar: match.TeamHomeAvatar,
 		}
 
 		awayMatchTeam := dto.MatchTeamResponse{
-			TeamId: teamAway.Id.Hex(),
-			Name:   strings.TrimSpace(teamAway.Name + " " + match.TeamAway.Variant),
-			Avatar: teamAway.Avatar,
+			TeamId: match.TeamAwayId.Hex(),
+			Name:   match.TeamAwayName,
+			Avatar: match.TeamAwayAvatar,
 		}
 
 		matchJourney := dto.MatchResponse{
@@ -117,8 +105,8 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 			Referees:  match.Referees,
 			Place:     match.Place,
 			Status:    match.Status,
-			GoalsHome: match.GoalsHome.Total,
-			GoalsAway: match.GoalsAway.Total,
+			GoalsHome: match.GoalsHome,
+			GoalsAway: match.GoalsAway,
 		}
 		matchesJourney = append(matchesJourney, matchJourney)
 	}
