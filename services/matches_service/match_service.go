@@ -265,10 +265,6 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 		return false, errors.New("Error to get match: " + err.Error())
 	}
 
-	if match.Referees == nil || len(match.Referees) == 0 {
-		return false, errors.New("The match must have at least one referee")
-	}
-
 	match.Scorekeeper = startMatchRequest.Scorekeeper
 	match.Timekeeper = startMatchRequest.Timekeeper
 
