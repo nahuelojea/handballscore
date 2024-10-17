@@ -8,10 +8,7 @@
             if: {
               $and: [
                 {
-                  $ne: [
-                    "$team_home.team_id",
-                    null,
-                  ],
+                  $ne: ["$team_home.team_id", null],
                 },
                 {
                   $ne: ["$team_home.team_id", ""],
@@ -52,10 +49,7 @@
             if: {
               $and: [
                 {
-                  $ne: [
-                    "$team_away.team_id",
-                    null,
-                  ],
+                  $ne: ["$team_away.team_id", null],
                 },
                 {
                   $ne: ["$team_away.team_id", ""],
@@ -96,22 +90,15 @@
             if: {
               $and: [
                 {
-                  $ne: [
-                    "$tournament_category_id",
-                    null,
-                  ],
+                  $ne: ["$tournament_category_id", null],
                 },
                 {
-                  $ne: [
-                    "$tournament_category_id",
-                    "",
-                  ],
+                  $ne: ["$tournament_category_id", ""],
                 },
               ],
             },
             then: {
-              $toObjectId:
-                "$tournament_category_id",
+              $toObjectId: "$tournament_category_id",
             },
             else: null,
           },
@@ -121,10 +108,7 @@
         {
           $match: {
             $expr: {
-              $eq: [
-                "$_id",
-                "$$tournament_category_id",
-              ],
+              $eq: ["$_id", "$$tournament_category_id"],
             },
           },
         },
@@ -147,22 +131,15 @@
             if: {
               $and: [
                 {
-                  $ne: [
-                    "$playoff_round_key_id",
-                    null,
-                  ],
+                  $ne: ["$playoff_round_key_id", null],
                 },
                 {
-                  $ne: [
-                    "$playoff_round_key_id",
-                    "",
-                  ],
+                  $ne: ["$playoff_round_key_id", ""],
                 },
               ],
             },
             then: {
-              $toObjectId:
-                "$playoff_round_key_id",
+              $toObjectId: "$playoff_round_key_id",
             },
             else: null,
           },
@@ -172,10 +149,7 @@
         {
           $match: {
             $expr: {
-              $eq: [
-                "$_id",
-                "$$playoff_round_key_id",
-              ],
+              $eq: ["$_id", "$$playoff_round_key_id"],
             },
           },
         },
@@ -188,22 +162,15 @@
                   if: {
                     $and: [
                       {
-                        $ne: [
-                          "$playoff_round_id",
-                          null,
-                        ],
+                        $ne: ["$playoff_round_id", null],
                       },
                       {
-                        $ne: [
-                          "$playoff_round_id",
-                          "",
-                        ],
+                        $ne: ["$playoff_round_id", ""],
                       },
                     ],
                   },
                   then: {
-                    $toObjectId:
-                      "$playoff_round_id",
+                    $toObjectId: "$playoff_round_id",
                   },
                   else: null,
                 },
@@ -213,10 +180,7 @@
               {
                 $match: {
                   $expr: {
-                    $eq: [
-                      "$_id",
-                      "$$playoff_round_id",
-                    ],
+                    $eq: ["$_id", "$$playoff_round_id"],
                   },
                 },
               },
@@ -266,28 +230,18 @@
       },
       team_home_id: "$team_home_info._id",
       team_home_name: {
-        $concat: [
-          "$team_home_info.name",
-          " ",
-          "$team_home.variant",
-        ],
+        $concat: ["$team_home_info.name", " ", "$team_home.variant"],
       },
       team_home_avatar: "$team_home_info.avatar",
       team_away_id: "$team_away_info._id",
       team_away_name: {
-        $concat: [
-          "$team_away_info.name",
-          " ",
-          "$team_away.variant",
-        ],
+        $concat: ["$team_away_info.name", " ", "$team_away.variant"],
       },
       team_away_avatar: "$team_away_info.avatar",
       referees: 1,
       tournament_category_id: 1,
-      tournament_category_name:
-        "$tournament_category_info.name",
-      category_id:
-        "$tournament_category_info.category_id",
+      tournament_category_name: "$tournament_category_info.name",
+      category_id: "$tournament_category_info.category_id",
       association_id: 1,
       status_data: 1,
       playoff_round: {
@@ -299,6 +253,8 @@
           null,
         ],
       },
+      league_phase_week_id: 1,
+      playoff_round_key_id: 1,
     },
   },
-]
+];

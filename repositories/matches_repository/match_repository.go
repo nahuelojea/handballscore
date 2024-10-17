@@ -146,6 +146,14 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 		return nil, 0, 0, err
 	}
 
+	if filterOptions.LeaguePhaseWeekId != "" {
+		filter["league_phase_week_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.LeaguePhaseWeekId, Options: "i"}}
+	}
+
+	if len(filterOptions.PlayoffRoundKeyIds) > 0 {
+		filter["playoff_round_key_id"] = bson.M{"$in": filterOptions.PlayoffRoundKeyIds}
+	}
+
 	if !filterOptions.Date.IsZero() {
 		startDate := time.Date(
 			filterOptions.Date.Year(), filterOptions.Date.Month(), filterOptions.Date.Day(),
