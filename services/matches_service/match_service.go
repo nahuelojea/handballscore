@@ -67,6 +67,91 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	return matches_repository.GetMatchHeaders(filters)
 }
 
+func GetMatchesTodayOrClosest(filterOptions GetMatchesOptions) ([]models.MatchHeaderView, int64, int, error) {
+	filterOptions.Date = time.Now()
+	matches, totalRecords, totalPages, err := GetMatchHeaders(filterOptions)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	if totalRecords > 0 {
+		return matches, totalRecords, totalPages, nil
+	}
+
+	pastMatches, pastRecords, pastDays, err := getPastMatches(filterOptions)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	futureMatches, futureRecords, futureDays, err := getFutureMatches(filterOptions)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	if pastRecords == 0 && futureRecords == 0 {
+		return nil, 0, 0, nil
+	}
+
+	if pastRecords > 0 && futureRecords > 0 {
+		if pastDays == futureDays {
+			return futureMatches, futureRecords, 1, nil
+		} else if pastDays < futureDays {
+			return pastMatches, pastRecords, 1, nil
+		}
+		return futureMatches, futureRecords, 1, nil
+	}
+
+	if pastRecords > 0 {
+		return pastMatches, pastRecords, 1, nil
+	}
+
+	return futureMatches, futureRecords, 1, nil
+}
+
+func getPastMatches(filterOptions GetMatchesOptions) ([]models.MatchHeaderView, int64, int, error) {
+	for i := 1; i <= 7; i++ {
+		filterOptions.Date = time.Now().AddDate(0, 0, -i)
+		matches, totalRecords, totalPages, err := GetMatchHeaders(filterOptions)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+		if totalRecords > 0 {
+			return matches, totalRecords, totalPages, nil
+		}
+	}
+	return nil, 0, 0, nil
+}
+
+func getFutureMatches(filterOptions GetMatchesOptions) ([]models.MatchHeaderView, int64, int, error) {
+	for i := 1; i <= 7; i++ {
+		filterOptions.Date = time.Now().AddDate(0, 0, i)
+		matches, totalRecords, totalPages, err := GetMatchHeaders(filterOptions)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+		if totalRecords > 0 {
+			return matches, totalRecords, totalPages, nil
+		}
+	}
+	return nil, 0, 0, nil
+}
+
+func GetMatchesToday(filterOptions GetMatchesOptions, exactDate bool) ([]models.MatchHeaderView, int64, int, error) {
+	if exactDate {
+		filters := matches_repository.GetMatchesOptions{
+			Date:          filterOptions.Date,
+			AssociationId: filterOptions.AssociationId,
+			Page:          filterOptions.Page,
+			PageSize:      filterOptions.PageSize,
+			SortField:     filterOptions.SortField,
+			SortOrder:     filterOptions.SortOrder,
+		}
+		return matches_repository.GetMatchHeaders(filters)
+	} else {
+		return GetMatchesTodayOrClosest(filterOptions)
+	}
+}
+
 func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,

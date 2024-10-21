@@ -18,6 +18,7 @@ func GetMatchesToday(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 	pageStr := request.QueryStringParameters["page"]
 	pageSizeStr := request.QueryStringParameters["pageSize"]
 	dateStr := request.QueryStringParameters["date"]
+	exactDateStr := request.QueryStringParameters["exactDate"]
 	associationId := claim.AssociationId
 
 	if len(associationId) < 1 {
@@ -49,6 +50,16 @@ func GetMatchesToday(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 		pageSize = 20
 	}
 
+	exactDate := true
+	if len(exactDateStr) > 0 {
+		exactDate, err = strconv.ParseBool(exactDateStr)
+		if err != nil {
+			response.Status = http.StatusBadRequest
+			response.Message = "Error to convert exactDate: " + err.Error()
+			return response
+		}
+	}
+
 	filterOptions := matches_service.GetMatchesOptions{
 		AssociationId: associationId,
 		Page:          page,
@@ -57,7 +68,8 @@ func GetMatchesToday(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 		SortOrder:     1,
 	}
 
-	matchesList, totalRecords, totalPages, err := matches_service.GetMatchHeaders(filterOptions)
+	matchesList, totalRecords, totalPages, err := matches_service.GetMatchesToday(filterOptions, exactDate)
+	//matchesList, totalRecords, totalPages, err := matches_service.GetMatchHeaders(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get match headers: " + err.Error()
