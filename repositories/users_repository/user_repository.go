@@ -28,6 +28,11 @@ func GetUser(ID string) (models.User, bool, error) {
 
 func UpdateUser(user models.User, ID string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
+
+	if len(user.Password) > 0 {
+		updateDataMap["password"] = user.Password
+	}
+
 	if len(user.Name) > 0 {
 		updateDataMap["personal_data.name"] = user.Name
 	}
