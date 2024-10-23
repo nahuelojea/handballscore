@@ -15,8 +15,11 @@ import (
 )
 
 type GetMatchesOptions struct {
+	TournamentCategoryId string
 	LeaguePhaseWeekId  string
 	PlayoffRoundKeyIds []string
+	TeamId 		   string
+	Variant 	   string
 	Date               time.Time
 	AssociationId      string
 	Page               int
@@ -43,6 +46,7 @@ func GetMatchHeader(ID string) (models.MatchHeaderView, bool, error) {
 
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
+		TournamentCategoryId: filterOptions.TournamentCategoryId,
 		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
 		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
 		Date:               filterOptions.Date,
@@ -154,6 +158,7 @@ func GetMatchesToday(filterOptions GetMatchesOptions, exactDate bool) ([]models.
 
 func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
+		TournamentCategoryId: filterOptions.TournamentCategoryId,
 		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
 		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
 		AssociationId:      filterOptions.AssociationId,
@@ -201,6 +206,58 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 	totalPages := int(math.Ceil(float64(totalRecords) / float64(filterOptions.PageSize)))
 
 	return matchesJourney, totalRecords, int(totalPages), nil
+}
+
+func GetMatchesByTeam(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
+	filters := matches_repository.GetMatchesOptions{
+		TournamentCategoryId: filterOptions.TournamentCategoryId,
+		TeamId:               filterOptions.TeamId,
+		Variant:              filterOptions.Variant,
+		AssociationId:      filterOptions.AssociationId,
+		Page:               filterOptions.Page,
+		PageSize:           filterOptions.PageSize,
+		SortField:          filterOptions.SortField,
+		SortOrder:          filterOptions.SortOrder,
+	}
+
+	matches, _, _, err := matches_repository.GetMatchHeaders(filters)
+	if err != nil {
+		return nil, 0, 0, errors.New("Error to get matches: " + err.Error())
+	}
+
+	var teamMatches []dto.MatchResponse
+	for _, match := range matches {
+		homeMatchTeam := dto.MatchTeamResponse{
+			TeamId: match.TeamHomeId.Hex(),
+			Name:   match.TeamHomeName,
+			Avatar: match.TeamHomeAvatar,
+		}
+
+		awayMatchTeam := dto.MatchTeamResponse{
+			TeamId: match.TeamAwayId.Hex(),
+			Name:   match.TeamAwayName,
+			Avatar: match.TeamAwayAvatar,
+		}
+
+		teamMatch := dto.MatchResponse{
+			MatchId:   match.Id.Hex(),
+			Date:      match.Date,
+			TeamHome:  homeMatchTeam,
+			TeamAway:  awayMatchTeam,
+			Referees:  match.Referees,
+			Place:     match.Place,
+			Status:    match.Status,
+			GoalsHome: match.GoalsHome,
+			GoalsAway: match.GoalsAway,
+		}
+		teamMatches = append(teamMatches, teamMatch)
+	}
+
+	totalRecords := int64(len(teamMatches))
+
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(filterOptions.PageSize)))
+
+	return teamMatches, totalRecords, int(totalPages), nil
 }
 
 func ProgramMatch(matchTime time.Time, place, id string) (bool, error) {

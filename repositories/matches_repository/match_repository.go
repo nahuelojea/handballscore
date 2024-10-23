@@ -53,8 +53,11 @@ func GetMatchHeaderView(ID string) (models.MatchHeaderView, bool, error) {
 }
 
 type GetMatchesOptions struct {
+	TournamentCategoryId string
 	LeaguePhaseWeekId  string
 	PlayoffRoundKeyIds []string
+	TeamId 		   string
+	Variant 	   string
 	Date               time.Time
 	AssociationId      string
 	Page               int
@@ -70,6 +73,10 @@ func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, er
 
 	filter := bson.M{
 		"association_id": filterOptions.AssociationId,
+	}
+
+	if len(filterOptions.TournamentCategoryId) > 0 {
+		filter["tournament_category_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TournamentCategoryId, Options: "i"}}
 	}
 
 	if filterOptions.LeaguePhaseWeekId != "" {
@@ -146,12 +153,30 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 		return nil, 0, 0, err
 	}
 
+	if len(filterOptions.TournamentCategoryId) > 0 {
+		filter["tournament_category_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.TournamentCategoryId, Options: "i"}}
+	}
+
 	if filterOptions.LeaguePhaseWeekId != "" {
 		filter["league_phase_week_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.LeaguePhaseWeekId, Options: "i"}}
 	}
 
 	if len(filterOptions.PlayoffRoundKeyIds) > 0 {
 		filter["playoff_round_key_id"] = bson.M{"$in": filterOptions.PlayoffRoundKeyIds}
+	}
+
+	if filterOptions.TeamId != "" {
+		teamFilter := bson.A{
+			bson.M{"team_home_id": filterOptions.TeamId},
+			bson.M{"team_away_id": filterOptions.TeamId},
+		}
+		if filterOptions.Variant != "" {
+			teamFilter = bson.A{
+				bson.M{"team_home_id": filterOptions.TeamId, "team_home_variant": filterOptions.Variant},
+				bson.M{"team_away_id": filterOptions.TeamId, "team_away_variant": filterOptions.Variant},
+			}
+		}
+		filter["$or"] = teamFilter
 	}
 
 	if !filterOptions.Date.IsZero() {
