@@ -69,6 +69,8 @@ func getLeaguePhaseInfo(tournamentCategory models.TournamentCategory) (Tournamen
 			}
 
 			teamInfo := TournamentCategoryDTO.TeamInfoResponse{
+				TeamId:     teamScore.TeamId.TeamId,
+				TeamVariant: teamScore.TeamId.Variant,
 				TeamName:   strings.TrimSpace(teamName + " " + teamScore.TeamId.Variant),
 				TeamAvatar: teamAvatar,
 			}

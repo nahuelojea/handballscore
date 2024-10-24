@@ -177,12 +177,14 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 	for _, match := range matches {
 		homeMatchTeam := dto.MatchTeamResponse{
 			TeamId: match.TeamHomeId.Hex(),
+			Variant: match.TeamHomeVariant,
 			Name:   match.TeamHomeName,
 			Avatar: match.TeamHomeAvatar,
 		}
 
 		awayMatchTeam := dto.MatchTeamResponse{
 			TeamId: match.TeamAwayId.Hex(),
+			Variant: match.TeamAwayVariant,
 			Name:   match.TeamAwayName,
 			Avatar: match.TeamAwayAvatar,
 		}
@@ -229,12 +231,14 @@ func GetMatchesByTeam(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int
 	for _, match := range matches {
 		homeMatchTeam := dto.MatchTeamResponse{
 			TeamId: match.TeamHomeId.Hex(),
+			Variant: match.TeamHomeVariant,
 			Name:   match.TeamHomeName,
 			Avatar: match.TeamHomeAvatar,
 		}
 
 		awayMatchTeam := dto.MatchTeamResponse{
 			TeamId: match.TeamAwayId.Hex(),
+			Variant: match.TeamAwayVariant,
 			Name:   match.TeamAwayName,
 			Avatar: match.TeamAwayAvatar,
 		}

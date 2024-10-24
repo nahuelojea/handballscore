@@ -191,10 +191,6 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
 
-	sortField := filterOptions.SortField
-	if sortField == "" {
-		sortField = "date"
-	}
 	sortOrder := 1
 	if filterOptions.SortOrder == -1 {
 		sortOrder = -1
@@ -203,10 +199,17 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	findOptions.SetSort(bson.D{
-		{Key: "place", Value: sortOrder},
-		{Key: "date", Value: sortOrder},
-	})
+	
+	if filterOptions.SortField != "" {
+		findOptions.SetSort(bson.D{
+			{Key: filterOptions.SortField, Value: sortOrder},
+		})
+	} else {
+		findOptions.SetSort(bson.D{
+			{Key: "place", Value: sortOrder},
+			{Key: "date", Value: sortOrder},
+		})
+	}
 
 	cur, err := collection.Find(ctx, filter, findOptions)
 	if err != nil {

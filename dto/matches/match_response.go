@@ -16,6 +16,7 @@ type MatchResponse struct {
 
 type MatchTeamResponse struct {
 	TeamId string `bson:"team_id" json:"team_id"`
+	Variant string `bson:"variant" json:"variant"`
 	Name   string `bson:"name" json:"name"`
 	Avatar string `bson:"avatar" json:"avatar"`
 }

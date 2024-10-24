@@ -10,9 +10,11 @@ type MatchHeaderView struct {
 	Id                     primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Date                   time.Time          `bson:"date" json:"date"`
 	TeamHomeId             primitive.ObjectID `bson:"team_home_id" json:"team_home_id"`
+	TeamHomeVariant        string             `bson:"team_home_variant" json:"team_home_variant"`
 	TeamHomeName           string             `bson:"team_home_name" json:"team_home_name"`
 	TeamHomeAvatar         string             `bson:"team_home_avatar" json:"team_home_avatar"`
 	TeamAwayId             primitive.ObjectID `bson:"team_away_id" json:"team_away_id"`
+	TeamAwayVariant        string             `bson:"team_away_variant" json:"team_away_variant"`
 	TeamAwayName           string             `bson:"team_away_name" json:"team_away_name"`
 	TeamAwayAvatar         string             `bson:"team_away_avatar" json:"team_away_avatar"`
 	Referees               []string           `bson:"referees" json:"referees"`

@@ -29,6 +29,8 @@ type TeamScoreResponse struct {
 }
 
 type TeamInfoResponse struct {
+	TeamId	 string `bson:"team_id" json:"team_id"`
+	TeamVariant string `bson:"team_variant" json:"team_variant"`
 	TeamName   string `bson:"team_name" json:"team_name"`
 	TeamAvatar string `bson:"team_avatar" json:"team_avatar"`
 }

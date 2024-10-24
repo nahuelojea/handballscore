@@ -56,6 +56,7 @@ func GetMatchesByTeam(request events.APIGatewayProxyRequest, claim dto.Claim) dt
 		AssociationId:      associationId,
 		Page:               page,
 		PageSize:           pageSize,
+		SortField: 		"date",
 		SortOrder:          1,
 	}
 
