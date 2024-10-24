@@ -199,6 +199,7 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 			Status:    match.Status,
 			GoalsHome: match.GoalsHome,
 			GoalsAway: match.GoalsAway,
+			PlayoffRound: match.PlayoffRound,
 		}
 		matchesJourney = append(matchesJourney, matchJourney)
 	}
@@ -253,6 +254,7 @@ func GetMatchesByTeam(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int
 			Status:    match.Status,
 			GoalsHome: match.GoalsHome,
 			GoalsAway: match.GoalsAway,
+			PlayoffRound: match.PlayoffRound,
 		}
 		teamMatches = append(teamMatches, teamMatch)
 	}

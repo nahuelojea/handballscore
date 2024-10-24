@@ -12,6 +12,7 @@ type MatchResponse struct {
 	Status    string            `bson:"status" json:"status"`
 	GoalsHome int               `bson:"goals_home" json:"goals_home"`
 	GoalsAway int               `bson:"goals_away" json:"goals_away"`
+	PlayoffRound string         `bson:"playoff_round" json:"playoff_round"`
 }
 
 type MatchTeamResponse struct {
