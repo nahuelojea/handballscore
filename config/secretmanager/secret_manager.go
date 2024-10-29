@@ -11,6 +11,7 @@ import (
 )
 
 func GetSecret(secretName string) (dto.Secret, error) {
+	fmt.Println("Getting secret from AWS Secret Manager")
 	var secretData dto.Secret
 
 	svc := secretsmanager.NewFromConfig(awsgo.Cfg)

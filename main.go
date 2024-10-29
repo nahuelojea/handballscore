@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -18,6 +19,12 @@ import (
 
 const (
 	APP_DOMAINS = "https://handballscore.onrender.com, https://www.handballscore.com"
+)
+
+var (
+	secretModel     dto.Secret
+	loadSecretOnce  sync.Once
+	secretLoadError error
 )
 
 func main() {
@@ -52,12 +59,14 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 		return res, nil
 	}
 
-	SecretModel, err := secretmanager.GetSecret(os.Getenv("SecretName"))
+	loadSecretOnce.Do(func() {
+		secretModel, secretLoadError = secretmanager.GetSecret(os.Getenv("SecretName"))
+	})
 
-	if err != nil {
+	if secretLoadError != nil {
 		res = &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusBadRequest,
-			Body:       "Error to read Secret " + err.Error(),
+			Body:       "Error to read Secret " + secretLoadError.Error(),
 			Headers:    headers,
 		}
 		return res, nil
@@ -67,15 +76,15 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("path"), path)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("method"), request.HTTPMethod)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("user"), SecretModel.Username)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("password"), SecretModel.Password)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("host"), SecretModel.Host)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("database"), SecretModel.Database)
-	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("jwtSign"), SecretModel.JWTSign)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("user"), secretModel.Username)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("password"), secretModel.Password)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("host"), secretModel.Host)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("database"), secretModel.Database)
+	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("jwtSign"), secretModel.JWTSign)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("body"), request.Body)
 	awsgo.Ctx = context.WithValue(awsgo.Ctx, dto.Key("bucketName"), os.Getenv("BucketName"))
 
-	err = db.Connect(awsgo.Ctx)
+	err := db.Connect(awsgo.Ctx)
 
 	if err != nil {
 		res = &events.APIGatewayProxyResponse{
