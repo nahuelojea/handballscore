@@ -432,6 +432,7 @@ func SuspendMatch(id, comments string) (bool, error) {
 		return false, errors.New("Error to suspend match: " + err.Error())
 	}
 
+	match.Status = models.Suspended
 	err = end_match.EndMatchChainEvents(&match)
 	if err != nil {
 		return false, errors.New("Error to end match chain events: " + err.Error())
