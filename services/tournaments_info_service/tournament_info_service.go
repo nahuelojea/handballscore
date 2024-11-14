@@ -233,7 +233,7 @@ func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCate
 			playoffKeyTeams = append(playoffKeyTeams, TournamentCategoryDTO.PlayoffKeyTeamResponse{
 				Id: playoffRoundKey.Teams[1].TeamId,
 				TeamInfoResponse: TournamentCategoryDTO.TeamInfoResponse{
-					TeamName:   teamAwayName,
+					TeamName:   teamAwayName + " " + playoffRoundKey.Teams[1].Variant,
 					TeamAvatar: teamAwayAvatar,
 				},
 				Result:   awayResult,
