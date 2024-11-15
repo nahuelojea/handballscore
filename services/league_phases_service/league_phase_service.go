@@ -134,6 +134,10 @@ func RecalculateTeamsScores(leaguePhaseId string) error {
 	return err
 }
 
+func ApplyOlympicTiebreaker (leaguePhase *models.LeaguePhase) {
+	league_phases_repository.ApplyOlympicTiebreaker(leaguePhase)
+}
+
 func updateStandings(match models.Match, teamsScores *[]models.TeamScore) {
 	homeTeamScore := findTeamInStandings(match.TeamHome, teamsScores)
 	awayTeamScore := findTeamInStandings(match.TeamAway, teamsScores)

@@ -56,8 +56,7 @@ type GetMatchesOptions struct {
 	TournamentCategoryId string
 	LeaguePhaseWeekId  string
 	PlayoffRoundKeyIds []string
-	TeamId 		   string
-	Variant 	   string
+	Teams 			   []models.TournamentTeamId
 	Date               time.Time
 	AssociationId      string
 	Page               int
@@ -165,18 +164,43 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 		filter["playoff_round_key_id"] = bson.M{"$in": filterOptions.PlayoffRoundKeyIds}
 	}
 
-	if filterOptions.TeamId != "" {
+	if len(filterOptions.Teams) == 1 {
+		team := filterOptions.Teams[0]
 		teamFilter := bson.A{
-			bson.M{"team_home_id": filterOptions.TeamId},
-			bson.M{"team_away_id": filterOptions.TeamId},
+			bson.M{"team_home_id": team.TeamId},
+			bson.M{"team_away_id": team.TeamId},
 		}
-		if filterOptions.Variant != "" {
+		if team.Variant != "" {
 			teamFilter = bson.A{
-				bson.M{"team_home_id": filterOptions.TeamId, "team_home_variant": filterOptions.Variant},
-				bson.M{"team_away_id": filterOptions.TeamId, "team_away_variant": filterOptions.Variant},
+				bson.M{"team_home_id": team.TeamId, "team_home_variant": team.Variant},
+				bson.M{"team_away_id": team.TeamId, "team_away_variant": team.Variant},
 			}
 		}
 		filter["$or"] = teamFilter
+	} else if len(filterOptions.Teams) > 1 {
+		var teamMatchConditions []bson.M
+		for i, team1 := range filterOptions.Teams {
+			for j, team2 := range filterOptions.Teams {
+				if i != j {
+					condition := bson.M{
+						"$or": bson.A{
+							bson.M{"team_home_id": team1.TeamId, "team_away_id": team2.TeamId},
+							bson.M{"team_home_id": team2.TeamId, "team_away_id": team1.TeamId},
+						},
+					}
+					if team1.Variant != "" && team2.Variant != "" {
+						condition = bson.M{
+							"$or": bson.A{
+								bson.M{"team_home_id": team1.TeamId, "team_home_variant": team1.Variant, "team_away_id": team2.TeamId, "team_away_variant": team2.Variant},
+								bson.M{"team_home_id": team2.TeamId, "team_home_variant": team2.Variant, "team_away_id": team1.TeamId, "team_away_variant": team1.Variant},
+							},
+						}
+					}
+					teamMatchConditions = append(teamMatchConditions, condition)
+				}
+			}
+		}
+		filter["$or"] = teamMatchConditions
 	}
 
 	if !filterOptions.Date.IsZero() {

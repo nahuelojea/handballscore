@@ -48,7 +48,7 @@ func getLeaguePhaseInfo(tournamentCategory models.TournamentCategory) (Tournamen
 	if len(leaguePhases) > 0 {
 		leaguePhase := leaguePhases[0]
 
-		leaguePhase.SortTeamsRanking()
+		league_phases_service.ApplyOlympicTiebreaker(&leaguePhase)
 
 		classifiedNumber := leaguePhase.Config.ClassifiedNumber
 		teamsRanking := make([]TournamentCategoryDTO.TeamScoreResponse, 0)

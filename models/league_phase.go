@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"math/rand"
-	"sort"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -56,23 +55,6 @@ func (leaguePhase *LeaguePhase) InitializeTeamScores() {
 		}
 		leaguePhase.TeamsRanking = append(leaguePhase.TeamsRanking, teamScore)
 	}
-}
-
-func (leaguePhase *LeaguePhase) SortTeamsRanking() {
-	sort.SliceStable(leaguePhase.TeamsRanking, func(i, j int) bool {
-		if leaguePhase.TeamsRanking[i].Points != leaguePhase.TeamsRanking[j].Points {
-			return leaguePhase.TeamsRanking[i].Points > leaguePhase.TeamsRanking[j].Points
-		}
-		goalDifferenceA := leaguePhase.TeamsRanking[i].GoalsScored - leaguePhase.TeamsRanking[i].GoalsConceded
-		goalDifferenceB := leaguePhase.TeamsRanking[j].GoalsScored - leaguePhase.TeamsRanking[j].GoalsConceded
-		if goalDifferenceA != goalDifferenceB {
-			return goalDifferenceA > goalDifferenceB
-		}
-		if leaguePhase.TeamsRanking[i].GoalsScored != leaguePhase.TeamsRanking[j].GoalsScored {
-			return leaguePhase.TeamsRanking[i].GoalsScored > leaguePhase.TeamsRanking[j].GoalsScored
-		}
-		return leaguePhase.TeamsRanking[i].GoalsConceded < leaguePhase.TeamsRanking[j].GoalsConceded
-	})
 }
 
 func (leaguePhase LeaguePhase) GenerateLeaguePhaseWeeks() ([]LeaguePhaseWeek, [][]MatchRound) {

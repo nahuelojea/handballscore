@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/nahuelojea/handballscore/dto"
+	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/services/matches_service"
 )
 
@@ -51,8 +52,12 @@ func GetMatchesByTeam(request events.APIGatewayProxyRequest, claim dto.Claim) dt
 
 	filterMatches := matches_service.GetMatchesOptions{
 		TournamentCategoryId: tournamentCategoryId,
-		TeamId:               teamId,
-		Variant:              variant,
+		Teams: []models.TournamentTeamId{
+			{
+				TeamId:  teamId,
+				Variant: variant,
+			},
+		},
 		AssociationId:      associationId,
 		Page:               page,
 		PageSize:           pageSize,

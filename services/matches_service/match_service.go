@@ -18,8 +18,7 @@ type GetMatchesOptions struct {
 	TournamentCategoryId string
 	LeaguePhaseWeekId  string
 	PlayoffRoundKeyIds []string
-	TeamId 		   string
-	Variant 	   string
+	Teams 			   []models.TournamentTeamId
 	Date               time.Time
 	AssociationId      string
 	Page               int
@@ -214,8 +213,7 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 func GetMatchesByTeam(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		TournamentCategoryId: filterOptions.TournamentCategoryId,
-		TeamId:               filterOptions.TeamId,
-		Variant:              filterOptions.Variant,
+		Teams:               filterOptions.Teams,
 		AssociationId:      filterOptions.AssociationId,
 		Page:               filterOptions.Page,
 		PageSize:           filterOptions.PageSize,

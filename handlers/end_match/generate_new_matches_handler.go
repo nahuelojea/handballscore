@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/nahuelojea/handballscore/models"
+	"github.com/nahuelojea/handballscore/repositories/league_phases_repository"
 	"github.com/nahuelojea/handballscore/repositories/matches_repository"
 	"github.com/nahuelojea/handballscore/repositories/playoff_phases_repository"
 	"github.com/nahuelojea/handballscore/repositories/playoff_round_keys_repository"
@@ -53,7 +54,7 @@ func handleNewMatchesLeaguePhase(endMatch *models.EndMatch, status *string) erro
 		return nil
 	}
 
-	leaguePhase.SortTeamsRanking()
+	league_phases_repository.ApplyOlympicTiebreaker(leaguePhase)
 	classifiedTeams := leaguePhase.TeamsRanking[:leaguePhase.Config.ClassifiedNumber]
 
 	playoffPhases, _, _, err := getPlayoffPhases(endMatch.CurrentTournamentCategory)

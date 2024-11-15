@@ -49,7 +49,7 @@ func handleLeaguePhaseEnd(endMatch *models.EndMatch, status *string) error {
 	}
 
 	if len(matches) == 0 {
-		leaguePhase.SortTeamsRanking()
+		league_phases_repository.ApplyOlympicTiebreaker(leaguePhase)
 
 		leaguePhase.Winner = leaguePhase.TeamsRanking[0].TeamId
 
