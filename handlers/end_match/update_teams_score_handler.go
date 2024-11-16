@@ -56,6 +56,8 @@ func updatePlayoffStandings(endMatch *models.EndMatch) error {
 	}
 
 	matchResult := models.MatchResult{
+		TeamHome:      endMatch.Match.TeamHome,
+		TeamAway:      endMatch.Match.TeamAway,
 		TeamHomeGoals: endMatch.Match.GoalsHome.Total,
 		TeamAwayGoals: endMatch.Match.GoalsAway.Total,
 	}

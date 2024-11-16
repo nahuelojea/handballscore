@@ -22,6 +22,8 @@ type PlayoffRoundKey struct {
 }
 
 type MatchResult struct {
+	TeamHome TournamentTeamId `bson:"team_home" json:"team_home"`
+	TeamAway TournamentTeamId `bson:"team_away" json:"team_away"`
 	TeamHomeGoals int `bson:"team_home_goals" json:"team_home_goals"`
 	TeamAwayGoals int `bson:"team_away_goals" json:"team_away_goals"`
 }
