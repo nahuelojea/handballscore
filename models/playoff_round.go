@@ -17,6 +17,7 @@ const (
 	ThirdPlace      = "third_place"
 	FifthPlace      = "fifth_place"
 	SeventhPlace    = "seventh_place"
+	NinthPlace      = "ninth_place"
 )
 
 type PlayoffRound struct {
@@ -64,6 +65,8 @@ func (playoffRound *PlayoffRound) PlayoffRoundNameTraduction() string {
 		return "Quinto Puesto"
 	case SeventhPlace:
 		return "Septimo Puesto"
+	case NinthPlace:
+		return "Noveno Puesto"
 	default:
 		return "Fase Desconocida"
 	}
