@@ -205,15 +205,19 @@ func getPlayoffRoundKeysInfo(playoffRound models.PlayoffRound) ([]TournamentCate
 		var awayResult string
 
 		if len(playoffRoundKey.MatchResults) > 0 {
+			var homeResults []string
+			var awayResults []string
 			for _, matchResult := range playoffRoundKey.MatchResults {
 				if matchResult.TeamHome == playoffRoundKey.Teams[0] {
-					homeResult = strconv.Itoa(matchResult.TeamHomeGoals)
-					awayResult = strconv.Itoa(matchResult.TeamAwayGoals)
+					homeResults = append(homeResults, strconv.Itoa(matchResult.TeamHomeGoals))
+					awayResults = append(awayResults, strconv.Itoa(matchResult.TeamAwayGoals))
 				} else if matchResult.TeamHome == playoffRoundKey.Teams[1] {
-					homeResult = strconv.Itoa(matchResult.TeamAwayGoals)
-					awayResult = strconv.Itoa(matchResult.TeamHomeGoals)
+					homeResults = append(homeResults, strconv.Itoa(matchResult.TeamAwayGoals))
+					awayResults = append(awayResults, strconv.Itoa(matchResult.TeamHomeGoals))
 				}
 			}
+			homeResult = strings.Join(homeResults, "-")
+			awayResult = strings.Join(awayResults, "-")
 		}
 
 		playoffKeyTeams := []TournamentCategoryDTO.PlayoffKeyTeamResponse{}
