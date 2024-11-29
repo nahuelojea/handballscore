@@ -67,13 +67,16 @@ func handleLeaguePhaseChampion(endMatch *models.EndMatch, status *string) {
 
 func handlePlayoffPhaseChampion(endMatch *models.EndMatch, status *string) {
 	playoffRoundKey := &endMatch.CurrentPlayoffPhase.PlayoffRoundKey
+	playoffRound := &endMatch.CurrentPlayoffPhase.PlayoffRound
 
-	if playoffRoundKey.NextRoundKeyId == "" && playoffRoundKey.Finished {
-		endMatch.CurrentTournamentCategory.Champion = playoffRoundKey.Winner
-		endMatch.CurrentTournamentCategory.EndDate = time.Now()
-		endMatch.CurrentTournamentCategory.Status = models.Ended
-
-		tournaments_repository.UpdateTournamentCategory(endMatch.CurrentTournamentCategory, endMatch.CurrentTournamentCategory.Id.Hex())
-		*status = "Champion updated"
+	if playoffRound.Round == models.Final {
+		if playoffRoundKey.Finished {
+			endMatch.CurrentTournamentCategory.Champion = playoffRoundKey.Winner
+			endMatch.CurrentTournamentCategory.EndDate = time.Now()
+			endMatch.CurrentTournamentCategory.Status = models.Ended
+	
+			tournaments_repository.UpdateTournamentCategory(endMatch.CurrentTournamentCategory, endMatch.CurrentTournamentCategory.Id.Hex())
+			*status = "Champion updated"
+		}
 	}
 }
