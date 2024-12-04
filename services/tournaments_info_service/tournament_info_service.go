@@ -33,7 +33,34 @@ func GetInfo(id string) (TournamentCategoryDTO.TournamentInfoResponse, error) {
 		return tournamentInfoResponse, err
 	}
 
+	tournamentInfoResponse.Champion = getChampionInfo(tournamentCategory)
+
 	return tournamentInfoResponse, nil
+}
+
+func getChampionInfo(tournamentCategory models.TournamentCategory) (TournamentCategoryDTO.TeamInfoResponse) {
+	if tournamentCategory.Champion.TeamId != "" {
+		teamName := ""
+		teamAvatar := ""
+		team, _, _ := teams_service.GetTeam(tournamentCategory.Champion.TeamId)
+		if len(team.Name) > 0 {
+			teamName = team.Name
+		}
+		if len(team.Avatar) > 0 {
+			teamAvatar = team.Avatar
+		}
+
+		champion := TournamentCategoryDTO.TeamInfoResponse{
+			TeamId:     tournamentCategory.Champion.TeamId,
+			TeamVariant: tournamentCategory.Champion.Variant,
+			TeamName:   strings.TrimSpace(teamName + " " + tournamentCategory.Champion.Variant),
+			TeamAvatar: teamAvatar,
+		}
+
+		return champion
+		
+	}
+	return TournamentCategoryDTO.TeamInfoResponse{}
 }
 
 func getLeaguePhaseInfo(tournamentCategory models.TournamentCategory) (TournamentCategoryDTO.LeaguePhaseInfoResponse, error) {

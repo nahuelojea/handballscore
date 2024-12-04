@@ -3,6 +3,7 @@ package dto
 type TournamentInfoResponse struct {
 	LeaguePhaseInfo  LeaguePhaseInfoResponse  `bson:"league_phase_info" json:"league_phase_info"`
 	PlayoffPhaseInfo PlayoffPhaseInfoResponse `bson:"playoff_phase_info" json:"playoff_phase_info"`
+	Champion 	   	 TeamInfoResponse         `bson:"champion" json:"champion"`
 }
 
 type PlayoffPhaseInfoResponse struct {
