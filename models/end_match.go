@@ -15,6 +15,7 @@ type EndMatch struct {
 	GenerateNewPlayoffRoundKey StepStatus
 	GenerateNewPhase           StepStatus
 	UpdateChampion             StepStatus
+	LoadDataNextMatches 	   StepStatus
 }
 
 type StepStatus struct {

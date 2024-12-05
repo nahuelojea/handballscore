@@ -104,11 +104,13 @@ func configureChainResponsability() *UpdateTeamsScoreHandler {
 	updateTeamsScoreHandler := &UpdateTeamsScoreHandler{}
 	endPhaseHandler := &EndPhaseHandler{}
 	generateNewMatchesHandler := &GenerateNewMatchesHandler{}
-	UpdateChampionHandler := &UpdateChampionHandler{}
+	updateChampionHandler := &UpdateChampionHandler{}
+	loadDataNextMatches := &LoadDataNextMatchesHandler{}
 
 	updateTeamsScoreHandler.SetNext(endPhaseHandler)
 	endPhaseHandler.SetNext(generateNewMatchesHandler)
-	generateNewMatchesHandler.SetNext(UpdateChampionHandler)
+	generateNewMatchesHandler.SetNext(updateChampionHandler)
+	updateChampionHandler.SetNext(loadDataNextMatches)
 
 	return updateTeamsScoreHandler
 }

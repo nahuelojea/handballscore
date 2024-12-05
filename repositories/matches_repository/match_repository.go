@@ -473,3 +473,42 @@ func GetLastEndedMatchByTeam(team models.TournamentTeamId, tournamentCategoryId 
 
 	return match, true, nil
 }
+
+func GetMatchesByStatus(team models.TournamentTeamId, tournamentCategoryId, status string) ([]models.Match, bool, error) {
+	ctx := context.TODO()
+	db := db.MongoClient.Database(db.DatabaseName)
+	collection := db.Collection(match_collection)
+
+	filter := bson.M{
+		"$and": bson.A{
+			bson.M{"$or": bson.A{
+				bson.M{"team_home.team_id": team.TeamId, "team_home.variant": team.Variant, "status": status},
+				bson.M{"team_away.team_id": team.TeamId, "team_away.variant": team.Variant, "status": status},
+			}},
+			bson.M{"tournament_category_id": tournamentCategoryId},
+		},
+	}
+
+	findOptions := options.Find()
+
+	cur, err := collection.Find(ctx, filter, findOptions)
+	if err != nil {
+		return nil, false, err
+	}
+	defer cur.Close(ctx)
+
+	var matches []models.Match
+	for cur.Next(ctx) {
+		var match models.Match
+		if err := cur.Decode(&match); err != nil {
+			return nil, false, err
+		}
+		matches = append(matches, match)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, false, err
+	}
+
+	return matches, true, nil
+}
