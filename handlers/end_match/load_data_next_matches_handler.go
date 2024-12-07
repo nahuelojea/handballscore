@@ -21,6 +21,17 @@ func (c *LoadDataNextMatchesHandler) HandleEndMatch(endMatch *models.EndMatch) {
 
 	if len(teamHomeMatches) > 0 {
 		for _, match := range teamHomeMatches {
+			getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
+				MatchId:       match.Id.Hex(),
+				Team:          endMatch.Match.TeamHome,
+				AssociationId: match.AssociationId,
+			}
+		
+			players, _, _, _ := match_players_repository.GetMatchPlayers(getPlayersOptions)
+			if len(players) != 0 {
+				continue
+			}
+
 			err = laodMatchPlayersAndCoachesFromLastMatch(match, endMatch.Match, endMatch.Match.TeamHome)
 			if err != nil {
 				break
@@ -32,6 +43,17 @@ func (c *LoadDataNextMatchesHandler) HandleEndMatch(endMatch *models.EndMatch) {
 
 	if len(teamAwayMatches) > 0 {
 		for _, match := range teamAwayMatches {
+			getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
+				MatchId:       match.Id.Hex(),
+				Team:          endMatch.Match.TeamAway,
+				AssociationId: match.AssociationId,
+			}
+		
+			players, _, _, _ := match_players_repository.GetMatchPlayers(getPlayersOptions)
+			if len(players) != 0 {
+				continue
+			}
+
 			err = laodMatchPlayersAndCoachesFromLastMatch(match, endMatch.Match, endMatch.Match.TeamAway)
 			if err != nil {
 				break
