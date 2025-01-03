@@ -68,7 +68,7 @@ func GetTournamentsCategories(filterOptions GetTournamentsCategoryOptions) ([]mo
 	page := filterOptions.Page
 	pageSize := filterOptions.PageSize
 
-	sortOrder := 1
+	sortOrder := -1
 	if filterOptions.SortOrder == 1 {
 		sortOrder = 1
 	}
