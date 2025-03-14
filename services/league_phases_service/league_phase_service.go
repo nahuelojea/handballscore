@@ -65,7 +65,7 @@ func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, l
 	}
 
 	leaguePhase.Id = leaguePhaseId
-	leaguePhaseWeeks, rounds := leaguePhase.GenerateLeaguePhaseWeeks()
+	leaguePhaseWeeks, _ := leaguePhase.GenerateLeaguePhaseWeeks()
 
 	_, _, err = league_phase_weeks_service.CreateLeaguePhaseWeeks(tournamentCategory.AssociationId, leaguePhaseWeeks)
 	if err != nil {
@@ -82,12 +82,12 @@ func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, l
 		return "", false, errors.New(fmt.Sprintf("Error to get league phase weeks: %s", err.Error()))
 	}
 
-	matches := leaguePhase.GenerateMatches(tournamentCategory.Id.Hex(), rounds, leaguePhaseWeeks)
+	/*matches := leaguePhase.GenerateMatches(tournamentCategory.Id.Hex(), rounds, leaguePhaseWeeks)
 
 	_, _, err = matches_service.CreateMatches(tournamentCategory.AssociationId, matches)
 	if err != nil {
 		return "", false, errors.New(fmt.Sprintf("Error to create league phase matches: %s", err.Error()))
-	}
+	}*/
 
 	return tournamentCategory.Id.Hex(), true, nil
 }

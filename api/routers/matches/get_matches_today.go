@@ -69,7 +69,6 @@ func GetMatchesToday(request events.APIGatewayProxyRequest, claim dto.Claim) dto
 	}
 
 	matchesList, totalRecords, totalPages, err := matches_service.GetMatchesToday(filterOptions, exactDate)
-	//matchesList, totalRecords, totalPages, err := matches_service.GetMatchHeaders(filterOptions)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to get match headers: " + err.Error()

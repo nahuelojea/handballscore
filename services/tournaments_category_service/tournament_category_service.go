@@ -94,13 +94,13 @@ func CreateTournamentCategory(ctx context.Context, associationId string, tournam
 		}
 
 		var leaguePhaseConfig models.LeaguePhaseConfig
-		leaguePhaseConfig.HomeAndAway = tournamentRequest.LeaguePhase.HomeAndAway
+		leaguePhaseConfig.HomeAndAway = tournamentRequest.LeagueAndPlayoff.LeaguePhase.HomeAndAway
 		leaguePhaseConfig.ClassifiedNumber = tournamentRequest.LeagueAndPlayoff.LeaguePhase.ClassifiedNumber
 
 		var playoffPhaseConfig models.PlayoffPhaseConfig
-		playoffPhaseConfig.HomeAndAway = tournamentRequest.PlayoffPhase.HomeAndAway
-		playoffPhaseConfig.RandomOrder = tournamentRequest.PlayoffPhase.RandomOrder
-		playoffPhaseConfig.SingleMatchFinal = tournamentRequest.PlayoffPhase.SingleMatchFinal
+		playoffPhaseConfig.HomeAndAway = tournamentRequest.LeagueAndPlayoff.PlayoffPhase.HomeAndAway
+		playoffPhaseConfig.RandomOrder = tournamentRequest.LeagueAndPlayoff.PlayoffPhase.RandomOrder
+		playoffPhaseConfig.SingleMatchFinal = tournamentRequest.LeagueAndPlayoff.PlayoffPhase.SingleMatchFinal
 		playoffPhaseConfig.ClassifiedNumber = leaguePhaseConfig.ClassifiedNumber
 
 		return league_playoff_phases_service.CreateTournamentLeagueAndPlayoffPhases(tournamentCategory, leaguePhaseConfig, playoffPhaseConfig)
