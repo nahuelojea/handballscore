@@ -16,15 +16,15 @@ import (
 
 type GetMatchesOptions struct {
 	TournamentCategoryId string
-	LeaguePhaseWeekId  string
-	PlayoffRoundKeyIds []string
-	Teams 			   []models.TournamentTeamId
-	Date               time.Time
-	AssociationId      string
-	Page               int
-	PageSize           int
-	SortField          string
-	SortOrder          int
+	LeaguePhaseWeekId    string
+	PlayoffRoundKeyIds   []string
+	Teams                []models.TournamentTeamId
+	Date                 time.Time
+	AssociationId        string
+	Page                 int
+	PageSize             int
+	SortField            string
+	SortOrder            int
 }
 
 func CreateMatches(associationID string, matches []models.Match) ([]string, bool, error) {
@@ -46,14 +46,14 @@ func GetMatchHeader(ID string) (models.MatchHeaderView, bool, error) {
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		TournamentCategoryId: filterOptions.TournamentCategoryId,
-		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
-		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
-		Date:               filterOptions.Date,
-		AssociationId:      filterOptions.AssociationId,
-		Page:               filterOptions.Page,
-		PageSize:           filterOptions.PageSize,
-		SortField:          filterOptions.SortField,
-		SortOrder:          filterOptions.SortOrder,
+		LeaguePhaseWeekId:    filterOptions.LeaguePhaseWeekId,
+		PlayoffRoundKeyIds:   filterOptions.PlayoffRoundKeyIds,
+		Date:                 filterOptions.Date,
+		AssociationId:        filterOptions.AssociationId,
+		Page:                 filterOptions.Page,
+		PageSize:             filterOptions.PageSize,
+		SortField:            filterOptions.SortField,
+		SortOrder:            filterOptions.SortOrder,
 	}
 	return matches_repository.GetMatches(filters)
 }
@@ -158,13 +158,13 @@ func GetMatchesToday(filterOptions GetMatchesOptions, exactDate bool) ([]models.
 func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		TournamentCategoryId: filterOptions.TournamentCategoryId,
-		LeaguePhaseWeekId:  filterOptions.LeaguePhaseWeekId,
-		PlayoffRoundKeyIds: filterOptions.PlayoffRoundKeyIds,
-		AssociationId:      filterOptions.AssociationId,
-		Page:               filterOptions.Page,
-		PageSize:           filterOptions.PageSize,
-		SortField:          filterOptions.SortField,
-		SortOrder:          filterOptions.SortOrder,
+		LeaguePhaseWeekId:    filterOptions.LeaguePhaseWeekId,
+		PlayoffRoundKeyIds:   filterOptions.PlayoffRoundKeyIds,
+		AssociationId:        filterOptions.AssociationId,
+		Page:                 filterOptions.Page,
+		PageSize:             filterOptions.PageSize,
+		SortField:            filterOptions.SortField,
+		SortOrder:            filterOptions.SortOrder,
 	}
 
 	matches, _, _, err := matches_repository.GetMatchHeaders(filters)
@@ -175,29 +175,29 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 	var matchesJourney []dto.MatchResponse
 	for _, match := range matches {
 		homeMatchTeam := dto.MatchTeamResponse{
-			TeamId: match.TeamHomeId.Hex(),
+			TeamId:  match.TeamHomeId.Hex(),
 			Variant: match.TeamHomeVariant,
-			Name:   match.TeamHomeName,
-			Avatar: match.TeamHomeAvatar,
+			Name:    match.TeamHomeName,
+			Avatar:  match.TeamHomeAvatar,
 		}
 
 		awayMatchTeam := dto.MatchTeamResponse{
-			TeamId: match.TeamAwayId.Hex(),
+			TeamId:  match.TeamAwayId.Hex(),
 			Variant: match.TeamAwayVariant,
-			Name:   match.TeamAwayName,
-			Avatar: match.TeamAwayAvatar,
+			Name:    match.TeamAwayName,
+			Avatar:  match.TeamAwayAvatar,
 		}
 
 		matchJourney := dto.MatchResponse{
-			MatchId:   match.Id.Hex(),
-			Date:      match.Date,
-			TeamHome:  homeMatchTeam,
-			TeamAway:  awayMatchTeam,
-			Referees:  match.Referees,
-			Place:     match.Place,
-			Status:    match.Status,
-			GoalsHome: match.GoalsHome,
-			GoalsAway: match.GoalsAway,
+			MatchId:      match.Id.Hex(),
+			Date:         match.Date,
+			TeamHome:     homeMatchTeam,
+			TeamAway:     awayMatchTeam,
+			Referees:     match.Referees,
+			Place:        match.Place,
+			Status:       match.Status,
+			GoalsHome:    match.GoalsHome,
+			GoalsAway:    match.GoalsAway,
 			PlayoffRound: match.PlayoffRound,
 		}
 		matchesJourney = append(matchesJourney, matchJourney)
@@ -213,12 +213,12 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 func GetMatchesByTeam(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int64, int, error) {
 	filters := matches_repository.GetMatchesOptions{
 		TournamentCategoryId: filterOptions.TournamentCategoryId,
-		Teams:               filterOptions.Teams,
-		AssociationId:      filterOptions.AssociationId,
-		Page:               filterOptions.Page,
-		PageSize:           filterOptions.PageSize,
-		SortField:          filterOptions.SortField,
-		SortOrder:          filterOptions.SortOrder,
+		Teams:                filterOptions.Teams,
+		AssociationId:        filterOptions.AssociationId,
+		Page:                 filterOptions.Page,
+		PageSize:             filterOptions.PageSize,
+		SortField:            filterOptions.SortField,
+		SortOrder:            filterOptions.SortOrder,
 	}
 
 	matches, _, _, err := matches_repository.GetMatchHeaders(filters)
@@ -229,29 +229,29 @@ func GetMatchesByTeam(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int
 	var teamMatches []dto.MatchResponse
 	for _, match := range matches {
 		homeMatchTeam := dto.MatchTeamResponse{
-			TeamId: match.TeamHomeId.Hex(),
+			TeamId:  match.TeamHomeId.Hex(),
 			Variant: match.TeamHomeVariant,
-			Name:   match.TeamHomeName,
-			Avatar: match.TeamHomeAvatar,
+			Name:    match.TeamHomeName,
+			Avatar:  match.TeamHomeAvatar,
 		}
 
 		awayMatchTeam := dto.MatchTeamResponse{
-			TeamId: match.TeamAwayId.Hex(),
+			TeamId:  match.TeamAwayId.Hex(),
 			Variant: match.TeamAwayVariant,
-			Name:   match.TeamAwayName,
-			Avatar: match.TeamAwayAvatar,
+			Name:    match.TeamAwayName,
+			Avatar:  match.TeamAwayAvatar,
 		}
 
 		teamMatch := dto.MatchResponse{
-			MatchId:   match.Id.Hex(),
-			Date:      match.Date,
-			TeamHome:  homeMatchTeam,
-			TeamAway:  awayMatchTeam,
-			Referees:  match.Referees,
-			Place:     match.Place,
-			Status:    match.Status,
-			GoalsHome: match.GoalsHome,
-			GoalsAway: match.GoalsAway,
+			MatchId:      match.Id.Hex(),
+			Date:         match.Date,
+			TeamHome:     homeMatchTeam,
+			TeamAway:     awayMatchTeam,
+			Referees:     match.Referees,
+			Place:        match.Place,
+			Status:       match.Status,
+			GoalsHome:    match.GoalsHome,
+			GoalsAway:    match.GoalsAway,
 			PlayoffRound: match.PlayoffRound,
 		}
 		teamMatches = append(teamMatches, teamMatch)
@@ -264,19 +264,17 @@ func GetMatchesByTeam(filterOptions GetMatchesOptions) ([]dto.MatchResponse, int
 	return teamMatches, totalRecords, int(totalPages), nil
 }
 
-func ProgramMatch(matchTime time.Time, place, id string) (bool, error) {
-	if matchTime.Before(time.Now()) {
-		return false, errors.New("The date cannot be earlier than the current date")
-	}
-
+func ProgramMatch(programMatchRequest dto.ProgramMatchRequest, id string) (bool, error) {
 	match, _, err := matches_repository.GetMatch(id)
 	if err != nil {
 		return false, errors.New("Error to get match: " + err.Error())
 	}
-
 	laodMatchPlayersAndCoachesFromLastMatch(match)
 
-	return matches_repository.ProgramMatch(matchTime, place, id)
+	return matches_repository.ProgramMatch(programMatchRequest.Date,
+		programMatchRequest.Place,
+		programMatchRequest.StreamingUrl,
+		id)
 }
 
 func laodMatchPlayersAndCoachesFromLastMatch(match models.Match) error {

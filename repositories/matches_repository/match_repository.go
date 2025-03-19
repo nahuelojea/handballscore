@@ -54,15 +54,15 @@ func GetMatchHeaderView(ID string) (models.MatchHeaderView, bool, error) {
 
 type GetMatchesOptions struct {
 	TournamentCategoryId string
-	LeaguePhaseWeekId  string
-	PlayoffRoundKeyIds []string
-	Teams 			   []models.TournamentTeamId
-	Date               time.Time
-	AssociationId      string
-	Page               int
-	PageSize           int
-	SortField          string
-	SortOrder          int
+	LeaguePhaseWeekId    string
+	PlayoffRoundKeyIds   []string
+	Teams                []models.TournamentTeamId
+	Date                 time.Time
+	AssociationId        string
+	Page                 int
+	PageSize             int
+	SortField            string
+	SortOrder            int
 }
 
 func GetMatches(filterOptions GetMatchesOptions) ([]models.Match, int64, int, error) {
@@ -223,7 +223,7 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64((page - 1) * pageSize))
-	
+
 	if filterOptions.SortField != "" {
 		findOptions.SetSort(bson.D{
 			{Key: filterOptions.SortField, Value: sortOrder},
@@ -264,13 +264,16 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	return matchViews, totalRecords, totalPages, nil
 }
 
-func ProgramMatch(time time.Time, place, id string) (bool, error) {
+func ProgramMatch(time time.Time, place, StreamingUrl, id string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
 	if !time.IsZero() {
 		updateDataMap["date"] = time
 	}
 	if len(place) > 0 {
 		updateDataMap["place"] = place
+	}
+	if len(StreamingUrl) > 0 {
+		updateDataMap["streaming_url"] = StreamingUrl
 	}
 
 	updateDataMap["status"] = models.Programmed

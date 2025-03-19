@@ -20,12 +20,13 @@ type MatchHeaderView struct {
 	Referees               []string           `bson:"referees" json:"referees"`
 	Place                  string             `bson:"place" json:"place"`
 	Status                 string             `bson:"status" json:"status"`
+	StreamingUrl           string             `bson:"streaming_url" json:"streaming_url"`
 	GoalsHome              int                `bson:"goals_home" json:"goals_home"`
 	GoalsAway              int                `bson:"goals_away" json:"goals_away"`
 	TournamentCategoryId   string             `bson:"tournament_category_id" json:"tournament_category_id"`
 	TournamentCategoryName string             `bson:"tournament_category_name" json:"tournament_category_name"`
 	LeaguePhaseWeekId      string             `bson:"league_phase_week_id" json:"league_phase_week_id"`
-	PlayoffRoundKeyId 	   string             `bson:"playoff_round_key_id" json:"playoff_round_key_id"`
+	PlayoffRoundKeyId      string             `bson:"playoff_round_key_id" json:"playoff_round_key_id"`
 	PlayoffRound           string             `bson:"playoff_round" json:"playoff_round"`
 	Category_Id            string             `bson:"category_id" json:"category_id"`
 	AssociationId          string             `bson:"association_id" json:"association_id"`

@@ -27,6 +27,7 @@ type Match struct {
 	Timekeeper           string             `bson:"timekeeper" json:"timekeeper"`
 	Comments             string             `bson:"comments" json:"comments"`
 	Status               string             `bson:"status" json:"status"`
+	StreamingUrl         string             `bson:"streaming_url" json:"streaming_url"`
 	GoalsHome            MatchGoals         `bson:"goals_home" json:"goals_home"`
 	GoalsAway            MatchGoals         `bson:"goals_away" json:"goals_away"`
 	TimeoutsHome         []Timeout          `bson:"timeouts_home" json:"timeouts_home"`

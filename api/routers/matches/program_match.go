@@ -15,8 +15,8 @@ func ProgramMatch(ctx context.Context, request events.APIGatewayProxyRequest) dt
 	var response dto.RestResponse
 	response.Status = http.StatusBadRequest
 
-	Id := request.QueryStringParameters["id"]
-	if len(Id) < 1 {
+	id := request.QueryStringParameters["id"]
+	if len(id) < 1 {
 		response.Status = http.StatusBadRequest
 		response.Message = "'id' param is mandatory"
 		return response
@@ -32,7 +32,7 @@ func ProgramMatch(ctx context.Context, request events.APIGatewayProxyRequest) dt
 		return response
 	}
 
-	_, err = matches_service.ProgramMatch(programMatchRequest.Date, programMatchRequest.Place, Id)
+	_, err = matches_service.ProgramMatch(programMatchRequest, id)
 	if err != nil {
 		response.Status = http.StatusInternalServerError
 		response.Message = "Error to program match data: " + err.Error()
