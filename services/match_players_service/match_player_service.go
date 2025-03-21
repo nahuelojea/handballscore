@@ -161,14 +161,6 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 		return false, err
 	}
 
-	if matchPlayer.RedCard {
-		return false, errors.New("The player has red card")
-	}
-
-	if matchPlayer.BlueCard {
-		return false, errors.New("The player has blue card")
-	}
-
 	if addExclusion {
 		if len(matchPlayer.Sanctions.Exclusions) == 3 {
 			return false, errors.New("The player has three exclusions")
@@ -186,14 +178,6 @@ func UpdateYellowCard(id string, addYellowCard bool) (bool, error) {
 	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
-	}
-
-	if matchPlayer.RedCard {
-		return false, errors.New("The player has red card")
-	}
-
-	if matchPlayer.BlueCard {
-		return false, errors.New("The player has blue card")
 	}
 
 	matchPlayer.YellowCard = addYellowCard
