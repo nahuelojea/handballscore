@@ -156,7 +156,7 @@ func RecalculateTeamGoals(match models.Match, team models.TournamentTeamId) (boo
 }
 
 func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
-	matchPlayer, match, err := getMatchPlayerAvailableToAction(id)
+	matchPlayer, _, err := getMatchPlayerAvailableToAction(id)
 	if err != nil {
 		return false, err
 	}
@@ -172,11 +172,6 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 	if addExclusion {
 		if len(matchPlayer.Sanctions.Exclusions) == 3 {
 			return false, errors.New("The player has three exclusions")
-		}
-		if match.Status == models.FirstHalf {
-			time = "1º " + time
-		} else {
-			time = "2º " + time
 		}
 		matchPlayer.Exclusions = append(matchPlayer.Exclusions, models.Exclusion{Time: time})
 	} else {
