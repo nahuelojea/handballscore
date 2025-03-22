@@ -7,6 +7,7 @@ import (
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type GetTopScorersOptions struct {
@@ -26,35 +27,26 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 		{
 			"$match": bson.M{
 				"association_id": filterOptions.AssociationId,
+				"goals.total":    bson.M{"$gt": 0},
 			},
 		},
 		{
 			"$lookup": bson.M{
 				"from": "matches",
-				"let":  bson.M{"match_id_str": "$match_id"},
+				"let":  bson.M{"match_id": "$match_id"},
 				"pipeline": []bson.M{
 					{
 						"$match": bson.M{
 							"$expr": bson.M{
 								"$and": []bson.M{
-									{"$eq": []interface{}{"$_id", bson.M{"$toObjectId": "$$match_id_str"}}},
+									{"$eq": []interface{}{"$_id", bson.M{"$toObjectId": "$$match_id"}}},
 									{"$eq": []interface{}{"$tournament_category_id", filterOptions.TournamentCategoryId}},
-									{"$not": bson.M{
-										"$in": []interface{}{"$status", []string{models.Created, models.Programmed}},
-									}},
+									{"$not": bson.M{"$in": []interface{}{"$status", []string{models.Created, models.Programmed}}}},
 								},
 							},
 						},
 					},
-					{
-						"$project": bson.M{
-							"date":      1,
-							"team_home": 1,
-							"team_away": 1,
-							"place":     1,
-							"status":    1,
-						},
-					},
+					{"$limit": 1},
 				},
 				"as": "match_info",
 			},
@@ -63,11 +55,6 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 			"$unwind": bson.M{
 				"path":                       "$match_info",
 				"preserveNullAndEmptyArrays": false,
-			},
-		},
-		{
-			"$match": bson.M{
-				"goals.total": bson.M{"$gt": 0}, // Filtrar jugadores con goles
 			},
 		},
 		{
@@ -80,7 +67,6 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 				"player_avatar":  bson.M{"$first": "$player_avatar"},
 				"team_name":      bson.M{"$first": "$team_name"},
 				"team_avatar":    bson.M{"$first": "$team_avatar"},
-				"association_id": bson.M{"$first": "$association_id"},
 			},
 		},
 	}
@@ -96,83 +82,69 @@ func GetTopScorers(filterOptions GetTopScorersOptions) ([]models.TopScorer, int6
 		})
 	}
 
-	pipeline = append(pipeline,
-		bson.M{
+	facetPipeline := []bson.M{
+		{
 			"$addFields": bson.M{
 				"total_matches": bson.M{"$size": "$total_matches"},
 				"average": bson.M{
-					"$divide": []interface{}{
-						"$total_goals",
-						bson.M{"$size": "$total_matches"},
+					"$cond": []interface{}{
+						bson.M{"$eq": []interface{}{bson.M{"$size": "$total_matches"}, 0}},
+						0,
+						bson.M{"$divide": []interface{}{"$total_goals", bson.M{"$size": "$total_matches"}}},
 					},
 				},
 			},
 		},
-		bson.M{
-			"$project": bson.M{
-				"total_goals":    1,
-				"average":        1,
-				"total_matches":  1,
-				"player_name":    1,
-				"player_surname": 1,
-				"player_avatar":  1,
-				"team_name":      1,
-				"team_avatar":    1,
-				"association_id": 1,
-			},
-		},
-		bson.M{
+		{
 			"$sort": bson.M{
 				"total_goals": -1,
+				"_id":         1,
 			},
 		},
-		bson.M{
-			"$skip": int64((filterOptions.Page - 1) * filterOptions.PageSize),
+		{
+			"$facet": bson.M{
+				"data": []bson.M{
+					{"$skip": (filterOptions.Page - 1) * filterOptions.PageSize},
+					{"$limit": filterOptions.PageSize},
+				},
+				"total": []bson.M{
+					{"$count": "totalRecords"},
+				},
+			},
 		},
-		bson.M{
-			"$limit": int64(filterOptions.PageSize),
+		{
+			"$unwind": "$total",
 		},
-	)
+	}
 
-	cur, err := collection.Aggregate(ctx, pipeline)
+	pipeline = append(pipeline, facetPipeline...)
+
+	opts := options.Aggregate().SetAllowDiskUse(true)
+	cur, err := collection.Aggregate(ctx, pipeline, opts)
 	if err != nil {
 		return nil, 0, 0, err
 	}
 	defer cur.Close(ctx)
 
-	var topScorers []models.TopScorer
-	for cur.Next(ctx) {
-		var topScorer models.TopScorer
-		if err := cur.Decode(&topScorer); err != nil {
-			return nil, 0, 0, err
-		}
-		topScorers = append(topScorers, topScorer)
+	var result struct {
+		Data  []models.TopScorer `bson:"data"`
+		Total struct {
+			TotalRecords int64 `bson:"totalRecords"`
+		} `bson:"total"`
 	}
 
-	if err := cur.Err(); err != nil {
-		return nil, 0, 0, err
-	}
-
-	countPipeline := append(pipeline[:len(pipeline)-3], bson.M{
-		"$count": "totalRecords",
-	})
-
-	var countResult struct {
-		TotalRecords int64 `bson:"totalRecords"`
-	}
-	countCur, err := collection.Aggregate(ctx, countPipeline)
-	if err != nil {
-		return nil, 0, 0, err
-	}
-	defer countCur.Close(ctx)
-
-	if countCur.Next(ctx) {
-		if err := countCur.Decode(&countResult); err != nil {
+	if cur.Next(ctx) {
+		if err := cur.Decode(&result); err != nil {
 			return nil, 0, 0, err
 		}
 	}
 
-	totalPages := int(math.Ceil(float64(countResult.TotalRecords) / float64(filterOptions.PageSize)))
+	totalRecords := int64(0)
+	if len(result.Data) > 0 {
+		totalRecords = result.Total.TotalRecords
+	}
 
-	return topScorers, countResult.TotalRecords, totalPages, nil
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(filterOptions.PageSize)))
+
+	return result.Data, totalRecords, totalPages, nil
 }
