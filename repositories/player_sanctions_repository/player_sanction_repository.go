@@ -3,6 +3,7 @@ package player_sanctions_repository
 import (
 	"context"
 	"math"
+	"time"
 
 	"github.com/nahuelojea/handballscore/config/db"
 	"github.com/nahuelojea/handballscore/models"
@@ -74,6 +75,7 @@ func AddServedMatch(matchId, id string) (bool, error) {
 
 	if len(playerSanction.ServedMatches) == playerSanction.MatchSuspensions {
 		updateDataMap["sanction_status"] = models.Completed
+		updateDataMap["end_date"] = time.Now()
 	}
 
 	return repositories.Update(player_sanction_collection, updateDataMap, id)

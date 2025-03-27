@@ -59,6 +59,7 @@ type GetMatchPlayerOptions struct {
 	Team          models.TournamentTeamId
 	PlayerId      string
 	Number        int
+	HasBlueCard   bool
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -71,6 +72,7 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayerV
 		Team:          filterOptions.Team,
 		PlayerId:      filterOptions.PlayerId,
 		Number:        filterOptions.Number,
+		HasBlueCard:   filterOptions.HasBlueCard,
 		AssociationId: filterOptions.AssociationId,
 		Page:          filterOptions.Page,
 		PageSize:      filterOptions.PageSize,

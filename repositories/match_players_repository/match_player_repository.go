@@ -44,6 +44,7 @@ type GetMatchPlayerOptions struct {
 	Team          models.TournamentTeamId
 	PlayerId      string
 	Number        int
+	HasBlueCard   bool
 	AssociationId string
 	Page          int
 	PageSize      int
@@ -73,6 +74,9 @@ func GetMatchPlayers(filterOptions GetMatchPlayerOptions) ([]models.MatchPlayerV
 	}
 	if filterOptions.Number != 0 {
 		filter["number"] = filterOptions.Number
+	}
+	if filterOptions.HasBlueCard {
+		filter["sanctions.blue_card"] = true
 	}
 
 	page := filterOptions.Page
