@@ -13,9 +13,7 @@ type UpdatePlayerSanctionsHandler struct {
 }
 
 func (c *UpdatePlayerSanctionsHandler) HandleEndMatch(endMatch *models.EndMatch) {
-	var err error
-
-	err, status := generateMatchSanctions(endMatch)
+	err, status := generateMatchSanctions(&endMatch.Match)
 
 	endMatch.UpdatePlayersSanctions = models.StepStatus{
 		IsDone: err == nil,
@@ -35,13 +33,17 @@ func (c *UpdatePlayerSanctionsHandler) HandleEndMatch(endMatch *models.EndMatch)
 	}
 }
 
-func generateMatchSanctions(endMatch *models.EndMatch) (error, string) {
+func generateMatchSanctions(match *models.Match) (error, string) {
 	status := "Step ignored"
 
+	if match.Status == models.Suspended {
+		return nil, status
+	}
+
 	getPlayersOptions := match_players_repository.GetMatchPlayerOptions{
-		MatchId:       endMatch.Match.Id.Hex(),
+		MatchId:       match.Id.Hex(),
 		HasBlueCard:   true,
-		AssociationId: endMatch.Match.AssociationId,
+		AssociationId: match.AssociationId,
 	}
 	sanctionatedPlayers, _, _, err := match_players_repository.GetMatchPlayers(getPlayersOptions)
 
@@ -50,14 +52,14 @@ func generateMatchSanctions(endMatch *models.EndMatch) (error, string) {
 	} else {
 		for _, player := range sanctionatedPlayers {
 			playerSanction := models.PlayerSanction{
-				IssueDate:      endMatch.Match.Date,
-				Description:    endMatch.Match.Comments,
+				IssueDate:      match.Date,
+				Description:    match.Comments,
 				SanctionStatus: models.PendingReview,
 				PlayerId:       player.PlayerId,
-				MatchId:        endMatch.Match.Id.Hex(),
+				MatchId:        match.Id.Hex(),
 			}
 
-			_, _, err = player_sanctions_repository.CreatePlayerSanction(endMatch.Match.AssociationId, playerSanction)
+			_, _, err = player_sanctions_repository.CreatePlayerSanction(match.AssociationId, playerSanction)
 			if err != nil {
 				fmt.Println("Error to create player sanction: " + err.Error())
 			}
