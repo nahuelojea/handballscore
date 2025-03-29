@@ -230,8 +230,8 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 		})
 	} else {
 		findOptions.SetSort(bson.D{
-			{Key: "date", Value: sortOrder},
 			{Key: "place", Value: sortOrder},
+			{Key: "date", Value: sortOrder},
 		})
 	}
 
