@@ -21,6 +21,19 @@ func CreateMatchPlayer(association_id string, matchPlayerRequest dto.MatchPlayer
 		return "", false, errors.New("The player cannot be added in this match instance")
 	}
 
+	matchPlayerView, _, _, err := match_players_repository.GetMatchPlayers(match_players_repository.GetMatchPlayerOptions{
+		MatchId:       matchPlayerRequest.MatchId,
+		PlayerId:      matchPlayerRequest.PlayerId,
+		AssociationId: association_id,
+	})
+	if err != nil {
+		return "", false, errors.New("Error to get match player: " + err.Error())
+	}
+
+	if len(matchPlayerView) > 0 {
+		return "", false, errors.New("The player is already in the match")
+	}
+
 	matchPlayer := models.MatchPlayer{
 		MatchId:  matchPlayerRequest.MatchId,
 		PlayerId: matchPlayerRequest.PlayerId,
