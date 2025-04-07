@@ -20,3 +20,7 @@ func UpdatePlayerSanction(playerSanction models.PlayerSanction, id string) (bool
 func AddServedMatch(matchId, id string) (bool, error) {
 	return player_sanctions_repository.AddServedMatch(matchId, id)
 }
+
+func GetPlayerSanctions(filterOptions player_sanctions_repository.GetPlayerSanctionsOptions) ([]models.PlayerSanction, int64, int, error) {
+	return player_sanctions_repository.GetPlayerSanctions(filterOptions)
+}

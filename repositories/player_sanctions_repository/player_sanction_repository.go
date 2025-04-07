@@ -18,9 +18,10 @@ const (
 )
 
 type GetPlayerSanctionsOptions struct {
-	PlayerId       string
+	PlayerIds      []string
 	AssociationId  string
 	SanctionStatus string
+	IncompleteOnly bool
 	Page           int
 	PageSize       int
 	SortField      string
@@ -90,11 +91,13 @@ func GetPlayerSanctions(filterOptions GetPlayerSanctionsOptions) ([]models.Playe
 		"association_id": filterOptions.AssociationId,
 	}
 
-	if len(filterOptions.PlayerId) > 0 {
-		filter["player_id"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.PlayerId, Options: "i"}}
+	if len(filterOptions.PlayerIds) > 0 {
+		filter["player_id"] = bson.M{"$in": filterOptions.PlayerIds}
 	}
 
-	if len(filterOptions.SanctionStatus) > 0 {
+	if filterOptions.IncompleteOnly {
+		filter["sanction_status"] = bson.M{"$ne": models.Completed}
+	} else if len(filterOptions.SanctionStatus) > 0 {
 		filter["sanction_status"] = bson.M{"$regex": primitive.Regex{Pattern: filterOptions.SanctionStatus, Options: "i"}}
 	}
 
