@@ -42,10 +42,7 @@ func (c *UpdateTeamsScoreHandler) HandleEndMatch(endMatch *models.EndMatch) {
 
 func updateLeagueStandings(endMatch *models.EndMatch) error {
 	leaguePhase := &endMatch.CurrentLeaguePhase.LeaguePhase
-	if err := updateStandings(&endMatch.Match, leaguePhase.TeamsRanking[:]); err != nil {
-		return err
-	}
-	_, err := league_phases_repository.UpdateTeamsRanking(*leaguePhase, leaguePhase.Id.Hex())
+	err := league_phases_repository.RecalculateTeamsScores(leaguePhase.Id.Hex())
 	return err
 }
 
