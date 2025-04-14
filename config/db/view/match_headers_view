@@ -210,6 +210,7 @@
       date: 1,
       place: 1,
       status: 1,
+      streaming_url: 1,
       goals_home: {
         $cond: [
           {
@@ -233,13 +234,23 @@
       team_home_name: {
         $concat: ["$team_home_info.name", " ", "$team_home.variant"],
       },
+      team_home_initials: {
+        $concat: ["$team_home_info.initials", " ", "$team_home.variant"],
+      },
       team_home_avatar: "$team_home_info.avatar",
+      team_home_main_color: "$team_home_info.main_color",
+      team_home_secondary_color: "$team_home_info.secondary_color",
       team_away_id: "$team_away.team_id",
       team_away_variant: "$team_away.variant",
       team_away_name: {
         $concat: ["$team_away_info.name", " ", "$team_away.variant"],
       },
+      team_away_initials: {
+        $concat: ["$team_away_info.initials", " ", "$team_away.variant"],
+      },
       team_away_avatar: "$team_away_info.avatar",
+      team_away_main_color: "$team_away_info.main_color",
+      team_away_secondary_color: "$team_away_info.secondary_color",
       referees: 1,
       tournament_category_id: 1,
       tournament_category_name: "$tournament_category_info.name",
