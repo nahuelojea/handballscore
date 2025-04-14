@@ -13,10 +13,16 @@ type MatchHeaderView struct {
 	TeamHomeVariant        string             `bson:"team_home_variant" json:"team_home_variant"`
 	TeamHomeName           string             `bson:"team_home_name" json:"team_home_name"`
 	TeamHomeAvatar         string             `bson:"team_home_avatar" json:"team_home_avatar"`
+	TeamHomeInitials       string             `bson:"team_home_initials" json:"team_home_initials"`
+	TeamHomeMainColor      string             `bson:"team_home_main_color" json:"team_home_main_color"`
+	TeamHomeSecondaryColor string             `bson:"team_home_secondary_color" json:"team_home_secondary_color"`
 	TeamAwayId             primitive.ObjectID `bson:"team_away_id" json:"team_away_id"`
 	TeamAwayVariant        string             `bson:"team_away_variant" json:"team_away_variant"`
 	TeamAwayName           string             `bson:"team_away_name" json:"team_away_name"`
 	TeamAwayAvatar         string             `bson:"team_away_avatar" json:"team_away_avatar"`
+	TeamAwayInitials       string             `bson:"team_away_initials" json:"team_away_initials"`
+	TeamAwayMainColor      string             `bson:"team_away_main_color" json:"team_away_main_color"`
+	TeamAwaySecondaryColor string             `bson:"team_away_secondary_color" json:"team_away_secondary_color"`
 	Referees               []string           `bson:"referees" json:"referees"`
 	Place                  string             `bson:"place" json:"place"`
 	Status                 string             `bson:"status" json:"status"`
