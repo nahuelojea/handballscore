@@ -14,6 +14,9 @@ type Team struct {
 	DateOfFoundation time.Time          `bson:"date_of_foundation" json:"date_of_foundation"`
 	Email            string             `bson:"email" json:"email"`
 	Avatar           string             `bson:"avatar" json:"avatar"`
+	Initials         string             `bson:"initials" json:"initials"`
+	MainColor        string             `bson:"main_color" json:"main_color"`
+	SecondaryColor   string             `bson:"secondary_color" json:"secondary_color"`
 	AssociationId    string             `bson:"association_id" json:"association_id"`
 	Status_Data      `bson:"status_data" json:"status_data"`
 }

@@ -112,6 +112,15 @@ func UpdateTeam(team models.Team, ID string) (bool, error) {
 	if !team.DateOfFoundation.IsZero() {
 		updateDataMap["date_of_foundation"] = team.DateOfFoundation
 	}
+	if len(team.Initials) > 0 {
+		updateDataMap["initials"] = team.Initials
+	}
+	if len(team.MainColor) > 0 {
+		updateDataMap["main_color"] = team.MainColor
+	}
+	if len(team.SecondaryColor) > 0 {
+		updateDataMap["secondary_color"] = team.SecondaryColor
+	}
 	if len(team.Email) > 0 {
 		updateDataMap["email"] = team.Email
 	}
