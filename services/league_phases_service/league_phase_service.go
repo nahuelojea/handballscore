@@ -7,6 +7,7 @@ import (
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/league_phases_repository"
 	"github.com/nahuelojea/handballscore/services/league_phase_weeks_service"
+	"github.com/nahuelojea/handballscore/services/matches_service"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -64,7 +65,7 @@ func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, l
 	}
 
 	leaguePhase.Id = leaguePhaseId
-	leaguePhaseWeeks, _ := leaguePhase.GenerateLeaguePhaseWeeks()
+	leaguePhaseWeeks, rounds := leaguePhase.GenerateLeaguePhaseWeeks()
 
 	_, _, err = league_phase_weeks_service.CreateLeaguePhaseWeeks(tournamentCategory.AssociationId, leaguePhaseWeeks)
 	if err != nil {
@@ -81,12 +82,12 @@ func CreateTournamentLeaguePhase(tournamentCategory models.TournamentCategory, l
 		return "", false, errors.New(fmt.Sprintf("Error to get league phase weeks: %s", err.Error()))
 	}
 
-	/*matches := leaguePhase.GenerateMatches(tournamentCategory.Id.Hex(), rounds, leaguePhaseWeeks)
+	matches := leaguePhase.GenerateMatches(tournamentCategory.Id.Hex(), rounds, leaguePhaseWeeks)
 
 	_, _, err = matches_service.CreateMatches(tournamentCategory.AssociationId, matches)
 	if err != nil {
 		return "", false, errors.New(fmt.Sprintf("Error to create league phase matches: %s", err.Error()))
-	}*/
+	}
 
 	return tournamentCategory.Id.Hex(), true, nil
 }
