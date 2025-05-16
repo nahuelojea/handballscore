@@ -123,18 +123,22 @@ func UploadAvatar(ctx context.Context, contentType, body, id string) error {
 }
 
 func ImportFromExcel(fileContent string) (bool, []error) {
+	fmt.Println("Importing from excel")
 	decodedFile, err := base64.StdEncoding.DecodeString(fileContent)
 	if err != nil {
+		fmt.Println("Error decoding file: ", err)
 		return false, []error{errors.New("Invalid file format")}
 	}
 
 	excelFile, err := excelize.OpenReader(bytes.NewReader(decodedFile))
 	if err != nil {
+		fmt.Println("Error opening excel file: ", err)
 		return false, []error{errors.New("Cannot read the excel file")}
 	}
 
 	rows, err := excelFile.GetRows("Jugadores")
 	if err != nil {
+		fmt.Println("Error getting rows from excel file: ", err)
 		return false, []error{errors.New("Cannot get rows from the excel file")}
 	}
 
@@ -143,23 +147,25 @@ func ImportFromExcel(fileContent string) (bool, []error) {
 	for i, row := range rows[1:] {
 		dateOfBirth, err := time.Parse("02/01/2006", row[2])
 		if err != nil {
+			fmt.Println("Error parsing date of birth: ", err)
 			errorsList = append(errorsList, fmt.Errorf("Invalid date of birth format in row %d: %v", i+2, row))
 			continue
 		}
 
-		expirationInsurance, err := time.Parse("02/01/2006", "01/03/2025")
+		expirationInsurance, err := time.Parse("02/01/2006", "05/05/2025")
 		if err != nil {
+			fmt.Println("Error parsing expiration insurance date: ", err)
 			errorsList = append(errorsList, fmt.Errorf("Invalid expiration insurance date format in row %d: %v", i+2, row))
 			continue
 		}
 
 		fmt.Println("Expiration insurance: ", expirationInsurance)
-		player := models.Player{
+		newPlayer := models.Player{
 			Personal_Data: models.Personal_Data{
 				Name:        strings.TrimSpace(row[0]),
 				Surname:     strings.TrimSpace(row[1]),
 				DateOfBirth: dateOfBirth,
-				Dni:         row[3],
+				Dni:         strings.TrimSpace(row[3]),
 				Gender:      row[4],
 				PhoneNumber: row[5],
 				Disabled:    false,
@@ -169,10 +175,26 @@ func ImportFromExcel(fileContent string) (bool, []error) {
 			ExpirationInsurance: expirationInsurance,
 			AssociationId:       row[10],
 		}
-		_, _, err = CreatePlayer(player.AssociationId, player)
-		if err != nil {
-			errorsList = append(errorsList, fmt.Errorf("Failed to create player for row %d: %v", i+2, row))
-			continue
+
+		oldPlayer, exist, _ := GetPlayerByDni(newPlayer.AssociationId, newPlayer.Dni)
+		if exist {
+
+			oldPlayer.TeamId = newPlayer.TeamId
+			oldPlayer.AffiliateNumber = newPlayer.AffiliateNumber
+			oldPlayer.ExpirationInsurance = newPlayer.ExpirationInsurance
+
+			_, err = UpdatePlayer(oldPlayer, oldPlayer.Id.Hex())
+			if err != nil {
+				errorsList = append(errorsList, fmt.Errorf("Failed to update player for row %d: %v", i+2, row))
+				continue
+			}
+
+		} else {
+			_, _, err = CreatePlayer(newPlayer.AssociationId, newPlayer)
+			if err != nil {
+				errorsList = append(errorsList, fmt.Errorf("Failed to create player for row %d: %v", i+2, row))
+				continue
+			}
 		}
 	}
 
