@@ -23,6 +23,7 @@ type Match struct {
 	TeamAway             TournamentTeamId   `bson:"team_away" json:"team_away"`
 	Referees             []string           `bson:"referees" json:"referees"`
 	Place                string             `bson:"place" json:"place"`
+	PlaceId              primitive.ObjectID `bson:"place_id,omitempty" json:"place_id"`
 	Scorekeeper          string             `bson:"scorekeeper" json:"scorekeeper"`
 	Timekeeper           string             `bson:"timekeeper" json:"timekeeper"`
 	Comments             string             `bson:"comments" json:"comments"`
