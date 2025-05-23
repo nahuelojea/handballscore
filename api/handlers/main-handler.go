@@ -16,7 +16,6 @@ import (
 	"github.com/nahuelojea/handballscore/api/handlers/match_players_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/matches_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/news_handler"
-	"github.com/nahuelojea/handballscore/api/handlers/places_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/players_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/referees_handler"
 	"github.com/nahuelojea/handballscore/api/handlers/teams_handler"
@@ -71,8 +70,6 @@ func ProcessRequest(ctx context.Context, request events.APIGatewayProxyRequest) 
 			return match_players_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "news":
 			return news_handler.ProcessRequest(ctx, request, claim, restResponse)
-		case "places":
-			return places_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "player":
 			return players_handler.ProcessRequest(ctx, request, claim, restResponse)
 		case "referee":

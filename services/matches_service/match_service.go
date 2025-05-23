@@ -195,7 +195,6 @@ func GetMatchesByJourney(filterOptions GetMatchesOptions) ([]dto.MatchResponse, 
 			TeamAway:     awayMatchTeam,
 			Referees:     match.Referees,
 			Place:        match.Place,
-			PlaceId:      match.PlaceId,
 			Status:       match.Status,
 			GoalsHome:    match.GoalsHome,
 			GoalsAway:    match.GoalsAway,
@@ -275,8 +274,7 @@ func ProgramMatch(programMatchRequest dto.ProgramMatchRequest, id string) (bool,
 	return matches_repository.ProgramMatch(programMatchRequest.Date,
 		programMatchRequest.Place,
 		programMatchRequest.StreamingUrl,
-		id,
-		programMatchRequest.PlaceId)
+		id)
 }
 
 func laodMatchPlayersAndCoachesFromLastMatch(match models.Match) error {

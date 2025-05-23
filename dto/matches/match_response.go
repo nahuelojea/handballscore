@@ -8,8 +8,7 @@ type MatchResponse struct {
 	TeamHome  MatchTeamResponse `bson:"team_home" json:"team_home"`
 	TeamAway  MatchTeamResponse `bson:"team_away" json:"team_away"`
 	Referees  []string          `bson:"referees" json:"referees"`
-	Place     string            `bson:"place,omitempty" json:"place,omitempty"`
-	PlaceId   string            `bson:"place_id,omitempty" json:"place_id,omitempty"`
+	Place     string            `bson:"place" json:"place"`
 	Status    string            `bson:"status" json:"status"`
 	GoalsHome int               `bson:"goals_home" json:"goals_home"`
 	GoalsAway int               `bson:"goals_away" json:"goals_away"`
