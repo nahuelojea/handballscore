@@ -25,7 +25,7 @@ type MatchHeaderView struct {
 	TeamAwaySecondaryColor string             `bson:"team_away_secondary_color" json:"team_away_secondary_color"`
 	Referees               []string           `bson:"referees" json:"referees"`
 	Place                  string             `bson:"place" json:"place"`
-	PlaceId                primitive.ObjectID `bson:"place_id,omitempty" json:"place_id"`
+	PlaceId                string             `bson:"place_id,omitempty" json:"place_id"`
 	Status                 string             `bson:"status" json:"status"`
 	StreamingUrl           string             `bson:"streaming_url" json:"streaming_url"`
 	GoalsHome              int                `bson:"goals_home" json:"goals_home"`

@@ -31,7 +31,6 @@ func GetPlace(ctx context.Context, request events.APIGatewayProxyRequest, servic
 		return response
 	}
 
-	// Check if the place belongs to the association from the claim
 	if place.AssociationId != claim.AssociationId {
 		response.StatusCode = http.StatusForbidden
 		response.Message = "User does not have permission to access this place"

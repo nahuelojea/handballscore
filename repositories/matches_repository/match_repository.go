@@ -264,19 +264,19 @@ func GetMatchHeaders(filterOptions GetMatchesOptions) ([]models.MatchHeaderView,
 	return matchViews, totalRecords, totalPages, nil
 }
 
-func ProgramMatch(time time.Time, place, StreamingUrl, id string, placeId primitive.ObjectID) (bool, error) {
+func ProgramMatch(timeVal time.Time, place, streamingUrl, id, placeId string) (bool, error) {
 	updateDataMap := make(map[string]interface{})
-	if !time.IsZero() {
-		updateDataMap["date"] = time
+	if !timeVal.IsZero() {
+		updateDataMap["date"] = timeVal
 	}
 	if len(place) > 0 {
 		updateDataMap["place"] = place
 	}
-	if !placeId.IsZero() {
+	if len(placeId) > 0 {
 		updateDataMap["place_id"] = placeId
 	}
-	if len(StreamingUrl) > 0 {
-		updateDataMap["streaming_url"] = StreamingUrl
+	if len(streamingUrl) > 0 {
+		updateDataMap["streaming_url"] = streamingUrl
 	}
 
 	updateDataMap["status"] = models.Programmed

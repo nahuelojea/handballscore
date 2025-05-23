@@ -25,12 +25,12 @@ func GetPlaces(ctx context.Context, request events.APIGatewayProxyRequest, servi
 	}
 	pageSize, _ := strconv.Atoi(pageSizeStr)
 	if pageSize == 0 {
-		pageSize = 20 // Default page size
+		pageSize = 20
 	}
 
 	filter := bson.M{"association_id": claim.AssociationId}
 	if len(name) > 0 {
-		filter["name"] = bson.M{"$regex": name, "$options": "i"} // Case-insensitive search
+		filter["name"] = bson.M{"$regex": name, "$options": "i"}
 	}
 
 	places, totalRecords, err := service.GetPlaces(ctx, filter, page, pageSize)

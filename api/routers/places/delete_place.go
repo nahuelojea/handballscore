@@ -19,7 +19,6 @@ func DeletePlace(ctx context.Context, request events.APIGatewayProxyRequest, ser
 		return response
 	}
 
-	// Check if the place belongs to the association from the claim
 	existingPlace, status, err := service.GetPlace(ctx, placeId)
 	if err != nil {
 		response.Message = "Error to get place for validation: " + err.Error()

@@ -28,7 +28,6 @@ func UpdatePlace(ctx context.Context, request events.APIGatewayProxyRequest, ser
 		return response
 	}
 
-	// Check if the place belongs to the association from the claim
 	existingPlace, status, err := service.GetPlace(ctx, placeId)
 	if err != nil {
 		response.Message = "Error to get place for validation: " + err.Error()
@@ -45,11 +44,8 @@ func UpdatePlace(ctx context.Context, request events.APIGatewayProxyRequest, ser
 		return response
 	}
 
-	// Set association Id from claim to ensure it's not changed
 	place.SetAssociationId(claim.AssociationId)
-	// Set Id from path to ensure it's not changed
 	place.SetId(existingPlace.Id)
-
 
 	updated, err := service.UpdatePlace(ctx, placeId, place)
 	if err != nil {

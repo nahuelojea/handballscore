@@ -28,7 +28,6 @@ func AddPlace(ctx context.Context, request events.APIGatewayProxyRequest, servic
 		return response
 	}
 
-	// Set association Id from claim
 	place.SetAssociationId(claim.AssociationId)
 
 	id, status, err := service.CreatePlace(ctx, &place)
