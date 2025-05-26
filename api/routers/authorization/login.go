@@ -48,6 +48,14 @@ func Login(ctx context.Context) dto.RestResponse {
 		return response
 	}
 
+	news := make([]loginDTO.AssociationNew, len(association.News))
+	for i, n := range association.News {
+		news[i] = loginDTO.AssociationNew{
+			Date:  n.Date,
+			Image: n.Image,
+		}
+	}
+
 	resp := loginDTO.LoginResponse{
 		Token:        jwtKey,
 		RefreshToken: refreshJwtKey,
@@ -56,8 +64,11 @@ func Login(ctx context.Context) dto.RestResponse {
 			Name:             association.Name,
 			DateOfFoundation: association.DateOfFoundation,
 			Email:            association.Email,
+			Instagram:        association.Instagram,
+			News:             news,
 			Avatar:           association.Avatar,
-			PhoneNumber:      association.PhoneNumber},
+			PhoneNumber:      association.PhoneNumber,
+		},
 		Role:   string(userData.Role),
 		RoleId: string(userData.RoleId),
 		TeamId: string(userData.TeamId),
