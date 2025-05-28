@@ -1,12 +1,14 @@
 package matches_service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
 	"time"
 
 	dto "github.com/nahuelojea/handballscore/dto/matches"
+	"github.com/nahuelojea/handballscore/config/firebase"
 	"github.com/nahuelojea/handballscore/handlers/end_match"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/match_coaches_repository"
@@ -336,7 +338,7 @@ func processTeamPlayersAndCoaches(match models.Match, team models.TournamentTeam
 			}
 			_, _, err := match_players_repository.CreateMatchPlayer(match.AssociationId, matchPlayer)
 			if err != nil {
-				fmt.Println("Error to create match player: %s", err.Error())
+				// fmt.Println("Error to create match player: %s", err.Error()) // Removed
 			}
 		}
 	}
@@ -368,7 +370,7 @@ func processTeamPlayersAndCoaches(match models.Match, team models.TournamentTeam
 
 			_, _, err := match_coaches_repository.CreateMatchCoach(match.AssociationId, matchCoach)
 			if err != nil {
-				fmt.Println("Error to create match coach: %s", err.Error())
+				// fmt.Println("Error to create match coach: %s", err.Error()) // Removed
 			}
 		}
 	}
@@ -400,7 +402,14 @@ func StartMatch(startMatchRequest dto.StartMatchRequest, id string) (bool, error
 	match.Scorekeeper = startMatchRequest.Scorekeeper
 	match.Timekeeper = startMatchRequest.Timekeeper
 
-	return matches_repository.StartMatch(match, id)
+	isSuccess, err := matches_repository.StartMatch(match, id)
+	if err != nil {
+		return false, err
+	}
+	if isSuccess {
+		sendMatchStatusUpdateToFirebase(id, models.FirstHalf)
+	}
+	return isSuccess, nil
 }
 
 func StartSecondHalf(id string) (bool, error) {
@@ -413,7 +422,14 @@ func StartSecondHalf(id string) (bool, error) {
 		return false, errors.New("The match must be found in the first half")
 	}
 
-	return matches_repository.StartSecondHalf(id)
+	isSuccess, err := matches_repository.StartSecondHalf(id)
+	if err != nil {
+		return false, err
+	}
+	if isSuccess {
+		sendMatchStatusUpdateToFirebase(id, models.SecondHalf)
+	}
+	return isSuccess, nil
 }
 
 func SuspendMatch(id, comments string) (bool, error) {
@@ -423,10 +439,11 @@ func SuspendMatch(id, comments string) (bool, error) {
 	}
 
 	_, err = matches_repository.SuspendMatch(id, comments)
-
 	if err != nil {
 		return false, errors.New("Error to suspend match: " + err.Error())
 	}
+
+	sendMatchStatusUpdateToFirebase(id, models.Suspended)
 
 	match.Status = models.Suspended
 	err = end_match.EndMatchChainEvents(&match)
@@ -448,10 +465,11 @@ func EndMatch(id, comments string) (bool, error) {
 	}
 
 	_, err = matches_repository.EndMatch(id, comments)
-
 	if err != nil {
 		return false, errors.New("Error to end match: " + err.Error())
 	}
+
+	sendMatchStatusUpdateToFirebase(id, models.Ended)
 
 	err = end_match.EndMatchChainEvents(&match)
 	if err != nil {
@@ -504,4 +522,24 @@ func UpdateTimeouts(id string, tournamentTeamId models.TournamentTeamId, add boo
 
 func GetPendingMatchesByLeaguePhaseId(leaguePhaseId string) ([]models.Match, error) {
 	return matches_repository.GetPendingMatchesByLeaguePhaseId(leaguePhaseId)
+}
+
+// Helper function for Firebase status update
+func sendMatchStatusUpdateToFirebase(matchID string, status models.MatchStatus) {
+	firebaseDBClient, errDb := firebase.GetFirebaseDBClient()
+	if errDb != nil {
+		// fmt.Printf("Error getting Firebase DB client: %v. Skipping status update for match %s.\n", errDb, matchID) // Removed
+		return
+	}
+	if firebaseDBClient == nil {
+		// fmt.Printf("Firebase DB client is nil but no error was reported. Skipping status update for match %s.\n", matchID) // Removed
+		return
+	}
+
+	statusPath := fmt.Sprintf("matches/%s/status", matchID)
+	if err := firebaseDBClient.NewRef(statusPath).Set(context.Background(), status); err != nil {
+		// fmt.Printf("Error sending match status update to Firebase for match %s: %v\n", matchID, err) // Removed
+	} else {
+		// fmt.Printf("Match status update (%s) sent to Firebase for match %s\n", status, matchID) // Removed
+	}
 }

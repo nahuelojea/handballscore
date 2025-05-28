@@ -1,8 +1,11 @@
 package match_players_service
 
 import (
+	"context"
 	"errors"
+	"fmt"
 
+	"github.com/nahuelojea/handballscore/config/firebase"
 	dto "github.com/nahuelojea/handballscore/dto/matches"
 	"github.com/nahuelojea/handballscore/models"
 	"github.com/nahuelojea/handballscore/repositories/match_players_repository"
@@ -128,7 +131,51 @@ func UpdateGoal(id string, addGoal bool) (bool, error) {
 		return false, err
 	}
 
-	return RecalculateTeamGoals(match, matchPlayer.TeamId)
+	if _, err := RecalculateTeamGoals(match, matchPlayer.TeamId); err != nil {
+		return false, fmt.Errorf("error recalculating team goals: %w", err)
+	}
+
+	firebaseDBClient, errDb := firebase.GetFirebaseDBClient()
+	if errDb != nil {
+		// fmt.Printf("Error getting Firebase DB client: %v. Skipping Firebase update.\n", errDb) // Removed
+	} else if firebaseDBClient == nil {
+		// fmt.Println("Firebase DB client is nil but no error was reported. Skipping Firebase update.") // Removed
+	} else {
+		matchID := matchPlayer.MatchId
+		playerID := matchPlayer.PlayerId
+		teamID := matchPlayer.TeamId.TeamId.Hex()
+
+		playerGoalData := map[string]interface{}{
+			"goals_first_half":  matchPlayer.Goals.FirstHalf,
+			"goals_second_half": matchPlayer.Goals.SecondHalf,
+			"goals_total":       matchPlayer.Goals.Total,
+		}
+
+		teamScoresData := map[string]interface{}{
+			"home_score_first_half":  match.GoalsHome.FirstHalf,
+			"home_score_second_half": match.GoalsHome.SecondHalf,
+			"home_score_total":       match.GoalsHome.Total,
+			"away_score_first_half":  match.GoalsAway.FirstHalf,
+			"away_score_second_half": match.GoalsAway.SecondHalf,
+			"away_score_total":       match.GoalsAway.Total,
+		}
+
+		playerPath := fmt.Sprintf("matches/%s/teams/%s/players/%s/goals", matchID, teamID, playerID)
+		if err := firebaseDBClient.NewRef(playerPath).Set(context.Background(), playerGoalData); err != nil {
+			// fmt.Printf("Error sending player goal update to Firebase for match %s, player %s: %v\n", matchID, playerID, err) // Removed
+		} else {
+			// fmt.Printf("Player goal update sent to Firebase for match %s, player %s\n", matchID, playerID) // Removed
+		}
+
+		matchScoresPath := fmt.Sprintf("matches/%s/scores", matchID)
+		if err := firebaseDBClient.NewRef(matchScoresPath).Update(context.Background(), teamScoresData); err != nil {
+			// fmt.Printf("Error sending team scores update to Firebase for match %s: %v\n", matchID, err) // Removed
+		} else {
+			// fmt.Printf("Team scores update sent to Firebase for match %s\n", matchID) // Removed
+		}
+	}
+
+	return true, nil
 }
 
 func RecalculateTeamGoals(match models.Match, team models.TournamentTeamId) (bool, error) {
@@ -175,8 +222,8 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 	}
 
 	if addExclusion {
-		if len(matchPlayer.Sanctions.Exclusions) == 3 {
-			return false, errors.New("The player has three exclusions")
+		if len(matchPlayer.Sanctions.Exclusions) == 3 { 
+			return false, errors.New("The player already has three exclusions")
 		}
 		matchPlayer.Exclusions = append(matchPlayer.Exclusions, models.Exclusion{Time: time})
 	} else {
@@ -184,7 +231,14 @@ func UpdateExclusions(id string, addExclusion bool, time string) (bool, error) {
 			matchPlayer.Exclusions = matchPlayer.Exclusions[:len(matchPlayer.Exclusions)-1]
 		}
 	}
-	return match_players_repository.UpdateExclusions(matchPlayer)
+
+	if _, err := match_players_repository.UpdateExclusions(matchPlayer); err != nil {
+		return false, err
+	}
+
+	sendSanctionUpdateToFirebase(matchPlayer)
+
+	return true, nil
 }
 
 func UpdateYellowCard(id string, addYellowCard bool) (bool, error) {
@@ -195,7 +249,13 @@ func UpdateYellowCard(id string, addYellowCard bool) (bool, error) {
 
 	matchPlayer.YellowCard = addYellowCard
 
-	return match_players_repository.UpdateYellowCard(matchPlayer)
+	if _, err := match_players_repository.UpdateYellowCard(matchPlayer); err != nil {
+		return false, err
+	}
+
+	sendSanctionUpdateToFirebase(matchPlayer)
+
+	return true, nil
 }
 
 func UpdateRedCard(id string, addRedCard bool) (bool, error) {
@@ -206,7 +266,13 @@ func UpdateRedCard(id string, addRedCard bool) (bool, error) {
 
 	matchPlayer.RedCard = addRedCard
 
-	return match_players_repository.UpdateRedCard(matchPlayer)
+	if _, err := match_players_repository.UpdateRedCard(matchPlayer); err != nil {
+		return false, err
+	}
+
+	sendSanctionUpdateToFirebase(matchPlayer)
+
+	return true, nil
 }
 
 func UpdateNumber(id string, number int) (bool, error) {
@@ -233,7 +299,13 @@ func UpdateBlueCard(id, report string, addBlueCard bool) (bool, error) {
 		matchPlayer.Report = ""
 	}
 
-	return match_players_repository.UpdateBlueCard(matchPlayer)
+	if _, err := match_players_repository.UpdateBlueCard(matchPlayer); err != nil {
+		return false, err
+	}
+
+	sendSanctionUpdateToFirebase(matchPlayer)
+
+	return true, nil
 }
 
 func getMatchPlayerAvailableToAction(id string) (models.MatchPlayer, models.Match, error) {
@@ -252,4 +324,29 @@ func getMatchPlayerAvailableToAction(id string) (models.MatchPlayer, models.Matc
 	}
 
 	return matchPlayer, match, nil
+}
+
+// sendSanctionUpdateToFirebase sends the player's complete sanction data to Firebase.
+func sendSanctionUpdateToFirebase(matchPlayer models.MatchPlayer) {
+	firebaseDBClient, errDb := firebase.GetFirebaseDBClient()
+	if errDb != nil {
+		// fmt.Printf("Error getting Firebase DB client: %v. Skipping sanction update for player %s, match %s.\n", errDb, matchPlayer.PlayerId, matchPlayer.MatchId) // Removed
+		return
+	}
+	if firebaseDBClient == nil {
+		// fmt.Printf("Firebase DB client is nil but no error was reported. Skipping sanction update for player %s, match %s.\n", matchPlayer.PlayerId, matchPlayer.MatchId) // Removed
+		return
+	}
+
+	matchID := matchPlayer.MatchId
+	playerID := matchPlayer.PlayerId
+	teamID := matchPlayer.TeamId.TeamId.Hex()
+
+	sanctionsPath := fmt.Sprintf("matches/%s/teams/%s/players/%s/sanctions", matchID, teamID, playerID)
+
+	if err := firebaseDBClient.NewRef(sanctionsPath).Set(context.Background(), matchPlayer.Sanctions); err != nil {
+		// fmt.Printf("Error sending player (%s) sanction update to Firebase for match %s: %v\n", playerID, matchID, err) // Removed
+	} else {
+		// fmt.Printf("Player (%s) sanction update sent to Firebase for match %s. Sanctions: %+v\n", playerID, matchID, matchPlayer.Sanctions) // Removed
+	}
 }

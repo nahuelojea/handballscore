@@ -97,7 +97,7 @@ func executeLambda(ctx context.Context, request events.APIGatewayProxyRequest) (
 
 	respAPI := handlers.ProcessRequest(awsgo.Ctx, request)
 
-	fmt.Println("API Response: " + respAPI.Message)
+	// fmt.Println("API Response: " + respAPI.Message) // Removed
 
 	if respAPI.CustomResp == nil {
 		res = &events.APIGatewayProxyResponse{
